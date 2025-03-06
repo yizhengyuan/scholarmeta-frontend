@@ -5,11 +5,11 @@ function Footer() {
   return (
     <footer className="footer">
       <div className="footer-content">
-        <p>&copy; {new Date().getFullYear()} Web3文件上传与代币应用</p>
+        <p>&copy; {new Date().getFullYear()} Web3 File Upload & Token Application</p>
         <div className="footer-links">
-          <a href="#" target="_blank" rel="noopener noreferrer">隐私政策</a>
-          <a href="#" target="_blank" rel="noopener noreferrer">使用条款</a>
-          <a href="#" target="_blank" rel="noopener noreferrer">联系我们</a>
+          <a href="#" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
+          <a href="#" target="_blank" rel="noopener noreferrer">Terms of Use</a>
+          <a href="#" target="_blank" rel="noopener noreferrer">Contact Us</a>
         </div>
       </div>
     </footer>

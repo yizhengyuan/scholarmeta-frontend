@@ -1,116 +1,269 @@
-.token-page {
-  padding: 2rem 0;
+.token-root {
+  position: relative;
+  min-height: 100vh;
+  padding: 0;
+  overflow: hidden;
 }
 
-.token-page h1 {
-  margin-bottom: 2rem;
-  color: #61dafb;
+.token-particles {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  background-color: #0a0a0a;
 }
 
-.token-info {
-  background-color: #1a1a1a;
-  padding: 1.5rem;
-  border-radius: 8px;
-  margin-bottom: 2rem;
+.token-hero {
+  text-align: center;
+  padding: 4rem 2rem;
 }
 
-.token-info h2 {
-  color: #61dafb;
+.token-title {
+  font-size: 3.5rem;
+  font-weight: 800;
+  color: #fff;
   margin-bottom: 1rem;
+  position: relative;
+  display: inline-block;
 }
 
-.token-info p {
-  margin: 0.5rem 0;
+.token-title-accent {
+  display: block;
+  font-size: 2rem;
+  background: linear-gradient(45deg, #61dafb, #fb61da);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: textShimmer 3s infinite;
+}
+
+.token-content {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.token-wallet-info {
+  background: rgba(30, 30, 30, 0.6);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  border: 1px solid rgba(97, 218, 251, 0.1);
+  transition: all 0.3s ease;
+}
+
+.token-wallet-info:hover {
+  border-color: rgba(97, 218, 251, 0.3);
+  transform: translateY(-5px);
+}
+
+.wallet-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.wallet-icon {
+  font-size: 2rem;
+}
+
+.wallet-details {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.wallet-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+}
+
+.wallet-label {
+  color: #ccc;
+}
+
+.wallet-value {
+  color: #61dafb;
   font-family: monospace;
 }
 
-.connect-prompt {
-  background-color: #1a1a1a;
-  padding: 1.5rem;
-  border-radius: 8px;
+.token-operation-card {
+  background: rgba(30, 30, 30, 0.6);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 2rem;
+  border: 1px solid rgba(97, 218, 251, 0.1);
+}
+
+.operation-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
   margin-bottom: 2rem;
-  text-align: center;
-  color: #888;
+}
+
+.operation-icon {
+  font-size: 2rem;
 }
 
 .token-form {
-  background-color: #1a1a1a;
-  padding: 1.5rem;
-  border-radius: 8px;
-}
-
-.token-form h2 {
-  color: #61dafb;
-  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
 .form-group {
-  margin-bottom: 1.5rem;
+  position: relative;
 }
 
 .form-group label {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   margin-bottom: 0.5rem;
   color: #ccc;
 }
 
+.label-icon {
+  font-size: 1.2rem;
+}
+
 .form-group input {
-  width: 100%;
-  padding: 0.75rem;
-  border-radius: 4px;
-  border: 1px solid #333;
-  background-color: #222;
+  width: 95%;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(97, 218, 251, 0.1);
+  border-radius: 8px;
   color: #fff;
   font-size: 1rem;
+  transition: all 0.3s ease;
 }
 
 .form-group input:focus {
   outline: none;
   border-color: #61dafb;
+  box-shadow: 0 0 0 2px rgba(97, 218, 251, 0.1);
 }
 
-.get-tokens-button {
-  background-color: #61dafb;
+.token-submit-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem 2rem;
+  background: linear-gradient(45deg, #61dafb, #4fa8d1);
   color: #000;
   border: none;
-  border-radius: 4px;
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
+  border-radius: 50px;
+  font-size: 1.1rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: all 0.3s ease;
 }
 
-.get-tokens-button:hover {
-  background-color: #4fa8d1;
+.token-submit-button:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 7px 14px rgba(0, 0, 0, 0.2);
 }
 
-.get-tokens-button:disabled {
-  background-color: #333;
+.token-submit-button:disabled {
+  background: #333;
   color: #666;
   cursor: not-allowed;
 }
 
-.error-message {
+.loading-spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(0, 0, 0, 0.3);
+  border-radius: 50%;
+  border-top-color: #000;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.token-error {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
   margin-top: 1rem;
-  padding: 0.75rem;
-  background-color: rgba(255, 0, 0, 0.1);
-  border-left: 3px solid #ff0000;
-  color: #ff6666;
+  padding: 1rem;
+  background: rgba(255, 59, 48, 0.1);
+  border: 1px solid rgba(255, 59, 48, 0.3);
+  border-radius: 8px;
 }
 
-.success-message {
-  margin-top: 1rem;
-  padding: 0.75rem;
-  background-color: rgba(0, 255, 0, 0.1);
-  border-left: 3px solid #00ff00;
-  color: #66ff66;
+.token-success {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: rgba(52, 199, 89, 0.1);
+  border: 1px solid rgba(52, 199, 89, 0.3);
+  border-radius: 8px;
 }
 
-.success-message h3 {
-  color: #66ff66;
-  margin-bottom: 0.5rem;
+.success-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
 }
 
-.success-message p {
-  margin: 0.25rem 0;
+.success-icon {
+  font-size: 2rem;
+}
+
+.success-details {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+}
+
+.detail-value.hash {
+  font-size: 0.9rem;
+  word-break: break-all;
+}
+
+@media (max-width: 768px) {
+  .token-title {
+    font-size: 2.5rem;
+  }
+  
+  .token-content {
+    padding: 1rem;
+  }
+  
+  .detail-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}
+
+@keyframes textShimmer {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }

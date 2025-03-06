@@ -1,42 +1,47 @@
+import { Buffer } from 'buffer';
 import React, { createContext, useState, useEffect } from 'react';
-import { ethers } from 'ethers';
+import { Connection, PublicKey, clusterApiUrl } from '@solana/web3.js';
+
+// 确保全局可用
+window.Buffer = Buffer;
 
 export const Web3Context = createContext();
 
 export const Web3Provider = ({ children }) => {
   const [web3State, setWeb3State] = useState({
-    provider: null,
-    signer: null,
     address: null,
     connected: false,
-    chainId: null,
-    networkName: null
+    wallet: null,
+    networkName: null,
+    error: null,
+    connection: null
   });
 
-  // 检查是否已经连接
+  // 检查钱包状态
   useEffect(() => {
     const checkConnection = async () => {
-      if (window.ethereum) {
+      if (window.solana?.isPhantom) {
         try {
-          const provider = new ethers.providers.Web3Provider(window.ethereum);
-          const accounts = await provider.listAccounts();
-          
-          if (accounts.length > 0) {
-            const signer = provider.getSigner();
-            const address = await signer.getAddress();
-            const network = await provider.getNetwork();
+          // 直接获取当前连接的账户
+          const resp = await window.solana.connect({ onlyIfTrusted: true });
+          if (resp.publicKey) {
+            const connection = new Connection(
+              'https://wispy-divine-butterfly.solana-mainnet.quiknode.pro/d7ff77e7359134eca1b79f7135b1833ae44f0ad9/',
+              'confirmed'
+            );
             
             setWeb3State({
-              provider,
-              signer,
-              address,
               connected: true,
-              chainId: network.chainId,
-              networkName: network.name
+              address: resp.publicKey.toString(),
+              wallet: window.solana,
+              networkName: 'Solana Mainnet',
+              connection: connection,
+              error: null
             });
           }
         } catch (error) {
-          console.error("检查钱包连接失败:", error);
+          // 如果没有已授权的连接，这里会抛出错误，这是正常的
+          console.log("No trusted connection:", error);
         }
       }
     };
@@ -44,66 +49,90 @@ export const Web3Provider = ({ children }) => {
     checkConnection();
   }, []);
 
-  // 监听账户变化
+  // 监听钱包状态变化
   useEffect(() => {
-    if (window.ethereum) {
-      const handleAccountsChanged = async (accounts) => {
-        if (accounts.length === 0) {
-          // 用户断开了连接
-          setWeb3State({
-            provider: null,
-            signer: null,
-            address: null,
-            connected: false,
-            chainId: null,
-            networkName: null
-          });
-        } else if (accounts[0] !== web3State.address) {
-          // 账户已更改
-          const provider = new ethers.providers.Web3Provider(window.ethereum);
-          const signer = provider.getSigner();
-          const address = await signer.getAddress();
-          const network = await provider.getNetwork();
+    if (window.solana) {
+      const handleWalletConnection = (publicKey) => {
+        if (publicKey) {
+          const connection = new Connection(
+            'https://wispy-divine-butterfly.solana-mainnet.quiknode.pro/d7ff77e7359134eca1b79f7135b1833ae44f0ad9/',
+            'confirmed'
+          );
           
           setWeb3State({
-            provider,
-            signer,
-            address,
             connected: true,
-            chainId: network.chainId,
-            networkName: network.name
+            address: publicKey.toString(),
+            wallet: window.solana,
+            networkName: 'Solana Mainnet',
+            connection: connection,
+            error: null
           });
         }
       };
 
-      window.ethereum.on('accountsChanged', handleAccountsChanged);
-      
+      const handleWalletDisconnection = () => {
+        setWeb3State({
+          address: null,
+          connected: false,
+          wallet: null,
+          networkName: null,
+          error: null,
+          connection: null
+        });
+      };
+
+      // 添加事件监听器
+      window.solana.on('connect', handleWalletConnection);
+      window.solana.on('disconnect', handleWalletDisconnection);
+
+      // 清理函数
       return () => {
-        window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
+        window.solana.removeListener('connect', handleWalletConnection);
+        window.solana.removeListener('disconnect', handleWalletDisconnection);
       };
     }
-  }, [web3State.address]);
+  }, []);
 
+  // 连接钱包
   const connectWallet = async () => {
     try {
-      // 模拟连接过程
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const { solana } = window;
+      if (!solana?.isPhantom) {
+        throw new Error("请安装 Phantom 钱包");
+      }
+
+      const resp = await solana.connect();
+      // 连接成功后会触发 connect 事件，由事件监听器处理状态更新
       
-      // 模拟连接成功
-      setWeb3State({
-        provider: {},
-        signer: {},
-        address: '0x' + Math.random().toString(36).substring(2, 15),
-        connected: true,
-        chainId: 1,
-        networkName: 'Ethereum'
-      });
-      
-      return { success: true };
     } catch (error) {
       console.error("连接钱包失败:", error);
-      throw error;
+      let errorMessage = error.message;
+      
+      if (error.code === 4001) {
+        errorMessage = "用户拒绝了连接请求";
+      } else if (error.message.includes("install")) {
+        errorMessage = "请安装 Phantom 钱包";
+      }
+      
+      setWeb3State(prevState => ({ 
+        ...prevState, 
+        error: errorMessage 
+      }));
     }
+  };
+
+  // 获取网络名称
+  const getNetworkName = (chainId) => {
+    const networks = {
+      1: 'Ethereum',
+      5: 'Goerli',
+      11155111: 'Sepolia',
+      137: 'Polygon',
+      80001: 'Mumbai',
+      56: 'BSC',
+      97: 'BSC Testnet'
+    };
+    return networks[chainId] || `Chain ${chainId}`;
   };
 
   return (

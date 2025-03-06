@@ -1,21 +1,16 @@
-import React, { useState, useContext } from 'react';
+import React, { useContext } from 'react';
 import './Web3Connect.css';
 import { Web3Context } from '../context/Web3Context';
 
-function Web3Connect() {
+function Web3Connect({ onError }) {
   const { web3State, connectWallet } = useContext(Web3Context);
-  const [connecting, setConnecting] = useState(false);
 
   const handleConnect = async () => {
-    if (connecting) return;
-    
     try {
-      setConnecting(true);
       await connectWallet();
     } catch (error) {
-      console.error("连接钱包失败:", error);
-    } finally {
-      setConnecting(false);
+      // 调用传入的 onError 函数来显示 Toast
+      onError(error.message);
     }
   };
 
@@ -32,9 +27,8 @@ function Web3Connect() {
         <button 
           className="connect-button" 
           onClick={handleConnect}
-          disabled={connecting}
         >
-          {connecting ? '连接中...' : '连接钱包'}
+          Connect Wallet
         </button>
       )}
     </div>

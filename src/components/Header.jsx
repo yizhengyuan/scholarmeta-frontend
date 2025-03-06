@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import './Header.css';
 import Web3Connect from './Web3Connect';
 import { Web3Context } from '../context/Web3Context';
@@ -10,13 +10,35 @@ function Header() {
   return (
     <header className="header">
       <div className="logo">
-        <Link to="/">Web3应用</Link>
+        <Link to="/" className="logo-link">Web3 App</Link>
       </div>
       <nav className="nav">
         <ul>
-          <li><Link to="/">首页</Link></li>
-          <li><Link to="/upload">文件上传</Link></li>
-          <li><Link to="/token">代币</Link></li>
+          <li>
+            <NavLink 
+              to="/" 
+              className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}
+              end
+            >
+              Home
+            </NavLink>
+          </li>
+          <li>
+            <NavLink 
+              to="/upload" 
+              className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}
+            >
+              Upload
+            </NavLink>
+          </li>
+          <li>
+            <NavLink 
+              to="/token" 
+              className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}
+            >
+              Tokens
+            </NavLink>
+          </li>
         </ul>
       </nav>
       <div className="wallet">

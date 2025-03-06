@@ -29,9 +29,9 @@ function TokenDisplay({ address, getBalance }) {
 
   return (
     <div className="token-display">
-      <h3>代币余额</h3>
+      <h3>Token Balance</h3>
       
-      {loading && <div className="loading">加载中...</div>}
+      {loading && <div className="loading">Loading...</div>}
       
       {error && <div className="error">{error}</div>}
       
@@ -41,7 +41,7 @@ function TokenDisplay({ address, getBalance }) {
             {balance.balance} <span className="token-symbol">{balance.symbol}</span>
           </div>
           <button className="refresh-button" onClick={fetchBalance} disabled={loading}>
-            刷新
+            Refresh
           </button>
         </div>
       )}

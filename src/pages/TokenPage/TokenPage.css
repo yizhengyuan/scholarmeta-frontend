@@ -267,3 +267,14 @@
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 }
+
+/* 移除数字输入框的上下箭头 */
+.token-input[type="number"]::-webkit-inner-spin-button,
+.token-input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.token-input[type="number"] {
+  -moz-appearance: textfield; /* Firefox */
+}

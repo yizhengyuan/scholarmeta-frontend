@@ -20,19 +20,17 @@ function TokenPage() {
   const [error, setError] = useState(null);
   const particlesRef = useRef(null);
 
-  // 使用 web3State 中的 connection 而不是创建新的连接
+  // 使用 web3State 中的 connection
   const connection = web3State.connection;
-  const SOURCE_WALLET = 'AxTG7LE8bkWKCQ5LMkKzyKZF2XskRHDxse4GYoh1ofFP';  // 源账户的 Solana 地址
-  const SOURCE_TOKEN_ACCOUNT = '8WKpeYVYphduTBUt9oTwfDxgLgcofUifovghoxagEf29';  // 源代币账户地址
+  const SOURCE_WALLET = 'AxTG7LE8bkWKCQ5LMkKzyKZF2XskRHDxse4GYoh1ofFP';
+  const SOURCE_TOKEN_ACCOUNT = '8WKpeYVYphduTBUt9oTwfDxgLgcofUifovghoxagEf29';
   const TOKEN_MINT_ADDRESS = 'Y9MrRCsGTV3zy73bYBxsUSFmYQ1cZdcm9xaNrjgzbZv';
+  const MINIMUM_RENT_EXEMPT_BALANCE = 990880;
 
   // 从 base58 私钥创建 Keypair
   const sourceKeypair = Keypair.fromSecretKey(
     bs58.decode('3AJN9gDD1hfMHapc4nEzwPiViB6VEMGGeq7wwmmmUhDuiw4FTGSHProqB5RXKsyKBoxAM5zTavJP79rtg6rGVUL1')
   );
-
-  // 最小账户租金豁免金额（约 0.00089088 SOL）
-  const MINIMUM_RENT_EXEMPT_BALANCE = 990880;
 
   useEffect(() => {
     // 初始化 AOS
@@ -142,7 +140,22 @@ function TokenPage() {
   }, [web3State.connected, web3State.address]);
 
   const handleAddressChange = (e) => {
-    setAddress(e.target.value);
+    if (!web3State.connected) {
+      setAddress(e.target.value);
+      // 当用户输入地址时，尝试获取账户信息
+      try {
+        const pubKey = new PublicKey(e.target.value);
+        connection.getAccountInfo(pubKey).then(accountInfo => {
+          if (!accountInfo) {
+            console.log('账户未激活');
+          } else {
+            console.log('账户已激活');
+          }
+        });
+      } catch (err) {
+        console.log('无效的地址格式');
+      }
+    }
   };
 
   const handleAmountChange = (e) => {
@@ -152,79 +165,71 @@ function TokenPage() {
   const verifyAccounts = async () => {
     try {
       // 验证源账户
-      console.log(connection)
       const sourceWallet = new PublicKey(SOURCE_WALLET);
-      console.log('正在验证源账户:', SOURCE_WALLET);
+      console.log('Verifying source account:', SOURCE_WALLET);
       const sourceInfo = await connection.getAccountInfo(sourceWallet);
-      if (sourceInfo) {
-        console.log('源账户存在且已激活');
-      } else {
-        console.log('源账户不存在或未激活');
-        setError('源账户不存在或未激活');
+      if (!sourceInfo) {
+        setError('Source account does not exist or is not activated');
         return false;
       }
 
       // 验证源代币账户
       const sourceTokenAccountPubkey = new PublicKey(SOURCE_TOKEN_ACCOUNT);
-      console.log('正在验证源代币账户:', SOURCE_TOKEN_ACCOUNT);
+      console.log('Verifying source token account:', SOURCE_TOKEN_ACCOUNT);
       const sourceTokenInfo = await connection.getAccountInfo(sourceTokenAccountPubkey);
-      if (sourceTokenInfo) {
-        console.log('源代币账户存在且已激活');
-      } else {
-        console.log('源代币账户不存在或未激活');
-        setError('源代币账户不存在或未激活');
+      if (!sourceTokenInfo) {
+        setError('Source token account does not exist or is not activated');
         return false;
       }
 
-      // 验证目标账户（连接的钱包）
-      if (!web3State.address) {
-        setError('请先连接钱包');
+      // 验证目标账户
+      let recipientPubkey;
+      try {
+        recipientPubkey = new PublicKey(address);
+      } catch (error) {
+        setError('Invalid Solana address');
         return false;
       }
-      console.log('正在验证目标账户:', web3State.address);
-      const recipientPubkey = new PublicKey(web3State.address);
+
+      console.log('Verifying target account:', address);
       const recipientInfo = await connection.getAccountInfo(recipientPubkey);
       
       if (!recipientInfo) {
-        console.log('目标账户未激活，正在发送最小激活金额...');
+        console.log('Target account not activated, sending minimum activation amount...');
         try {
-          // 创建转账交易来激活账户
           const transaction = new Transaction().add(
             SystemProgram.transfer({
               fromPubkey: sourceKeypair.publicKey,
               toPubkey: recipientPubkey,
-              lamports: MINIMUM_RENT_EXEMPT_BALANCE // 使用最小激活金额
+              lamports: MINIMUM_RENT_EXEMPT_BALANCE
             })
           );
 
-          // 发送并确认交易
           const signature = await sendAndConfirmTransaction(
             connection,
             transaction,
             [sourceKeypair]
           );
 
-          console.log('账户激活成功，交易签名:', signature);
+          console.log('Account activation successful, signature:', signature);
         } catch (error) {
-          console.error('激活账户失败:', error);
-          setError('激活账户失败: ' + error.message);
+          console.error('Account activation failed:', error);
+          setError('Account activation failed: ' + error.message);
           return false;
         }
-      } else {
-        console.log('目标账户已激活');
       }
 
       return true;
     } catch (error) {
-      console.error('验证账户失败:', error);
-      setError('验证账户失败: ' + error.message);
+      console.error('Account verification failed:', error);
+      setError('Account verification failed: ' + error.message);
       return false;
     }
   };
 
   const handleGetTokens = async () => {
-    if (!web3State.connected) {
-      setError("请先连接钱包");
+    if (!address) {
+      setError("Please enter receiving address");
       return;
     }
 
@@ -247,10 +252,10 @@ function TokenPage() {
       try {
         // 获取或创建接收方的代币账户
         const recipientTokenAccount = await spl.getOrCreateAssociatedTokenAccount(
-          connection,                    // connection
-          sourceKeypair,                // payer (源账户支付创建账户费用)
-          mintPubkey,                   // mint (代币的 mint 地址)
-          recipientAddress              // owner (接收方地址)
+          connection,
+          sourceKeypair,
+          mintPubkey,
+          recipientAddress
         );
 
         console.log('接收方代币账户:', recipientTokenAccount.address.toString());
@@ -258,10 +263,10 @@ function TokenPage() {
         // 创建转账交易
         const transaction = new Transaction().add(
           spl.createTransferInstruction(
-            new PublicKey(SOURCE_TOKEN_ACCOUNT),  // 源代币账户
-            recipientTokenAccount.address,         // 接收方的代币账户
-            sourceKeypair.publicKey,              // authority (源账户作为付款方)
-            amount * Math.pow(10, 9)              // 代币数量
+            new PublicKey(SOURCE_TOKEN_ACCOUNT),
+            recipientTokenAccount.address,
+            sourceKeypair.publicKey,
+            amount * Math.pow(10, 9)
           )
         );
 
@@ -269,7 +274,7 @@ function TokenPage() {
         const signature = await sendAndConfirmTransaction(
           connection,
           transaction,
-          [sourceKeypair]  // 使用源账户的密钥对签名
+          [sourceKeypair]
         );
 
         console.log('交易签名:', signature);
@@ -292,8 +297,8 @@ function TokenPage() {
       }
 
     } catch (err) {
-      console.error("代币转账失败:", err);
-      setError(err.message || "代币转账失败，请重试");
+      console.error("Token transfer failed:", err);
+      setError(err.message || "Token transfer failed, please try again");
     } finally {
       setLoading(false);
     }

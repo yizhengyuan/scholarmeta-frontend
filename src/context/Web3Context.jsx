@@ -8,13 +8,19 @@ window.Buffer = Buffer;
 export const Web3Context = createContext();
 
 export const Web3Provider = ({ children }) => {
+  // 创建一个默认的 connection
+  const defaultConnection = new Connection(
+    'https://wispy-divine-butterfly.solana-mainnet.quiknode.pro/d7ff77e7359134eca1b79f7135b1833ae44f0ad9/',
+    'confirmed'
+  );
+
   const [web3State, setWeb3State] = useState({
     address: null,
     connected: false,
     wallet: null,
     networkName: null,
     error: null,
-    connection: null
+    connection: defaultConnection  // 初始化时使用默认 connection
   });
 
   // 检查钱包状态
@@ -77,7 +83,7 @@ export const Web3Provider = ({ children }) => {
           wallet: null,
           networkName: null,
           error: null,
-          connection: null
+          connection: defaultConnection  // 断开连接时保持默认 connection
         });
       };
 

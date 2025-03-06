@@ -98,26 +98,16 @@ export const Web3Provider = ({ children }) => {
     try {
       const { solana } = window;
       if (!solana?.isPhantom) {
-        throw new Error("请安装 Phantom 钱包");
+        throw new Error("Please install Phantom Wallet");
       }
 
       const resp = await solana.connect();
       // 连接成功后会触发 connect 事件，由事件监听器处理状态更新
       
     } catch (error) {
-      console.error("连接钱包失败:", error);
-      let errorMessage = error.message;
-      
-      if (error.code === 4001) {
-        errorMessage = "用户拒绝了连接请求";
-      } else if (error.message.includes("install")) {
-        errorMessage = "请安装 Phantom 钱包";
-      }
-      
-      setWeb3State(prevState => ({ 
-        ...prevState, 
-        error: errorMessage 
-      }));
+      console.error("Wallet connection failed:", error);
+      // 直接抛出错误，让组件处理
+      throw error;
     }
   };
 

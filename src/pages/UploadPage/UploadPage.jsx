@@ -12,6 +12,10 @@ function UploadPage() {
   const [uploadResult, setUploadResult] = useState(null);
   const [error, setError] = useState(null);
   const particlesRef = useRef(null);
+  const [uploadSpeed, setUploadSpeed] = useState(0);
+  const [uploadedSize, setUploadedSize] = useState(0);
+  const lastUploadedRef = useRef(0);
+  const uploadStartTimeRef = useRef(null);
 
   useEffect(() => {
     const canvas = particlesRef.current;
@@ -118,6 +122,41 @@ function UploadPage() {
     }
   };
 
+  // 格式化文件大小
+  const formatSize = (bytes) => {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return `${(bytes / Math.pow(k, i)).toFixed(2)} ${sizes[i]}`;
+  };
+
+  // 格式化速度
+  const formatSpeed = (bytesPerSecond) => {
+    return ` ${formatSize(bytesPerSecond)}/s`;
+  };
+
+  // 更新上传速度
+  const updateSpeed = () => {
+    if (!uploadStartTimeRef.current) return;
+    
+    const now = Date.now();
+    const timeDiff = (now - uploadStartTimeRef.current) / 1000; // 转换为秒
+    const bytesDiff = uploadedSize - lastUploadedRef.current;
+    
+    if (timeDiff > 0) {
+      const speed = bytesDiff / timeDiff;
+      setUploadSpeed(speed);
+      lastUploadedRef.current = uploadedSize;
+      uploadStartTimeRef.current = now;
+    }
+  };
+
+  useEffect(() => {
+    const speedInterval = setInterval(updateSpeed, 1000);
+    return () => clearInterval(speedInterval);
+  }, [uploadedSize]);
+
   const handleUpload = async () => {
     if (!file) {
       setError("Please select a file");
@@ -128,32 +167,33 @@ function UploadPage() {
     setProgress(0);
     setError(null);
     setUploadResult(null);
+    setUploadedSize(0);
+    setUploadSpeed(0);
+    lastUploadedRef.current = 0;
+    uploadStartTimeRef.current = Date.now();
     
     try {
-      // 创建上传进度监听器
-      const progressInterval = setInterval(() => {
-        setProgress(prev => {
-          if (prev >= 95) {
-            clearInterval(progressInterval);
-            return 95;
-          }
-          return prev + 5;
-        });
-      }, 300);
+      // 配置上传进度监听
+      const onUploadProgress = (progressEvent) => {
+        const percentCompleted = Math.round(
+          (progressEvent.loaded * 100) / progressEvent.total
+        );
+        setProgress(percentCompleted);
+        setUploadedSize(progressEvent.loaded);
+      };
 
       // 根据文件类型选择上传方法
       let result;
+      const config = { onUploadProgress };
+
       if (file.type.startsWith('video/')) {
-        result = await mediaAPI.uploadVideo(file, file.name);
+        result = await mediaAPI.uploadVideo(file, file.name, '', '', config);
       } else if (file.type.startsWith('audio/')) {
-        result = await mediaAPI.uploadAudio(file, file.name);
+        result = await mediaAPI.uploadAudio(file, file.name, '', '', config);
       } else {
-        result = await mediaAPI.uploadToIPFS(file);
+        result = await mediaAPI.uploadToIPFS(file, config);
       }
 
-      clearInterval(progressInterval);
-      setProgress(100);
-      
       setUploadResult({
         fileName: file.name,
         fileSize: file.size,
@@ -162,11 +202,13 @@ function UploadPage() {
         timestamp: new Date().toISOString()
       });
       
-      // 重置文件选择
+      // 重置状态
       setTimeout(() => {
         setFile(null);
         setUploading(false);
         setProgress(0);
+        setUploadedSize(0);
+        setUploadSpeed(0);
       }, 1000);
       
     } catch (err) {
@@ -174,6 +216,8 @@ function UploadPage() {
       setError(err.response?.data?.message || err.message || "Upload failed, please try again");
       setUploading(false);
       setProgress(0);
+      setUploadedSize(0);
+      setUploadSpeed(0);
     }
   };
 
@@ -249,7 +293,14 @@ function UploadPage() {
                       <div className="progress-glow"></div>
                     </div>
                   </div>
-                  <span className="progress-text">{progress}%</span>
+                  <div className="progress-info">
+                    <span className="progress-text">
+                      {progress}% • {formatSize(uploadedSize)} / {formatSize(file.size)}
+                    </span>
+                    <span className="upload-speed">
+                      {formatSpeed(uploadSpeed)}
+                    </span>
+                  </div>
                 </div>
               )}
             </div>

@@ -35,33 +35,33 @@ api.interceptors.response.use(
 // 媒体上传相关 API
 export const mediaAPI = {
   // 上传视频
-  uploadVideo: async (file, title, description = '', tags = '') => {
+  uploadVideo: async (file, title, description = '', tags = '', config = {}) => {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('title', title);
     formData.append('description', description);
     formData.append('tags', tags);
 
-    return api.post('/media/upload/video', formData);
+    return api.post('/media/upload/video', formData, config);
   },
 
   // 上传音频
-  uploadAudio: async (file, title, description = '', tags = '') => {
+  uploadAudio: async (file, title, description = '', tags = '', config = {}) => {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('title', title);
     formData.append('description', description);
     formData.append('tags', tags);
 
-    return api.post('/media/upload/audio', formData);
+    return api.post('/media/upload/audio', formData, config);
   },
 
   // 上传普通文件到 IPFS
-  uploadToIPFS: async (file) => {
+  uploadToIPFS: async (file, config = {}) => {
     const formData = new FormData();
     formData.append('file', file);
 
-    return api.post('/media/upload/ipfs', formData);
+    return api.post('/media/upload/ipfs', formData, config);
   }
 };
 

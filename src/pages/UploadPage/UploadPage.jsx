@@ -2,6 +2,7 @@ import React, { useState, useContext, useRef, useEffect } from 'react';
 import './UploadPage.css';
 import { Web3Context } from '../../context/Web3Context';
 import AOS from 'aos';
+import { mediaAPI } from '../../router';
 
 function UploadPage() {
   const { web3State } = useContext(Web3Context);
@@ -123,17 +124,13 @@ function UploadPage() {
       return;
     }
 
-    if (!web3State.connected) {
-      setError("Please connect your wallet first");
-      return;
-    }
-
     setUploading(true);
     setProgress(0);
     setError(null);
+    setUploadResult(null);
     
     try {
-      // 模拟上传进度
+      // 创建上传进度监听器
       const progressInterval = setInterval(() => {
         setProgress(prev => {
           if (prev >= 95) {
@@ -143,21 +140,25 @@ function UploadPage() {
           return prev + 5;
         });
       }, 300);
-      
-      // 模拟文件上传
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      
+
+      // 根据文件类型选择上传方法
+      let result;
+      if (file.type.startsWith('video/')) {
+        result = await mediaAPI.uploadVideo(file, file.name);
+      } else if (file.type.startsWith('audio/')) {
+        result = await mediaAPI.uploadAudio(file, file.name);
+      } else {
+        result = await mediaAPI.uploadToIPFS(file);
+      }
+
       clearInterval(progressInterval);
       setProgress(100);
-      
-      // 模拟IPFS哈希
-      const ipfsHash = 'Qm' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
       
       setUploadResult({
         fileName: file.name,
         fileSize: file.size,
         fileType: file.type,
-        ipfsHash,
+        ipfsHash: result.ipfsHash || result.hash,
         timestamp: new Date().toISOString()
       });
       
@@ -169,9 +170,10 @@ function UploadPage() {
       }, 1000);
       
     } catch (err) {
-      console.error("上传文件失败:", err);
-      setError("上传文件失败，请重试");
+      console.error("File upload failed:", err);
+      setError(err.response?.data?.message || err.message || "Upload failed, please try again");
       setUploading(false);
+      setProgress(0);
     }
   };
 

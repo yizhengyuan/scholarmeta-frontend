@@ -1,0 +1,308 @@
+.web3-author-page {
+    position: relative;
+    min-height: 100vh;
+    background: #1a1a1a;
+    color: #fff;
+    padding: 40px 20px;
+    margin-top: 60px;
+  }
+  
+  .web3-particles-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+  }
+  
+  .web3-author-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+  
+  .web3-back-button {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 30px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+  }
+  
+  .web3-back-button:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateX(-5px);
+  }
+  
+  .web3-author-header {
+    text-align: center;
+    margin-bottom: 60px;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+  }
+  
+  .web3-author-cover {
+    height: 200px;
+    background: linear-gradient(135deg, #61dafb20, #a8edea20);
+    position: relative;
+  }
+  
+  .web3-author-avatar-wrapper {
+    position: absolute;
+    bottom: -50px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  
+  .web3-author-avatar-large {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #61dafb, #a8edea);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    font-weight: bold;
+    color: #1a1a1a;
+    box-shadow: 0 0 30px rgba(97, 218, 251, 0.3);
+    border: 3px solid rgba(255, 255, 255, 0.2);
+  }
+  
+  .web3-author-status {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #4CAF50;
+    border: 3px solid #1a1a1a;
+  }
+  
+  .web3-author-info {
+    padding: 60px 40px 40px;
+  }
+  
+  .web3-author-name {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 10px 0;
+    background: linear-gradient(45deg, #61dafb, #a8edea);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  .web3-author-role {
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 20px;
+  }
+  
+  .web3-author-badges {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  
+  .web3-badge {
+    padding: 6px 12px;
+    background: rgba(97, 218, 251, 0.1);
+    border-radius: 20px;
+    color: #61dafb;
+    font-size: 0.9rem;
+    border: 1px solid rgba(97, 218, 251, 0.3);
+  }
+  
+  .web3-author-content {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 30px;
+  }
+  
+  .web3-author-section {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 30px;
+  }
+  
+  .web3-author-section h2 {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    color: #61dafb;
+  }
+  
+  .web3-expertise-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 15px;
+  }
+  
+  .web3-expertise-item {
+    background: rgba(97, 218, 251, 0.1);
+    padding: 15px;
+    border-radius: 15px;
+    text-align: center;
+    border: 1px solid rgba(97, 218, 251, 0.3);
+    cursor: pointer;
+  }
+  
+  .web3-stats-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .web3-stat-card {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 20px;
+    border-radius: 15px;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+  }
+  
+  .web3-stat-icon {
+    font-size: 1.5rem;
+    color: #61dafb;
+    margin-bottom: 10px;
+  }
+  
+  .web3-stat-value {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+  
+  .web3-stat-label {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.9rem;
+  }
+  
+  .web3-social-links {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+  }
+  
+  .web3-social-link {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: #fff;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.1);
+  }
+  
+  .web3-social-link:hover {
+    transform: translateY(-5px);
+  }
+  
+  .web3-social-link.twitter:hover {
+    background: #1da1f2;
+  }
+  
+  .web3-social-link.github:hover {
+    background: #333;
+  }
+  
+  .web3-social-link.linkedin:hover {
+    background: #0077b5;
+  }
+  
+  .web3-activity-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .web3-activity-item {
+    display: flex;
+    gap: 15px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    transition: transform 0.3s ease;
+  }
+  
+  .web3-activity-item:hover {
+    transform: translateX(5px);
+  }
+  
+  .web3-activity-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(97, 218, 251, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #61dafb;
+  }
+  
+  .web3-loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 3px solid rgba(97, 218, 251, 0.1);
+    border-radius: 50%;
+    border-top-color: #61dafb;
+    animation: spin 1s linear infinite;
+    margin: 0 auto;
+  }
+  
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .web3-author-content {
+      grid-template-columns: 1fr;
+    }
+    
+    .web3-stats-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .web3-expertise-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .web3-author-header {
+      margin-top: 60px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .web3-stats-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .web3-expertise-grid {
+      grid-template-columns: 1fr;
+    }
+  }

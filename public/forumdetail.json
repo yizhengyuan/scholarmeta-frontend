@@ -1,0 +1,32 @@
+{
+  "details": [
+    {
+      "id": 1,
+      "title": "Welcome to Web3 Forum",
+      "author": "Alex Chen",
+      "authorId": 1,
+      "authorAvatar": "A",
+      "content": "Welcome to our Web3 development forum! Here we explore the fascinating intersection of blockchain technology and scientific research. Just as chemical reactions transform molecules, blockchain transforms the way we handle data and transactions.\n\nKey Points:\n- Decentralized data storage\n- Smart contract automation\n- Cross-chain interactions\n\nJust like how catalysts accelerate chemical reactions, Web3 technology accelerates the evolution of the internet. Let's explore this new frontier together!",
+      "timestamp": "2024-03-20T08:00:00Z",
+      "likes": 42,
+      "tags": ["welcome", "web3", "blockchain"],
+      "media": "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=800",
+      "mediaType": "image",
+      "relatedPosts": [2, 3, 4]
+    },
+    {
+      "id": 2,
+      "title": "IPFS Storage Guide",
+      "author": "Sarah Williams",
+      "authorId": 2,
+      "authorAvatar": "S",
+      "content": "Today we'll dive deep into IPFS storage solutions, drawing parallels with molecular storage in chemical systems. Like how molecules arrange themselves in crystal lattices, IPFS creates an organized, distributed network of data.\n\nTechnical Details:\n1. Content Addressing\n2. Distributed Hash Tables\n3. Peer Discovery\n\nJust as chemical bonds hold molecules together, IPFS's content addressing system creates unbreakable links between data pieces.",
+      "timestamp": "2024-03-19T10:30:00Z",
+      "likes": 38,
+      "tags": ["ipfs", "storage", "tutorial"],
+      "media": "https://cdn.pixabay.com/vimeo/506617542/blockchain-69579.mp4?width=640&hash=8c18e7d4f0c63d5f856d4b93a6c67ea5c97c80e7",
+      "mediaType": "video",
+      "relatedPosts": [1, 3, 5]
+    }
+  ]
+}

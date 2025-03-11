@@ -1,0 +1,232 @@
+.forum-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+  }
+  
+  .forum-post-card {
+    position: relative;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 20px;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+  }
+  
+  .post-glow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #61dafb, transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  .forum-post-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(97, 218, 251, 0.3);
+  }
+  
+  .forum-post-card:hover .post-glow {
+    opacity: 1;
+  }
+  
+  .forum-post-header {
+    margin-bottom: 15px;
+  }
+  
+  .forum-post-title {
+    font-size: 1.2rem;
+    color: #61dafb;
+    margin: 0 0 10px 0;
+  }
+  
+  .forum-post-meta {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 10px;
+  }
+  
+  .forum-post-author {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #ccc;
+    font-size: 0.9rem;
+  }
+  
+  .author-avatar {
+    width: 24px;
+    height: 24px;
+    background: linear-gradient(45deg, #61dafb, #fb61da);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    color: #fff;
+  }
+  
+  .forum-post-time {
+    color: #888;
+    font-size: 0.8rem;
+  }
+  
+  .forum-post-preview {
+    color: #ccc;
+    line-height: 1.6;
+    margin: 15px 0;
+  }
+  
+  .forum-post-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .forum-post-tags {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  
+  .forum-post-tag {
+    background: rgba(97, 218, 251, 0.1);
+    color: #61dafb;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    transition: all 0.3s ease;
+  }
+  
+  .forum-post-tag:hover {
+    background: rgba(97, 218, 251, 0.2);
+  }
+  
+  .forum-post-stats {
+    display: flex;
+    gap: 15px;
+  }
+  
+  .forum-stat-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: #888;
+    font-size: 0.9rem;
+  }
+  
+  .stat-icon {
+    font-size: 1rem;
+  }
+  
+  /* Loading 状态样式 */
+  .forum-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    padding: 40px;
+    color: #61dafb;
+  }
+  
+  .loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(97, 218, 251, 0.1);
+    border-top-color: #61dafb;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  /* 错误状态样式 */
+  .forum-error {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 20px;
+    color: #ff6b6b;
+    background: rgba(255, 107, 107, 0.1);
+    border-radius: 12px;
+  }
+  
+  @media (max-width: 768px) {
+    .forum-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  .forum-post-media {
+    position: relative;
+    width: 100%;
+    margin-bottom: 15px;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  
+  .forum-post-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+    border-radius: 12px;
+    display: block;
+  }
+  
+  .forum-post-card:hover .forum-post-image {
+    transform: scale(1.05);
+  }
+  
+  .forum-post-video-container {
+    position: relative;
+    width: 100%;
+    height: 200px;
+    background: #000;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  
+  .forum-post-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 12px;
+  }
+  
+  .forum-post-video-play {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: rgba(97, 218, 251, 0.9);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 20px;
+    transition: all 0.3s ease;
+  }
+  
+  .forum-post-video-play:hover {
+    background: rgba(97, 218, 251, 1);
+    transform: translate(-50%, -50%) scale(1.1);
+  }

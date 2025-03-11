@@ -1,0 +1,587 @@
+.forum-detail-page {
+  position: relative;
+  min-height: 100vh;
+  padding: 20px;
+  background: #1a1a1a;
+  margin-top: 60px;
+}
+
+.forum-detail-page .particles-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.forum-detail-page .forum-detail-container {
+  position: relative;
+  z-index: 1;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 40px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.forum-detail-page .forum-detail-header {
+  margin-bottom: 40px;
+}
+
+.forum-detail-page .forum-detail-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+  background: linear-gradient(45deg, #61dafb, #a8edea);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.forum-detail-page .forum-detail-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(97, 218, 251, 0.1);
+}
+
+.forum-detail-page .meta-left {
+  flex: 1;
+}
+
+.forum-detail-page .author-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.forum-detail-page .author-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #61dafb, #a8edea);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #1a1a1a;
+  box-shadow: 0 0 20px rgba(97, 218, 251, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.forum-detail-page .author-avatar:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 25px rgba(97, 218, 251, 0.3);
+}
+
+.forum-detail-page .author-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.forum-detail-page .author-name {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #fff;
+  transition: color 0.3s ease;
+}
+
+.forum-detail-page .author-name:hover {
+  color: #61dafb;
+}
+
+.forum-detail-page .post-time {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.forum-detail-page .meta-right {
+  padding-left: 2rem;
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.forum-detail-page .post-stats {
+  display: flex;
+  gap: 2rem;
+}
+
+.forum-detail-page .stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.forum-detail-page .stat-item svg {
+  font-size: 1.2rem;
+  color: #61dafb;
+}
+
+.forum-detail-page .stat-item span {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.forum-detail-page .stat-label {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.forum-detail-page .forum-detail-media {
+  margin: 30px 0;
+  border-radius: 16px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.forum-detail-page .detail-image {
+  width: 100%;
+  max-height: 500px;
+  object-fit: cover;
+}
+
+.forum-detail-page .detail-video-container {
+  position: relative;
+  width: 100%;
+  padding-top: 56.25%;
+}
+
+.forum-detail-page .detail-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.forum-detail-page .detail-video-play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(97, 218, 251, 0.8);
+  border: none;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.forum-detail-page .detail-video-play:hover {
+  background: rgba(97, 218, 251, 1);
+  transform: translate(-50%, -50%) scale(1.1);
+}
+
+.forum-detail-page .forum-detail-content {
+  margin: 30px 0;
+}
+
+.forum-detail-page .content-text {
+  line-height: 1.8;
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.forum-detail-page .content-text p {
+  margin-bottom: 15px;
+}
+
+.forum-detail-page .content-tags {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+.forum-detail-page .detail-tag {
+  padding: 6px 12px;
+  background: rgba(97, 218, 251, 0.1);
+  border-radius: 20px;
+  color: #61dafb;
+  font-size: 0.9rem;
+}
+
+.forum-detail-page .forum-detail-comments {
+  margin-top: 40px;
+  padding-top: 30px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.forum-detail-page .forum-detail-comments h2 {
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+  color: #61dafb;
+}
+
+.forum-detail-page .comment-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.forum-detail-page .comment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.forum-detail-page .comment-author {
+  font-weight: 500;
+  color: #61dafb;
+}
+
+.forum-detail-page .comment-time {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.9rem;
+}
+
+.forum-detail-page .comment-content {
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 15px;
+}
+
+.forum-detail-page .comment-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.forum-detail-page .comment-likes {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* 返回按钮样式 */
+.forum-detail-page .back-button {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: rgba(97, 218, 251, 0.1);
+  border: 1px solid rgba(97, 218, 251, 0.3);
+  border-radius: 20px;
+  color: #61dafb;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  opacity: 0;
+}
+
+.forum-detail-page .back-button.aos-animate {
+  opacity: 1;
+}
+
+.forum-detail-page .back-button:hover {
+  background: rgba(97, 218, 251, 0.2);
+  transform: translateX(-5px);
+}
+
+/* 化学元素装饰 */
+.forum-detail-page .chemistry-elements {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.forum-detail-page .molecule {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  opacity: 0.1;
+}
+
+.forum-detail-page .molecule-1 {
+  top: 10%;
+  right: 10%;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='20' fill='none' stroke='%2361dafb' stroke-width='2'/%3E%3Ccircle cx='30' cy='30' r='10' fill='%2361dafb'/%3E%3Ccircle cx='70' cy='70' r='10' fill='%2361dafb'/%3E%3C/svg%3E") no-repeat center/contain;
+  animation: rotate 20s linear infinite;
+}
+
+.forum-detail-page .molecule-2 {
+  bottom: 10%;
+  left: 10%;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M20,50 L80,50 M50,20 L50,80' stroke='%2361dafb' stroke-width='2'/%3E%3Ccircle cx='50' cy='50' r='30' fill='none' stroke='%2361dafb' stroke-width='2'/%3E%3C/svg%3E") no-repeat center/contain;
+  animation: rotate 15s linear infinite reverse;
+}
+
+.forum-detail-page .atom {
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  opacity: 0.1;
+}
+
+.forum-detail-page .atom-1 {
+  top: 30%;
+  left: 5%;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cellipse cx='50' cy='50' rx='45' ry='20' fill='none' stroke='%2361dafb' stroke-width='2' transform='rotate(0 50 50)'/%3E%3Cellipse cx='50' cy='50' rx='45' ry='20' fill='none' stroke='%2361dafb' stroke-width='2' transform='rotate(60 50 50)'/%3E%3Cellipse cx='50' cy='50' rx='45' ry='20' fill='none' stroke='%2361dafb' stroke-width='2' transform='rotate(120 50 50)'/%3E%3Ccircle cx='50' cy='50' r='5' fill='%2361dafb'/%3E%3C/svg%3E") no-repeat center/contain;
+  animation: rotate 25s linear infinite;
+}
+
+.forum-detail-page .atom-2 {
+  bottom: 20%;
+  right: 5%;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='40' fill='none' stroke='%2361dafb' stroke-width='2'/%3E%3Ccircle cx='50' cy='50' r='20' fill='none' stroke='%2361dafb' stroke-width='2'/%3E%3Ccircle cx='50' cy='50' r='5' fill='%2361dafb'/%3E%3C/svg%3E") no-repeat center/contain;
+  animation: rotate 30s linear infinite reverse;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 状态显示样式 */
+.forum-detail-page .forum-detail-status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  text-align: center;
+  padding: 2rem;
+}
+
+.forum-detail-page .loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 3px solid rgba(97, 218, 251, 0.1);
+  border-radius: 50%;
+  border-top-color: #61dafb;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+.forum-detail-page .error-icon {
+  font-size: 5rem;
+  font-weight: bold;
+  color: #61dafb;
+  margin-bottom: 1rem;
+  text-shadow: 0 0 20px rgba(97, 218, 251, 0.5);
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .forum-detail-page .forum-detail-container {
+    padding: 20px;
+  }
+
+  .forum-detail-page .forum-detail-title {
+    font-size: 2rem;
+  }
+
+  .forum-detail-page .forum-detail-meta {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .forum-detail-page .meta-right {
+    padding-left: 0;
+    border-left: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 1.5rem;
+    width: 100%;
+  }
+
+  .forum-detail-page .post-stats {
+    justify-content: center;
+  }
+
+  .forum-detail-page .back-button {
+    top: 10px;
+    left: 10px;
+    padding: 8px 16px;
+    font-size: 0.9rem;
+  }
+
+  .forum-detail-page .chemistry-elements {
+    display: none; /* 在移动端隐藏装饰元素 */
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.ai-analysis-container {
+  background: rgba(97, 218, 251, 0.05);
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  border: 1px solid rgba(97, 218, 251, 0.2);
+  backdrop-filter: blur(10px);
+  position: relative;
+}
+
+.ai-analysis-container::after {
+  content: '';
+  position: absolute;
+  bottom: -2rem;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(97, 218, 251, 0.3) 20%,
+    rgba(97, 218, 251, 0.3) 80%,
+    transparent
+  );
+}
+
+.ai-analysis-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.ai-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #61dafb, #2b6cc4);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 1.2rem;
+}
+
+.ai-analysis-header h3 {
+  color: #61dafb;
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.ai-analysis-content {
+  display: flex;
+  gap: 2rem;
+}
+
+.ai-analysis-item {
+  flex: 1;
+}
+
+.ai-analysis-item h4 {
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0 0 1rem 0;
+  font-size: 1rem;
+}
+
+.ai-analysis-item ul {
+  margin: 0;
+  padding-left: 1.2rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.ai-analysis-item li {
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+.sentiment-tags {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.sentiment-tag {
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.sentiment-tag.positive {
+  background: rgba(97, 218, 251, 0.1);
+  color: #61dafb;
+  border: 1px solid rgba(97, 218, 251, 0.3);
+}
+
+.sentiment-tag.neutral {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.comments-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-top: 1rem;
+}
+
+.write-comment-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  border: none;
+  background: linear-gradient(135deg, #61dafb, #2b6cc4);
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.write-comment-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(97, 218, 251, 0.2);
+}
+
+@media (max-width: 768px) {
+  .ai-analysis-content {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .comments-header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+  
+  .write-comment-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

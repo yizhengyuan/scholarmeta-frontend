@@ -8,6 +8,9 @@ function HomePage() {
   const particlesRef = useRef(null);
   
   useEffect(() => {
+    // 添加这行来重置滚动位置
+    window.scrollTo(0, 0);
+    
     // 初始化 AOS
     AOS.init({
       duration: 1000,

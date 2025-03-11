@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "id": 1,
+      "postId": 1,
+      "authorId": 2,
+      "authorName": "Sarah Williams",
+      "authorAvatar": "SW",
+      "content": "Great introduction! Looking forward to more discussions about Web3 technology.",
+      "timestamp": "2024-03-20T09:15:00Z",
+      "likes": 12,
+      "totalComments": 2,
+      "replies": [
+        {
+          "id": 101,
+          "authorId": 3,
+          "authorName": "Mike Zhang",
+          "authorAvatar": "MZ",
+          "content": "Absolutely agree! The chemical reaction analogy is brilliant.",
+          "timestamp": "2024-03-20T10:30:00Z",
+          "likes": 5
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "postId": 2,
+      "authorId": 1,
+      "authorName": "Alex Chen",
+      "authorAvatar": "AC",
+      "content": "Very detailed analysis of IPFS storage. The molecular storage comparison makes it easy to understand.",
+      "timestamp": "2024-03-19T11:45:00Z",
+      "likes": 8,
+      "totalComments": 1,
+      "replies": []
+    }
+  ]
+} 

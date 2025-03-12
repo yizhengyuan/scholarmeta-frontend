@@ -5,6 +5,7 @@ import AOS from 'aos';
 import 'aos/dist/aos.css';
 import './ForumDetailPage.css';
 import CommentBar from '../../components/CommentBar';
+import CommentPage from '../../components/CommentPage';
 
 function ForumDetailPage() {
   const navigate = useNavigate();
@@ -16,6 +17,16 @@ function ForumDetailPage() {
   const [playingVideo, setPlayingVideo] = useState(false);
   const particlesRef = useRef(null);
   const [totalComments, setTotalComments] = useState(0);
+  const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
+  const [localComments, setLocalComments] = useState([]); // 用于存储临时评论
+  const [newComment, setNewComment] = useState(null);
+
+  // 使用 hardcoded 用户数据作为当前登录用户
+  const currentUser = {
+    id: 1, // 使用 MyPage 中的用户 ID
+    name: "Zhang San", // 使用 MyPage 中的用户名
+    avatar: "https://randomuser.me/api/portraits/men/32.jpg", // 使用名字缩写作为头像
+  };
 
   useEffect(() => {
     // 进入详情页时总是滚动到顶部
@@ -131,14 +142,13 @@ function ForumDetailPage() {
       });
   }, [id]);
 
-  const handleVideoPlay = (videoRef) => {
-    if (videoRef.paused) {
-      videoRef.play();
-      setPlayingVideo(true);
+  const handleVideoPlay = (videoEl) => {
+    if (playingVideo) {
+      videoEl.pause();
     } else {
-      videoRef.pause();
-      setPlayingVideo(false);
+      videoEl.play();
     }
+    setPlayingVideo(!playingVideo);
   };
 
   const handleBack = () => {
@@ -151,6 +161,13 @@ function ForumDetailPage() {
 
   const handleAuthorClick = () => {
     navigate(`/author/${post.authorId}`);
+  };
+
+  // 处理评论提交
+  const handleCommentSubmit = (comment) => {
+    console.log('收到新评论:', comment);
+    setNewComment(comment);
+    setTotalComments(prev => prev + 1);
   };
 
   if (loading) {
@@ -313,12 +330,30 @@ function ForumDetailPage() {
 
           <div className="comments-header">
             <h3 className="comments-title">Comments ({totalComments})</h3>
-            <button className="write-comment-btn">
+            <button 
+              className="write-comment-btn"
+              onClick={() => setIsCommentModalOpen(true)}
+            >
               <FaComment /> Write a Comment
             </button>
           </div>
           
-          <CommentBar postId={id} />
+          <CommentBar 
+            postId={id} 
+            newComment={newComment}
+          />
+
+          <CommentPage
+            isOpen={isCommentModalOpen}
+            onClose={() => setIsCommentModalOpen(false)}
+            postId={id}
+            authorInfo={{
+              authorId: currentUser.id,
+              authorName: currentUser.name,
+              authorAvatar: currentUser.avatar
+            }}
+            onCommentSubmit={handleCommentSubmit}
+          />
         </div>
       </div>
     </div>

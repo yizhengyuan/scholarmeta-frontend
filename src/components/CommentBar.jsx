@@ -3,26 +3,42 @@ import { useNavigate } from 'react-router-dom';
 import { FaHeart, FaReply, FaEllipsisH } from 'react-icons/fa';
 import './CommentBar.css';
 
-function CommentBar({ postId }) {
+function CommentBar({ postId, newComment }) {
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
+  // 初始加载评论
   useEffect(() => {
+    console.log('加载评论，postId:', postId); // 添加日志
     fetch('/forumcomment.json')
       .then(response => response.json())
       .then(data => {
         // 过滤出当前帖子的评论
         const postComments = data.comments.filter(comment => comment.postId === parseInt(postId));
+        console.log('已加载的评论:', postComments); // 添加日志
         setComments(postComments);
         setLoading(false);
       })
       .catch(err => {
+        console.error('加载评论失败:', err); // 添加日志
         setError('Failed to load comments');
         setLoading(false);
       });
   }, [postId]);
+
+  // 当收到新评论时，将其添加到评论列表
+  useEffect(() => {
+    console.log('收到新评论:', newComment); // 添加日志
+    if (newComment) {
+      setComments(prevComments => {
+        const updatedComments = [newComment, ...prevComments];
+        console.log('更新后的评论列表:', updatedComments);
+        return updatedComments;
+      });
+    }
+  }, [newComment]);
 
   const handleAuthorClick = (authorId) => {
     navigate(`/author/${authorId}`);

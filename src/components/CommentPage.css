@@ -1,0 +1,206 @@
+.web3comment-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.02); /* 非常轻微的白色遮罩 */
+    backdrop-filter: blur(4px); /* 轻微的模糊效果 */
+    -webkit-backdrop-filter: blur(4px);
+}
+
+.web3comment-modal {
+    position: absolute;
+    top: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1a1a1a;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 560px;
+    padding: 24px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(97, 218, 251, 0.15);
+    animation: web3comment-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.web3comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.web3comment-header h2 {
+    color: #fff;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.web3comment-close {
+    background: none;
+    border: none;
+    color: #888;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.web3comment-close:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.web3comment-user {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.web3comment-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: #2a2a2a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.web3comment-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.web3comment-avatar-text {
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.web3comment-userinfo {
+    display: flex;
+    flex-direction: column;
+}
+
+.web3comment-username {
+    color: #fff;
+    font-weight: 500;
+    font-size: 1rem;
+}
+
+.web3comment-status {
+    color: #888;
+    font-size: 0.875rem;
+}
+
+.web3comment-input-wrap {
+    position: relative;
+    margin-bottom: 16px;
+}
+
+.web3comment-textarea {
+    width: 95%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: #fff;
+    padding: 12px;
+    font-size: 1rem;
+    resize: vertical;
+    min-height: 100px;
+    max-height: 300px;
+    transition: all 0.2s ease;
+}
+
+.web3comment-textarea:focus {
+    outline: none;
+    border-color: #61dafb;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.web3comment-tools {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+}
+
+.web3comment-tool-btn {
+    background: none;
+    border: none;
+    color: #888;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.web3comment-tool-btn:hover {
+    color: #61dafb;
+    background: rgba(97, 218, 251, 0.1);
+}
+
+.web3comment-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.web3comment-cancel,
+.web3comment-submit {
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.web3comment-cancel {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+
+.web3comment-cancel:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.web3comment-submit {
+    background: #61dafb;
+    border: none;
+    color: #000;
+    font-weight: 600;
+}
+
+.web3comment-submit:hover {
+    background: #4fa8d5;
+    transform: translateY(-1px);
+}
+
+.web3comment-submit:disabled {
+    background: #2a2a2a;
+    color: #666;
+    cursor: not-allowed;
+    transform: none;
+}
+
+@keyframes web3comment-pop {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}

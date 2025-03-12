@@ -1,19 +1,23 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { FaUser, FaLock, FaSignInAlt } from 'react-icons/fa';
+import { authAPI } from '../router';  // 导入 authAPI
 import './LoginPage.css';
 
-function LoginPage({ onLoginSuccess }) {
+function LoginPage({ onLoginSuccess, onClose }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const particlesRef = useRef(null);
+  const animationFrameRef = useRef(null);
   
   // Particle background effect
   useEffect(() => {
     const canvas = particlesRef.current;
     const ctx = canvas.getContext('2d');
     let particles = [];
+    let animationFrameId;
     
     const resizeCanvas = () => {
       canvas.width = window.innerWidth;
@@ -30,8 +34,7 @@ function LoginPage({ onLoginSuccess }) {
         this.size = Math.random() * 2 + 0.5;
         this.speedX = Math.random() * 1 - 0.5;
         this.speedY = Math.random() * 1 - 0.5;
-        this.color = '#61dafb';
-        this.alpha = Math.random() * 0.5 + 0.1;
+        this.color = `rgba(97, 218, 251, ${Math.random() * 0.5 + 0.2})`;
       }
       
       update() {
@@ -46,18 +49,39 @@ function LoginPage({ onLoginSuccess }) {
       }
       
       draw() {
+        ctx.fillStyle = this.color;
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fillStyle = this.color;
-        ctx.globalAlpha = this.alpha;
         ctx.fill();
       }
     }
     
     const createParticles = () => {
-      const particleCount = Math.min(100, Math.floor(window.innerWidth * window.innerHeight / 10000));
+      particles = [];
+      const particleCount = Math.floor((canvas.width * canvas.height) / 15000);
       for (let i = 0; i < particleCount; i++) {
         particles.push(new Particle());
+      }
+    };
+    
+    const connectParticles = () => {
+      const maxDistance = 150;
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          
+          if (distance < maxDistance) {
+            const opacity = 1 - (distance / maxDistance);
+            ctx.strokeStyle = `rgba(97, 218, 251, ${opacity * 0.2})`;
+            ctx.lineWidth = 0.5;
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.stroke();
+          }
+        }
       }
     };
     
@@ -69,30 +93,49 @@ function LoginPage({ onLoginSuccess }) {
         particles[i].draw();
       }
       
-      requestAnimationFrame(animate);
+      connectParticles();
+      animationFrameId = requestAnimationFrame(animate);
     };
     
     createParticles();
     animate();
     
     return () => {
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
       window.removeEventListener('resize', resizeCanvas);
       particles = [];
     };
   }, []);
   
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    if (username === 'admin' && password === 'admin') {
-      setLoginError('');
-      // Generate simple token and store
-      const token = btoa(`${username}:${Date.now()}`);
-      localStorage.setItem('myPageToken', token);
+    setIsLoading(true);
+    setLoginError('');
+
+    try {
+      // 登录
+      const response = await authAPI.login(username, password);
+      localStorage.setItem('access_token', response.access_token);
+      
+      // 获取用户数据
+      const userData = await authAPI.getMe();
+      
+      // 传递用户数据给父组件
       if (onLoginSuccess) {
-        onLoginSuccess();
+        onLoginSuccess(userData);
       }
-    } else {
-      setLoginError('Invalid username or password');
+      
+      // 关闭登录页面
+      if (onClose) {
+        onClose();
+      }
+    } catch (error) {
+      console.error('Login failed:', error);
+      setLoginError('Invalid username or password. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -132,6 +175,7 @@ function LoginPage({ onLoginSuccess }) {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   placeholder="Enter your username"
+                  disabled={isLoading}
                   required
                 />
               </div>
@@ -147,6 +191,7 @@ function LoginPage({ onLoginSuccess }) {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
+                  disabled={isLoading}
                   required
                 />
               </div>
@@ -154,12 +199,19 @@ function LoginPage({ onLoginSuccess }) {
             
             <motion.button 
               type="submit"
-              className="login-button"
+              className={`login-button ${isLoading ? 'loading' : ''}`}
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.98 }}
+              disabled={isLoading}
             >
-              <FaSignInAlt />
-              <span>Sign In</span>
+              {isLoading ? (
+                <div className="login-spinner"></div>
+              ) : (
+                <>
+                  <FaSignInAlt />
+                  <span>Sign In</span>
+                </>
+              )}
             </motion.button>
           </form>
           

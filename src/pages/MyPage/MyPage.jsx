@@ -6,59 +6,123 @@ import AOS from 'aos';
 import 'aos/dist/aos.css';
 import './MyPage.css';
 import LoginPage from '../../components/LoginPage';
+import { authAPI } from '../../router';
 
 function MyPage() {
   const particlesRef = useRef(null);
+  const animationFrameRef = useRef(null);
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('profile');
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [showLogin, setShowLogin] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userData, setUserData] = useState(null);
+  const [loading, setLoading] = useState(true);
   
-  // Hardcoded user data
-  const userData = {
-    name: "Zhang San",
-    avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-    title: "Senior Frontend Developer",
-    url: "https://example.com/zhangsan",
-    bio: "Passionate about frontend development and blockchain technology. 5 years of React experience. Love exploring new technologies and contributing to open source projects in my spare time.",
-    stats: {
-      posts: 42,
-      comments: 128,
-      likes: 315
-    },
-    posts: [
-      { id: 1, title: "React Hooks Best Practices", date: "2023-05-15", likes: 87, comments: 23 },
-      { id: 2, title: "Getting Started with Web3 Development", date: "2023-04-22", likes: 65, comments: 18 },
-      { id: 3, title: "Blockchain Applications in Frontend", date: "2023-03-10", likes: 92, comments: 31 }
-    ],
-    comments: [
-      { id: 1, postTitle: "Understanding Blockchain Fundamentals", content: "Great explanation of consensus mechanisms!", date: "2023-05-20" },
-      { id: 2, postTitle: "The Future of DeFi", content: "I think the integration with traditional finance will be key.", date: "2023-05-05" },
-      { id: 3, postTitle: "Web3 UX Challenges", content: "Wallet connection is still a major friction point for new users.", date: "2023-04-18" }
-    ],
-    likes: [
-      { id: 1, postTitle: "Zero Knowledge Proofs Explained", author: "Alex Chen", date: "2023-05-22" },
-      { id: 2, postTitle: "Building Scalable React Applications", author: "Sarah Johnson", date: "2023-05-10" },
-      { id: 3, postTitle: "Smart Contract Security Best Practices", author: "Michael Brown", date: "2023-04-30" }
-    ]
+  // 检查认证状态和获取用户数据
+  const checkAuthAndFetchData = async () => {
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      setShowLogin(true);
+      setIsAuthenticated(false);
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const userData = await authAPI.getMe();
+      setUserData({
+        // 真实数据
+        id: userData.id,
+        name: userData.name,
+        avatar: userData.avatar,
+        title: userData.title,
+        url: userData.url,
+        bio: userData.bio,
+        created_at: userData.created_at,
+        
+        // 模拟数据
+        stats: {
+          posts: 156,
+          comments: 892,
+          likes: 2731
+        },
+        activities: [
+          {
+            id: 1,
+            type: 'post',
+            title: 'Latest Blog Post',
+            date: '2024-01-15'
+          }
+        ],
+        skills: [
+          { name: 'React', level: 90 },
+          { name: 'JavaScript', level: 85 }
+        ]
+      });
+      setIsAuthenticated(true);
+      setShowLogin(false);
+    } catch (error) {
+      console.error('Failed to fetch user data:', error);
+      localStorage.removeItem('access_token');
+      setShowLogin(true);
+      setIsAuthenticated(false);
+    } finally {
+      setLoading(false);
+    }
   };
   
-  // 检查登录状态
+  // 初始化检查
   useEffect(() => {
-    const token = localStorage.getItem('myPageToken');
-    if (token) {
-      setIsLoggedIn(true);
-    }
+    checkAuthAndFetchData();
   }, []);
   
-  // 处理登出
-  const handleLogout = () => {
-    localStorage.removeItem('myPageToken');
-    setIsLoggedIn(false);
+  // 处理登录成功
+  const handleLoginSuccess = async (initialUserData) => {
+    setIsAuthenticated(true);
+    setUserData({
+      // 真实数据
+      id: initialUserData.id,
+      name: initialUserData.name,
+      avatar: initialUserData.avatar,
+      title: initialUserData.title,
+      url: initialUserData.url,
+      bio: initialUserData.bio,
+      created_at: initialUserData.created_at,
+      
+      // 模拟数据
+      stats: {
+        posts: 156,
+        comments: 892,
+        likes: 2731
+      },
+      activities: [
+        {
+          id: 1,
+          type: 'post',
+          title: 'Latest Blog Post',
+          date: '2024-01-15'
+        }
+      ],
+      skills: [
+        { name: 'React', level: 90 },
+        { name: 'JavaScript', level: 85 }
+      ]
+    });
+    setShowLogin(false);
+    setLoading(false);
   };
   
-  // 处理登录成功
-  const handleLoginSuccess = () => {
-    setIsLoggedIn(true);
+  const handleLogout = async () => {
+    try {
+      await authAPI.logout();
+    } catch (error) {
+      console.error('Logout failed:', error);
+    } finally {
+      localStorage.removeItem('access_token');
+      setIsAuthenticated(false);
+      setShowLogin(true);
+      setUserData(null);
+    }
   };
   
   useEffect(() => {
@@ -78,6 +142,7 @@ function MyPage() {
     
     const ctx = canvas.getContext('2d');
     let particles = [];
+    let animationFrameId;
     
     const resizeCanvas = () => {
       canvas.width = window.innerWidth;
@@ -94,8 +159,7 @@ function MyPage() {
         this.size = Math.random() * 2 + 0.5;
         this.speedX = Math.random() * 1 - 0.5;
         this.speedY = Math.random() * 1 - 0.5;
-        this.color = '#61dafb';
-        this.alpha = Math.random() * 0.5 + 0.1;
+        this.color = `rgba(97, 218, 251, ${Math.random() * 0.5 + 0.2})`;
       }
       
       update() {
@@ -110,18 +174,38 @@ function MyPage() {
       }
       
       draw() {
+        ctx.fillStyle = this.color;
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fillStyle = this.color;
-        ctx.globalAlpha = this.alpha;
         ctx.fill();
       }
     }
     
     const createParticles = () => {
-      const particleCount = Math.min(100, Math.floor(window.innerWidth * window.innerHeight / 10000));
+      const particleCount = Math.floor((canvas.width * canvas.height) / 15000);
       for (let i = 0; i < particleCount; i++) {
         particles.push(new Particle());
+      }
+    };
+    
+    const connectParticles = () => {
+      const maxDistance = 150;
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          
+          if (distance < maxDistance) {
+            const opacity = 1 - (distance / maxDistance);
+            ctx.strokeStyle = `rgba(97, 218, 251, ${opacity * 0.2})`;
+            ctx.lineWidth = 0.5;
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.stroke();
+          }
+        }
       }
     };
     
@@ -133,21 +217,42 @@ function MyPage() {
         particles[i].draw();
       }
       
-      requestAnimationFrame(animate);
+      connectParticles();
+      animationFrameId = requestAnimationFrame(animate);
     };
     
     createParticles();
     animate();
     
     return () => {
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
       window.removeEventListener('resize', resizeCanvas);
       particles = [];
     };
-  }, [isLoggedIn]);
+  }, [showLogin]);
   
-  // 如果未登录，显示登录页面
-  if (!isLoggedIn) {
-    return <LoginPage onLoginSuccess={handleLoginSuccess} />;
+  if (loading) {
+    return (
+      <div className="mp-page">
+        <canvas ref={particlesRef} className="mp-particles-bg"></canvas>
+        <div className="loading-spinner">Loading...</div>
+      </div>
+    );
+  }
+  
+  if (showLogin) {
+    return <LoginPage onLoginSuccess={handleLoginSuccess} onClose={() => setShowLogin(false)} />;
+  }
+  
+  if (!userData || !userData.name) {
+    return (
+      <div className="mp-page">
+        <canvas ref={particlesRef} className="mp-particles-bg"></canvas>
+        <div className="loading-spinner">Loading user data...</div>
+      </div>
+    );
   }
   
   return (

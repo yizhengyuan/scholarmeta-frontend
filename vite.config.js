@@ -11,7 +11,15 @@ export default defineConfig({
   ],
   server: {
     port: 3000,
-    open: true
+    open: true,
+    proxy: {
+      '/api': {  // 匹配所有 /api 开头的请求
+        target: 'https://47.80.10.180',  // 目标服务器
+        changeOrigin: true,  // 改变请求来源
+        secure: false,  // 忽略证书验证
+        rewrite: (path) => path  // 保持路径不变
+      }
+    }
   },
   resolve: {
     alias: {

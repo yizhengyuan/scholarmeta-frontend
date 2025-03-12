@@ -4,6 +4,7 @@ import ForumGrid from '../../components/ForumGrid';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import { FaSearch, FaFire, FaClock, FaSortAmountDown, FaSortAmountUp } from 'react-icons/fa';
+import { mediaAPI } from '../../router';  // 导入 API 方法
 
 function ForumPage() {
   const particlesRef = useRef(null);
@@ -102,27 +103,54 @@ function ForumPage() {
     };
   }, [isInitialLoad]);
 
-  // 从 ForumGrid 移动过来的数据获取逻辑
+  // 修改数据获取逻辑
   useEffect(() => {
-    fetch('/forumdata.json')
-      .then(response => response.json())
-      .then(data => {
-        setPosts(data.posts);
+    const fetchPosts = async () => {
+      setLoading(true);
+      try {
+        // 构建查询参数
+        const params = {
+          skip: 0,
+          limit: 20,
+          include_hidden: false
+        };
+
+        // 如果有搜索词，添加到参数中
+        if (searchTerm) {
+          params.search = searchTerm;
+        }
+
+        // 如果有排序，添加到参数中
+        if (sortBy) {
+          const [type, direction] = sortBy.split('-');
+          params.sort_by = type;
+          params.sort_direction = direction;
+        }
+
+        // 调用 API 获取帖子列表
+        const response = await mediaAPI.getPosts(params);
+        setPosts(response.posts || []);
+        setError(null);
+      } catch (err) {
+        console.error("Failed to fetch posts:", err);
+        setError('Failed to load posts. Please try again later.');
+        setPosts([]);
+      } finally {
         setLoading(false);
-      })
-      .catch(err => {
-        setError('Failed to load forum posts');
-        setLoading(false);
-      });
-  }, []);
+      }
+    };
+
+    fetchPosts();
+  }, [searchTerm, sortBy]); // 当搜索词或排序方式改变时重新获取数据
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
   };
 
+  // 修改搜索处理函数
   const handleSearchClick = () => {
-    // 这里可以添加搜索逻辑，目前只是一个占位函数
-    console.log("搜索:", searchTerm);
+    // 搜索时会触发 useEffect 重新获取数据
+    setLoading(true);
   };
 
   const handleSortChange = (newSortType) => {

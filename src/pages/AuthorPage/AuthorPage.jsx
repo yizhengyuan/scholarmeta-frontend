@@ -135,47 +135,66 @@ function AuthorPage() {
     });
   }, []);
 
+  // 检查登录状态
+  useEffect(() => {
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      navigate('/login', { state: { from: `/author/${id}` } });
+    }
+  }, [navigate, id]);
+
   // 获取作者数据
   useEffect(() => {
-    // 模拟 API 请求
-    setTimeout(() => {
-      // 假数据
-      const authorData = {
-        id: id,
-        name: "Sarah Williams",
-        avatar: null, // 测试无头像情况
-        title: "Crypto Analyst",
-        bio: "Experienced crypto analyst with a focus on DeFi protocols and market trends. Contributing to various blockchain projects since 2017.",
-        badges: ["Market Analyst", "DeFi Specialist"],
-        stats: {
-          posts: 24,
-          comments: 87,
-          likes: 156
-        },
-        expertise: [
-          "Blockchain Analysis", "DeFi Protocols", "Market Trends", 
-          "Technical Analysis", "Tokenomics", "Smart Contracts"
-        ],
-        activities: [
-          { id: 1, type: "post", title: "Understanding Yield Farming Risks", date: "2023-06-15" },
-          { id: 2, type: "comment", title: "On: The Future of Layer 2 Solutions", date: "2023-06-10" },
-          { id: 3, type: "like", title: "Ethereum 2.0 Staking Guide", date: "2023-06-05" }
-        ],
-        social: {
-          twitter: "https://twitter.com/sarahwilliams",
-          github: "https://github.com/sarahwilliams",
-          linkedin: "https://linkedin.com/in/sarahwilliams"
-        },
-        forumPosts: [
-          { id: 1, title: "Understanding Yield Farming Risks", likes: 10, comments: 5, date: "2023-06-15" },
-          { id: 2, title: "On: The Future of Layer 2 Solutions", likes: 8, comments: 3, date: "2023-06-10" },
-          { id: 3, title: "Ethereum 2.0 Staking Guide", likes: 12, comments: 7, date: "2023-06-05" }
-        ]
-      };
-      
-      setAuthor(authorData);
-      setLoading(false);
-    }, 1000);
+    const fetchAuthorData = async () => {
+      try {
+        // 这里可以添加获取作者数据的 API 调用
+        // const response = await authorAPI.getAuthorById(id);
+        // setAuthor(response.data);
+        
+        // 暂时保持使用模拟数据
+        setTimeout(() => {
+          const authorData = {
+            id: id,
+            name: "Sarah Williams",
+            avatar: null, // 测试无头像情况
+            title: "Crypto Analyst",
+            bio: "Experienced crypto analyst with a focus on DeFi protocols and market trends. Contributing to various blockchain projects since 2017.",
+            badges: ["Market Analyst", "DeFi Specialist"],
+            stats: {
+              posts: 24,
+              comments: 87,
+              likes: 156
+            },
+            expertise: [
+              "Blockchain Analysis", "DeFi Protocols", "Market Trends", 
+              "Technical Analysis", "Tokenomics", "Smart Contracts"
+            ],
+            activities: [
+              { id: 1, type: "post", title: "Understanding Yield Farming Risks", date: "2023-06-15" },
+              { id: 2, type: "comment", title: "On: The Future of Layer 2 Solutions", date: "2023-06-10" },
+              { id: 3, type: "like", title: "Ethereum 2.0 Staking Guide", date: "2023-06-05" }
+            ],
+            social: {
+              twitter: "https://twitter.com/sarahwilliams",
+              github: "https://github.com/sarahwilliams",
+              linkedin: "https://linkedin.com/in/sarahwilliams"
+            },
+            forumPosts: [
+              { id: 1, title: "Understanding Yield Farming Risks", likes: 10, comments: 5, date: "2023-06-15" },
+              { id: 2, title: "On: The Future of Layer 2 Solutions", likes: 8, comments: 3, date: "2023-06-10" },
+              { id: 3, title: "Ethereum 2.0 Staking Guide", likes: 12, comments: 7, date: "2023-06-05" }
+            ]
+          };
+          setAuthor(authorData);
+          setLoading(false);
+        }, 1000);
+      } catch (err) {
+        setError('Failed to load author data');
+        setLoading(false);
+      }
+    };
+
+    fetchAuthorData();
   }, [id]);
 
   // 返回论坛

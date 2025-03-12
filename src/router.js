@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8000/api/v1';
+const API_BASE_URL = 'http://47.80.10.180:8000/api/v1';
 
 // 创建 axios 实例
 const api = axios.create({
@@ -32,7 +32,7 @@ api.interceptors.response.use(
   }
 );
 
-// 媒体上传相关 API
+// 媒体服务相关 API
 export const mediaAPI = {
   // 上传视频
   uploadVideo: async (file, title, description = '', tags = '', config = {}) => {
@@ -62,6 +62,23 @@ export const mediaAPI = {
     formData.append('file', file);
 
     return api.post('/media/upload/ipfs', formData, config);
+  },
+
+  // 获取单个帖子详情
+  getPostDetail: async (postId) => {
+    return api.get(`/media/${postId}`);
+  },
+
+  // 获取帖子列表
+  getPosts: async (params = {}) => {
+    const defaultParams = {
+      skip: 0,
+      limit: 20,
+      include_hidden: false
+    };
+    return api.get('/media/list', { 
+      params: { ...defaultParams, ...params }
+    });
   }
 };
 

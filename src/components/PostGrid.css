@@ -1,0 +1,32 @@
+/* 从 ForumGrid.css 中提取单个帖子卡片的样式 */
+.forum-post-card {
+  position: relative;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 1rem;
+  overflow: hidden;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.forum-post-title {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+}
+
+.forum-post-preview {
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  max-height: 2.8em;
+  overflow: hidden;
+}
+
+.forum-post-meta {
+  font-size: 0.85rem;
+}
+
+.forum-post-footer {
+  margin-top: 0.5rem;
+}
+
+/* ... 其他所有与 post-card 相关的样式保持不变 ... */

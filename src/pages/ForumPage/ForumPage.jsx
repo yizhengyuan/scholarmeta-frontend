@@ -10,6 +10,10 @@ function ForumPage() {
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState(null); // null, 'hot-desc', 'hot-asc', 'recent-desc', 'recent-asc'
+  // 新增状态用于存储帖子数据
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     // 只在初始加载时重置滚动位置
@@ -97,6 +101,20 @@ function ForumPage() {
       sessionStorage.setItem('forumScrollPosition', window.scrollY.toString());
     };
   }, [isInitialLoad]);
+
+  // 从 ForumGrid 移动过来的数据获取逻辑
+  useEffect(() => {
+    fetch('/forumdata.json')
+      .then(response => response.json())
+      .then(data => {
+        setPosts(data.posts);
+        setLoading(false);
+      })
+      .catch(err => {
+        setError('Failed to load forum posts');
+        setLoading(false);
+      });
+  }, []);
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
@@ -206,7 +224,13 @@ function ForumPage() {
           </div>
         </div>
         
-        <ForumGrid searchTerm={searchTerm} sortBy={sortBy} />
+        <ForumGrid 
+          posts={posts}
+          loading={loading}
+          error={error}
+          searchTerm={searchTerm} 
+          sortBy={sortBy}
+        />
       </div>
     </div>
   );

@@ -222,7 +222,7 @@
 }
 
 .forum-detail-page .forum-detail-comments {
-  margin-top: 40px;
+  margin-top: 20px;
   padding-top: 30px;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
@@ -448,22 +448,6 @@
   position: relative;
 }
 
-.ai-analysis-container::after {
-  content: '';
-  position: absolute;
-  bottom: -2rem;
-  left: 0;
-  width: 100%;
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(97, 218, 251, 0.3) 20%,
-    rgba(97, 218, 251, 0.3) 80%,
-    transparent
-  );
-}
-
 .ai-analysis-header {
   display: flex;
   align-items: center;
@@ -546,7 +530,8 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1.5rem;
-  padding-top: 1rem;
+  padding-top: 0rem;
+  margin-top: -1rem; 
 }
 
 .write-comment-btn {

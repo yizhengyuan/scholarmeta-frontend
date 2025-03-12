@@ -302,32 +302,32 @@ function ForumDetailPage() {
           </div>
         </div>
 
-        <div className="forum-detail-comments" data-aos="fade-up">
-          <div className="ai-analysis-container">
-            <div className="ai-analysis-header">
-              <div className="ai-avatar">AI</div>
-              <h3>AI Content Analysis</h3>
+        <div className="ai-analysis-container" data-aos="fade-up">
+          <div className="ai-analysis-header">
+            <div className="ai-avatar">AI</div>
+            <h3>AI Content Analysis</h3>
+          </div>
+          <div className="ai-analysis-content">
+            <div className="ai-analysis-item">
+              <h4>Key Points:</h4>
+              <ul>
+                <li>Web3 技术与区块链的深度融合</li>
+                <li>去中心化存储的创新应用</li>
+                <li>智能合约在实际场景中的应用价值</li>
+              </ul>
             </div>
-            <div className="ai-analysis-content">
-              <div className="ai-analysis-item">
-                <h4>Key Points:</h4>
-                <ul>
-                  <li>Web3 技术与区块链的深度融合</li>
-                  <li>去中心化存储的创新应用</li>
-                  <li>智能合约在实际场景中的应用价值</li>
-                </ul>
-              </div>
-              <div className="ai-analysis-item">
-                <h4>Sentiment Analysis:</h4>
-                <div className="sentiment-tags">
-                  <span className="sentiment-tag positive">Technical</span>
-                  <span className="sentiment-tag positive">Innovative</span>
-                  <span className="sentiment-tag neutral">Educational</span>
-                </div>
+            <div className="ai-analysis-item">
+              <h4>Sentiment Analysis:</h4>
+              <div className="sentiment-tags">
+                <span className="sentiment-tag positive">Technical</span>
+                <span className="sentiment-tag positive">Innovative</span>
+                <span className="sentiment-tag neutral">Educational</span>
               </div>
             </div>
           </div>
+        </div>
 
+        <div className="forum-detail-comments" data-aos="fade-up">
           <div className="comments-header">
             <h3 className="comments-title">Comments ({totalComments})</h3>
             <button 

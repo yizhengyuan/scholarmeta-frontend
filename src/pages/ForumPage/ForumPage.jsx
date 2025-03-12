@@ -3,10 +3,13 @@ import './ForumPage.css';
 import ForumGrid from '../../components/ForumGrid';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
+import { FaSearch, FaFire, FaClock, FaSortAmountDown, FaSortAmountUp } from 'react-icons/fa';
 
 function ForumPage() {
   const particlesRef = useRef(null);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortBy, setSortBy] = useState(null); // null, 'hot-desc', 'hot-asc', 'recent-desc', 'recent-asc'
 
   useEffect(() => {
     // 只在初始加载时重置滚动位置
@@ -95,6 +98,49 @@ function ForumPage() {
     };
   }, [isInitialLoad]);
 
+  const handleSearch = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+  const handleSearchClick = () => {
+    // 这里可以添加搜索逻辑，目前只是一个占位函数
+    console.log("搜索:", searchTerm);
+  };
+
+  const handleSortChange = (newSortType) => {
+    // 如果当前排序类型是 null，设置为降序
+    if (sortBy === null) {
+      setSortBy(`${newSortType}-desc`);
+    } 
+    // 如果当前是降序，切换为升序
+    else if (sortBy === `${newSortType}-desc`) {
+      setSortBy(`${newSortType}-asc`);
+    } 
+    // 如果当前是升序或者其他排序类型，取消排序
+    else {
+      setSortBy(null);
+    }
+  };
+
+  // 获取排序类型和方向
+  const getSortType = () => {
+    if (!sortBy) return null;
+    return sortBy.split('-')[0]; // 'hot' 或 'recent'
+  };
+
+  const getSortDirection = () => {
+    if (!sortBy) return null;
+    return sortBy.split('-')[1]; // 'asc' 或 'desc'
+  };
+
+  // 获取排序图标
+  const getSortIcon = (type) => {
+    if (sortBy && sortBy.startsWith(type)) {
+      return getSortDirection() === 'desc' ? <FaSortAmountDown /> : <FaSortAmountUp />;
+    }
+    return type === 'hot' ? <FaFire /> : <FaClock />;
+  };
+
   return (
     <div className="forum-root">
       <canvas ref={particlesRef} className="particles-bg"></canvas>
@@ -124,7 +170,43 @@ function ForumPage() {
       </div>
 
       <div className="forum-content">
-        <ForumGrid />
+        <div className="forum-controls" data-aos="fade-up">
+          <div className="forum-search">
+            <FaSearch className="search-icon" />
+            <input 
+              type="text" 
+              placeholder="Search topics, tags, or authors..." 
+              value={searchTerm}
+              onChange={handleSearch}
+              className="search-input"
+            />
+            <button 
+              className="search-btn"
+              onClick={handleSearchClick}
+            >
+              Search
+            </button>
+          </div>
+          
+          <div className="forum-sort">
+            <button 
+              className={`sort-btn ${sortBy && sortBy.startsWith('hot') ? 
+                (getSortDirection() === 'desc' ? 'sort-active-desc' : 'sort-active-asc') : ''}`}
+              onClick={() => handleSortChange('hot')}
+            >
+              {getSortIcon('hot')} Hot
+            </button>
+            <button 
+              className={`sort-btn ${sortBy && sortBy.startsWith('recent') ? 
+                (getSortDirection() === 'desc' ? 'sort-active-desc' : 'sort-active-asc') : ''}`}
+              onClick={() => handleSortChange('recent')}
+            >
+              {getSortIcon('recent')} Recent
+            </button>
+          </div>
+        </div>
+        
+        <ForumGrid searchTerm={searchTerm} sortBy={sortBy} />
       </div>
     </div>
   );

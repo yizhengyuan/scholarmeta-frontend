@@ -9,6 +9,7 @@ import TokenPage from './pages/TokenPage/TokenPage'
 import ForumPage from './pages/ForumPage/ForumPage'
 import ForumDetailPage from './pages/ForumDetailPage/ForumDetailPage'
 import AuthorPage from './pages/AuthorPage/AuthorPage'
+import MyPage from './pages/MyPage/MyPage'
 
 // 导入组件
 import Header from './components/Header'
@@ -26,6 +27,7 @@ function App() {
           <Route path="/forum" element={<ForumPage />} />
           <Route path="/forum/detail/:id" element={<ForumDetailPage />} />
           <Route path="/author/:id" element={<AuthorPage />} />
+          <Route path="/mypage" element={<MyPage />} />
         </Routes>
       </main>
       <Footer />

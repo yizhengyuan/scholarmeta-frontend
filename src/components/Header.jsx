@@ -73,6 +73,16 @@ function Header() {
               Tokens
             </NavLink>
           </li>
+          <li>
+            <NavLink 
+              to="/mypage" 
+              className={({ isActive }) => 
+                isActive ? 'header-link active' : 'header-link'
+              }
+            >
+              My Page
+            </NavLink>
+          </li>
         </ul>
       </nav>
       <div className="header-wallet">

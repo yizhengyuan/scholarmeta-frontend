@@ -3,10 +3,11 @@ import './UploadPage.css';
 import { Web3Context } from '../../context/Web3Context';
 import AOS from 'aos';
 import { mediaAPI } from '../../router';
+import { FaEdit, FaTimes, FaGlobe, FaLock } from 'react-icons/fa';
 
 function UploadPage() {
   const { web3State } = useContext(Web3Context);
-  const [file, setFile] = useState(null);
+  const [files, setFiles] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [uploadResult, setUploadResult] = useState(null);
@@ -16,6 +17,14 @@ function UploadPage() {
   const [uploadedSize, setUploadedSize] = useState(0);
   const lastUploadedRef = useRef(0);
   const uploadStartTimeRef = useRef(null);
+  const [showTemplate, setShowTemplate] = useState(false);
+  const [formData, setFormData] = useState({
+    title: '',
+    content: '',
+    tags: '',
+    aiPrompt: '',
+    visibility: 'public'
+  });
 
   useEffect(() => {
     const canvas = particlesRef.current;
@@ -116,10 +125,37 @@ function UploadPage() {
   }, []);
 
   const handleFileChange = (e) => {
-    if (e.target.files[0]) {
-      setFile(e.target.files[0]);
-      setError(null);
+    const selectedFiles = Array.from(e.target.files);
+    const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
+    const MAX_FILES = 5;
+
+    if (files.length + selectedFiles.length > MAX_FILES) {
+      setError(`Maximum ${MAX_FILES} files allowed`);
+      return;
     }
+
+    const validFiles = selectedFiles.filter(file => {
+      if (file.size > MAX_FILE_SIZE) {
+        setError(`File ${file.name} exceeds 50MB limit`);
+        return false;
+      }
+      return true;
+    });
+
+    setFiles(prev => [...prev, ...validFiles]);
+    setError(null);
+  };
+
+  const removeFile = (index) => {
+    setFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleTemplateChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   // 格式化文件大小
@@ -158,8 +194,8 @@ function UploadPage() {
   }, [uploadedSize]);
 
   const handleUpload = async () => {
-    if (!file) {
-      setError("Please select a file");
+    if (files.length === 0) {
+      setError("Please select at least one file");
       return;
     }
 
@@ -171,9 +207,9 @@ function UploadPage() {
     setUploadSpeed(0);
     lastUploadedRef.current = 0;
     uploadStartTimeRef.current = Date.now();
-    
+
     try {
-      // 配置上传进度监听
+      // 保持原有的上传进度监听逻辑
       const onUploadProgress = (progressEvent) => {
         const percentCompleted = Math.round(
           (progressEvent.loaded * 100) / progressEvent.total
@@ -182,38 +218,49 @@ function UploadPage() {
         setUploadedSize(progressEvent.loaded);
       };
 
-      // 根据文件类型选择上传方法
-      let result;
-      const config = { onUploadProgress };
+      // 上传所有文件
+      const results = await Promise.all(files.map(async (file) => {
+        const config = { onUploadProgress };
+        let result;
 
-      if (file.type.startsWith('video/')) {
-        result = await mediaAPI.uploadVideo(file, file.name, '', '', config);
-      } else if (file.type.startsWith('audio/')) {
-        result = await mediaAPI.uploadAudio(file, file.name, '', '', config);
-      } else {
-        result = await mediaAPI.uploadToIPFS(file, config);
-      }
+        if (file.type.startsWith('video/')) {
+          result = await mediaAPI.uploadVideo(file, file.name, formData.title, formData.content, config);
+        } else if (file.type.startsWith('audio/')) {
+          result = await mediaAPI.uploadAudio(file, file.name, formData.title, formData.content, config);
+        } else {
+          result = await mediaAPI.uploadToIPFS(file, config);
+        }
 
-      setUploadResult({
-        fileName: file.name,
-        fileSize: file.size,
-        fileType: file.type,
-        ipfsHash: result.ipfsHash || result.hash,
-        timestamp: new Date().toISOString()
-      });
+        return {
+          fileName: file.name,
+          fileSize: file.size,
+          fileType: file.type,
+          ipfsHash: result.ipfsHash || result.hash,
+          ...formData,
+          timestamp: new Date().toISOString()
+        };
+      }));
+
+      setUploadResult(results);
       
-      // 重置状态
       setTimeout(() => {
-        setFile(null);
+        setFiles([]);
         setUploading(false);
         setProgress(0);
         setUploadedSize(0);
         setUploadSpeed(0);
+        setFormData({
+          title: '',
+          content: '',
+          tags: '',
+          aiPrompt: '',
+          visibility: 'public'
+        });
       }, 1000);
       
     } catch (err) {
       console.error("File upload failed:", err);
-      setError(err.response?.data?.message || err.message || "Upload failed, please try again");
+      setError(err.response?.data?.message || err.message || "Upload failed");
       setUploading(false);
       setProgress(0);
       setUploadedSize(0);
@@ -244,7 +291,7 @@ function UploadPage() {
             <div className="upload-card">
               <div className="upload-header">
                 <span className="upload-header-icon">📤</span>
-                <h2>Upload Your File</h2>
+                <h2>Upload Your Files</h2>
               </div>
               
               <div className="upload-area">
@@ -254,32 +301,156 @@ function UploadPage() {
                   onChange={handleFileChange}
                   disabled={uploading}
                   className="upload-input"
+                  multiple
                 />
                 <label 
                   htmlFor="file-input" 
                   className={`upload-label ${uploading ? 'disabled' : ''}`}
                 >
-                  {file ? (
-                    <div className="file-info">
-                      <span className="file-icon">📄</span>
-                      <span className="file-name">{file.name}</span>
-                    </div>
-                  ) : (
-                    <div className="upload-placeholder">
-                      <span className="upload-icon">📁</span>
-                      <span>Choose a file or drag it here</span>
-                    </div>
-                  )}
+                  <div className="upload-placeholder">
+                    <span className="upload-icon">📁</span>
+                    <span>Choose files or drag them here</span>
+                    <span className="upload-limits">Max 5 files, up to 50MB each</span>
+                  </div>
                 </label>
               </div>
 
-              {file && !uploading && (
+              {files.length > 0 && (
+                <div className="uploaded-files-bar">
+                  <div className="uploaded-files-header">
+                    <h3>Selected Files</h3>
+                    <span className="file-count">{files.length} file(s)</span>
+                  </div>
+                  <div className="uploaded-files-list">
+                    {files.map((file, index) => (
+                      <div key={index} className="uploaded-file-item">
+                        <div className="file-item-info">
+                          <span className="file-item-icon">
+                            {file.type.startsWith('image/') ? '🖼️' : 
+                             file.type.startsWith('video/') ? '🎥' : 
+                             file.type.startsWith('audio/') ? '🎵' : '📄'}
+                          </span>
+                          <div className="file-item-details">
+                            <span className="file-item-name">{file.name}</span>
+                            <span className="file-item-size">{(file.size / (1024 * 1024)).toFixed(2)} MB</span>
+                          </div>
+                        </div>
+                        <button 
+                          className="file-item-remove"
+                          onClick={() => removeFile(index)}
+                          disabled={uploading}
+                        >
+                          <FaTimes />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <button 
+                className="metadata-toggle"
+                onClick={() => setShowTemplate(!showTemplate)}
+              >
+                <FaEdit />
+                <span>{showTemplate ? 'Hide Metadata' : 'Add Metadata'}</span>
+              </button>
+
+              {showTemplate && (
+                <div className="metadata-form">
+                  <div className="metadata-group">
+                    <label className="metadata-label">Title</label>
+                    <input
+                      type="text"
+                      name="title"
+                      value={formData.title}
+                      onChange={handleTemplateChange}
+                      placeholder="Enter title"
+                      className="metadata-input"
+                    />
+                  </div>
+
+                  <div className="metadata-group">
+                    <label className="metadata-label">Summary</label>
+                    <textarea
+                      name="summary"
+                      value={formData.summary}
+                      onChange={handleTemplateChange}
+                      placeholder="Enter a brief summary"
+                      className="metadata-textarea"
+                    />
+                  </div>
+
+                  <div className="metadata-group">
+                    <label className="metadata-label">Content</label>
+                    <textarea
+                      name="content"
+                      value={formData.content}
+                      onChange={handleTemplateChange}
+                      placeholder="Enter content"
+                      className="metadata-textarea"
+                    />
+                  </div>
+
+                  <div className="metadata-group">
+                    <label className="metadata-label">Tags</label>
+                    <input
+                      type="text"
+                      name="tags"
+                      value={formData.tags}
+                      onChange={handleTemplateChange}
+                      placeholder="Enter tags (comma separated)"
+                      className="metadata-input"
+                    />
+                  </div>
+
+                  <div className="metadata-group">
+                    <label className="metadata-label">AI Instructions</label>
+                    <textarea
+                      name="aiPrompt"
+                      value={formData.aiPrompt}
+                      onChange={handleTemplateChange}
+                      placeholder="Enter AI processing instructions"
+                      className="metadata-textarea"
+                    />
+                  </div>
+
+                  <div className="metadata-group">
+                    <label className="metadata-label">Visibility</label>
+                    <div className="visibility-options">
+                      <label className="visibility-option">
+                        <input
+                          type="radio"
+                          name="visibility"
+                          value="public"
+                          checked={formData.visibility === 'public'}
+                          onChange={handleTemplateChange}
+                        />
+                        <FaGlobe />
+                        <span>Public</span>
+                      </label>
+                      <label className="visibility-option">
+                        <input
+                          type="radio"
+                          name="visibility"
+                          value="private"
+                          checked={formData.visibility === 'private'}
+                          onChange={handleTemplateChange}
+                        />
+                        <FaLock />
+                        <span>Private</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {files.length > 0 && !uploading && (
                 <button 
                   className="upload-button"
                   onClick={handleUpload}
-                  disabled={!web3State.connected}
                 >
-                  Upload to IPFS
+                  Upload Files
                 </button>
               )}
 
@@ -293,62 +464,36 @@ function UploadPage() {
                       <div className="progress-glow"></div>
                     </div>
                   </div>
-                  <div className="progress-info">
-                    <span className="progress-text">
-                      {progress}% • {formatSize(uploadedSize)} / {formatSize(file.size)}
-                    </span>
-                    <span className="upload-speed">
-                      {formatSpeed(uploadSpeed)}
-                    </span>
-                  </div>
                 </div>
               )}
             </div>
 
             {error && (
-              <div className="upload-error" data-aos="fade">
+              <div className="upload-error">
                 <span className="error-icon">⚠️</span>
                 <span className="error-text">{error}</span>
               </div>
             )}
 
             {uploadResult && (
-              <div className="upload-success" data-aos="fade-up">
+              <div className="upload-success">
                 <div className="success-header">
                   <span className="success-icon">✨</span>
                   <h3>Upload Successful!</h3>
                 </div>
                 
-                <div className="success-details">
-                  <div className="detail-row">
-                    <span className="detail-label">File Name</span>
-                    <span className="detail-value">{uploadResult.fileName}</span>
+                {uploadResult.map((result, index) => (
+                  <div key={index} className="success-details">
+                    <div className="detail-row">
+                      <span className="detail-label">File Name</span>
+                      <span className="detail-value">{result.fileName}</span>
+                    </div>
+                    <div className="detail-row">
+                      <span className="detail-label">IPFS Hash</span>
+                      <span className="detail-value hash">{result.ipfsHash}</span>
+                    </div>
                   </div>
-                  <div className="detail-row">
-                    <span className="detail-label">Size</span>
-                    <span className="detail-value">{Math.round(uploadResult.fileSize / 1024)} KB</span>
-                  </div>
-                  <div className="detail-row">
-                    <span className="detail-label">IPFS Hash</span>
-                    <span className="detail-value hash">{uploadResult.ipfsHash}</span>
-                  </div>
-                  <div className="detail-row">
-                    <span className="detail-label">Time</span>
-                    <span className="detail-value">
-                      {new Date(uploadResult.timestamp).toLocaleString()}
-                    </span>
-                  </div>
-                </div>
-
-                <a 
-                  href={`https://ipfs.io/ipfs/${uploadResult.ipfsHash}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="view-link"
-                >
-                  View on IPFS
-                  <span className="link-icon">↗️</span>
-                </a>
+                ))}
               </div>
             )}
           </div>

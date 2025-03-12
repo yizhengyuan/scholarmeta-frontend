@@ -289,3 +289,368 @@
     transform: translateY(0);
   }
 }
+
+.files-list {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.remove-file {
+  background: none;
+  border: none;
+  color: #888;
+  cursor: pointer;
+  padding: 0.5rem;
+  transition: color 0.3s ease;
+}
+
+.remove-file:hover {
+  color: #ff4444;
+}
+
+.template-toggle {
+  width: 100%;
+  padding: 1rem;
+  background: rgba(97, 218, 251, 0.1);
+  border: 1px solid rgba(97, 218, 251, 0.3);
+  border-radius: 8px;
+  color: #61dafb;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 1rem 0;
+  transition: all 0.3s ease;
+}
+
+.template-toggle:hover {
+  background: rgba(97, 218, 251, 0.2);
+}
+
+.template-form {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  animation: fadeIn 0.3s ease;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.template-input,
+.template-textarea {
+  width: 100%;
+  padding: 0.8rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #fff;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.template-textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.template-input:focus,
+.template-textarea:focus {
+  outline: none;
+  border-color: #61dafb;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.visibility-options {
+  display: flex;
+  gap: 2rem;
+  color: #fff;
+}
+
+.visibility-options label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.upload-limits {
+  color: #888;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+
+.uploaded-files-bar {
+  background: rgba(30, 30, 30, 0.6);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  border: 1px solid rgba(97, 218, 251, 0.1);
+  overflow: hidden;
+  margin: 1rem 0;
+}
+
+.uploaded-files-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: rgba(97, 218, 251, 0.05);
+  border-bottom: 1px solid rgba(97, 218, 251, 0.1);
+}
+
+.uploaded-files-header h3 {
+  margin: 0;
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.file-count {
+  color: #61dafb;
+  font-size: 0.9rem;
+}
+
+.uploaded-files-list {
+  max-height: 200px;
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+.uploaded-file-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.uploaded-file-item:last-child {
+  margin-bottom: 0;
+}
+
+.uploaded-file-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.file-item-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+}
+
+.file-item-icon {
+  font-size: 1.5rem;
+}
+
+.file-item-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.file-item-name {
+  color: #fff;
+  font-size: 0.9rem;
+}
+
+.file-item-size {
+  color: #888;
+  font-size: 0.8rem;
+}
+
+.file-item-remove {
+  background: none;
+  border: none;
+  color: #888;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.file-item-remove:hover:not(:disabled) {
+  color: #ff4444;
+  background: rgba(255, 68, 68, 0.1);
+}
+
+.file-item-remove:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 美化滚动条 */
+.uploaded-files-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.uploaded-files-list::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 3px;
+}
+
+.uploaded-files-list::-webkit-scrollbar-thumb {
+  background: rgba(97, 218, 251, 0.3);
+  border-radius: 3px;
+}
+
+.uploaded-files-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(97, 218, 251, 0.5);
+}
+
+/* Metadata 样式 */
+.metadata-toggle {
+  width: 100%;
+  padding: 1rem;
+  background: rgba(97, 218, 251, 0.05);
+  border: 1px solid rgba(97, 218, 251, 0.2);
+  border-radius: 12px;
+  color: #61dafb;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin: 1.5rem 0;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+}
+
+.metadata-toggle:hover {
+  background: rgba(97, 218, 251, 0.1);
+  transform: translateY(-1px);
+}
+
+.metadata-form {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  padding: 2rem;
+  margin-top: 1rem;
+  margin-bottom: 2rem;
+  border: 1px solid rgba(97, 218, 251, 0.1);
+  animation: slideDown 0.3s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.metadata-group {
+  margin-bottom: 1.5rem;
+}
+
+.metadata-group:last-child {
+  margin-bottom: 0;
+}
+
+.metadata-label {
+  display: block;
+  color: #61dafb;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.metadata-input,
+.metadata-textarea {
+  width: 95%;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(97, 218, 251, 0.15);
+  border-radius: 8px;
+  color: #fff;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.metadata-textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+/* 为 summary 文本框设置适中的高度 */
+textarea[name="summary"] {
+  min-height: 100px;
+}
+
+/* content 文本框保持较大的高度 */
+textarea[name="content"] {
+  min-height: 300px;
+}
+
+/* 美化文本框滚动条 */
+.metadata-textarea::-webkit-scrollbar {
+  width: 6px;
+}
+
+.metadata-textarea::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 3px;
+}
+
+.metadata-textarea::-webkit-scrollbar-thumb {
+  background: rgba(97, 218, 251, 0.3);
+  border-radius: 3px;
+  transition: background 0.3s ease;
+}
+
+.metadata-textarea::-webkit-scrollbar-thumb:hover {
+  background: rgba(97, 218, 251, 0.5);
+}
+
+.metadata-input:focus,
+.metadata-textarea:focus {
+  outline: none;
+  border-color: #61dafb;
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 0 0 2px rgba(97, 218, 251, 0.1);
+}
+
+.visibility-options {
+  display: flex;
+  gap: 2rem;
+  margin-top: 0.5rem;
+}
+
+.visibility-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #fff;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.visibility-option:hover {
+  background: rgba(97, 218, 251, 0.05);
+}
+
+.visibility-option input[type="radio"] {
+  display: none;
+}
+
+.visibility-option input[type="radio"] + svg {
+  color: #888;
+}
+
+.visibility-option input[type="radio"]:checked + svg {
+  color: #61dafb;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

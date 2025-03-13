@@ -4,7 +4,6 @@ import ForumGrid from '../../components/ForumGrid';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import { FaSearch, FaFire, FaClock, FaSortAmountDown, FaSortAmountUp } from 'react-icons/fa';
-import { mediaAPI } from '../../router';  // 导入 API 方法
 
 function ForumPage() {
   const particlesRef = useRef(null);
@@ -108,31 +107,38 @@ function ForumPage() {
     const fetchPosts = async () => {
       setLoading(true);
       try {
-        // 构建查询参数
-        const params = {
-          skip: 0,
-          limit: 20,
-          include_hidden: false
-        };
+        const response = await fetch('/forumdata.json');
+        const data = await response.json();
+        let filteredPosts = [...data.posts];
 
-        // 如果有搜索词，添加到参数中
+        // 搜索过滤
         if (searchTerm) {
-          params.search = searchTerm;
+          const searchLower = searchTerm.toLowerCase();
+          filteredPosts = filteredPosts.filter(post => 
+            post.title.toLowerCase().includes(searchLower) ||
+            post.author.toLowerCase().includes(searchLower) ||
+            post.tags.some(tag => tag.toLowerCase().includes(searchLower))
+          );
         }
 
-        // 如果有排序，添加到参数中
+        // 排序处理
         if (sortBy) {
           const [type, direction] = sortBy.split('-');
-          params.sort_by = type;
-          params.sort_direction = direction;
+          filteredPosts.sort((a, b) => {
+            let comparison = 0;
+            if (type === 'hot') {
+              comparison = b.likes - a.likes;
+            } else if (type === 'recent') {
+              comparison = new Date(b.timestamp) - new Date(a.timestamp);
+            }
+            return direction === 'asc' ? -comparison : comparison;
+          });
         }
 
-        // 调用 API 获取帖子列表
-        const response = await mediaAPI.getPosts(params);
-        setPosts(response.posts || []);
+        setPosts(filteredPosts);
         setError(null);
       } catch (err) {
-        console.error("Failed to fetch posts:", err);
+        console.error("Failed to load posts:", err);
         setError('Failed to load posts. Please try again later.');
         setPosts([]);
       } finally {
@@ -141,7 +147,7 @@ function ForumPage() {
     };
 
     fetchPosts();
-  }, [searchTerm, sortBy]); // 当搜索词或排序方式改变时重新获取数据
+  }, [searchTerm, sortBy]);
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);

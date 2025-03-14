@@ -86,10 +86,33 @@ function ForumPage() {
     
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // 添加连线效果
+      const maxDistance = 150;
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          
+          if (distance < maxDistance) {
+            const opacity = 1 - (distance / maxDistance);
+            ctx.strokeStyle = `rgba(97, 218, 251, ${opacity * 0.2})`;
+            ctx.lineWidth = 0.5;
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.stroke();
+          }
+        }
+      }
+      
+      // 更新和绘制粒子
       particles.forEach(particle => {
         particle.update();
         particle.draw();
       });
+      
       requestAnimationFrame(animate);
     };
     

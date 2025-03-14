@@ -78,6 +78,7 @@
   overflow: hidden;
   flex-shrink: 0;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
 }
 
 .mp-profile-avatar img {
@@ -90,6 +91,13 @@
   flex: 1;
 }
 
+.mp-profile-name,
+.mp-profile-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .mp-profile-name {
   font-size: 2.5rem;
   font-weight: 700;
@@ -99,30 +107,33 @@
   background-clip: text;
   color: transparent;
   text-shadow: 0 0 20px rgba(97, 218, 251, 0.3);
+  cursor: pointer;
 }
 
 .mp-profile-title {
   font-size: 1.2rem;
   color: #ccc;
   margin: 0 0 15px;
+  cursor: pointer;
 }
 
 .mp-profile-url {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
+  margin-bottom: 15px;
   color: #61dafb;
-  font-size: 0.95rem;
 }
 
 .mp-profile-url a {
-  color: #61dafb;
+  color: inherit;
   text-decoration: none;
-  transition: all 0.3s;
+  display: flex;
+  align-items: center;
 }
 
-.mp-profile-url a:hover {
-  text-decoration: underline;
+.mp-profile-url:hover .mp-edit-button {
+  opacity: 0.7;
 }
 
 .mp-edit-button {
@@ -130,12 +141,16 @@
   border: none;
   color: #61dafb;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 0.9rem;
   padding: 5px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s;
+  opacity: 0;
+  transition: opacity 0.3s;
+  margin-top: 4px;
+}
+
+.mp-profile-name:hover .mp-edit-button,
+.mp-profile-title:hover .mp-edit-button {
+  opacity: 0.7;
 }
 
 .mp-edit-button:hover {
@@ -200,14 +215,115 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 30px;
+  padding: 0 10px;
+}
+
+.mp-section-title {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.mp-section-title h2 {
+  font-size: 2rem;
+  font-weight: 600;
+  background: linear-gradient(45deg, #61dafb, #fb61da);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  margin: 0;
+}
+
+.mp-post-count {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 1rem;
+}
+
+.mp-profile-section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   margin-bottom: 20px;
 }
 
+.mp-profile-section-header h2 {
+  margin: 0;
+}
+
+.mp-profile-section-header .mp-edit-button {
+  margin-top: 4px;
+}
+
+.mp-profile-section-header:hover .mp-edit-button {
+  opacity: 0.7;
+}
+
 .mp-bio {
-  font-size: 1.1rem;
-  line-height: 1.6;
-  color: #ccc;
+  position: relative;
+  display: flex;
+  align-items: flex-start;
   margin-bottom: 30px;
+  color: #fff;
+}
+
+.mp-bio pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  font-family: inherit;
+  color: inherit;
+}
+
+.mp-bio-edit-field {
+  width: 100%;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin-bottom: 30px;
+}
+
+.mp-bio-edit-field textarea {
+  flex: 1;
+  min-height: 150px;
+  max-height: 300px;
+  background: rgba(20, 20, 20, 0.8);
+  border: 1px solid rgba(97, 218, 251, 0.3);
+  border-radius: 4px;
+  resize: vertical;
+  overflow-y: auto;
+  padding: 8px 12px;
+  color: #fff;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.mp-bio .mp-edit-button {
+  margin-top: 2px;
+  opacity: 0;
+}
+
+.mp-bio:hover .mp-edit-button {
+  opacity: 0.7;
+}
+
+/* 自定义滚动条样式 */
+.mp-bio-edit-field textarea::-webkit-scrollbar {
+  width: 8px;
+}
+
+.mp-bio-edit-field textarea::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.mp-bio-edit-field textarea::-webkit-scrollbar-thumb {
+  background: rgba(97, 218, 251, 0.3);
+  border-radius: 4px;
+}
+
+.mp-bio-edit-field textarea::-webkit-scrollbar-thumb:hover {
+  background: rgba(97, 218, 251, 0.5);
 }
 
 .mp-stats-cards {
@@ -262,18 +378,21 @@
 }
 
 .mp-new-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
   background: linear-gradient(45deg, #61dafb, #fb61da);
-  color: #fff;
-  padding: 8px 16px;
+  border: none;
   border-radius: 20px;
-  text-decoration: none;
+  color: #fff;
   font-size: 0.9rem;
-  transition: all 0.3s;
-  display: inline-block;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .mp-new-button:hover {
-  transform: translateY(-3px);
+  transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(97, 218, 251, 0.3);
 }
 
@@ -573,6 +692,17 @@
   .mp-logout-button {
     margin: 15px auto 0;
   }
+
+  .mp-section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .mp-new-button {
+    width: 100%;
+    justify-content: center;
+  }
 }
 
 @media (max-width: 480px) {
@@ -644,4 +774,402 @@
 .mp-logout-button:hover {
   background: rgba(255, 70, 70, 0.2);
   transform: translateY(-2px);
+}
+
+.mp-wallet-info {
+  margin: 20px 0;
+  padding: 20px;
+  background: rgba(17, 25, 40, 0.75);
+  border-radius: 16px;
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.125);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+}
+
+.mp-info-card {
+  width: 100%;
+}
+
+.mp-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.mp-card-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mp-card-icon {
+  font-size: 24px;
+  color: #61dafb;
+}
+
+.mp-card-title h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #fff;
+  font-weight: 600;
+}
+
+.mp-network-badge {
+  padding: 6px 12px;
+  background: rgba(97, 218, 251, 0.1);
+  border-radius: 20px;
+  color: #61dafb;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.mp-wallet-details {
+  background: rgba(0, 0, 0, 0.2);
+  padding: 20px;
+  border-radius: 12px;
+}
+
+.mp-detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+}
+
+.mp-detail-row:not(:last-child) {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.mp-detail-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #a0aec0;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.mp-label-icon {
+  font-size: 1.1rem;
+}
+
+.mp-address-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mp-detail-value {
+  color: #61dafb;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.9rem;
+}
+
+.mp-detail-value.network {
+  color: #10b981;
+}
+
+.mp-copy-btn {
+  background: none;
+  border: none;
+  color: #a0aec0;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.mp-copy-btn:hover {
+  color: #61dafb;
+  background: rgba(97, 218, 251, 0.1);
+}
+
+/* 地址显示时的省略处理 */
+.mp-detail-value {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (min-width: 768px) {
+  .mp-detail-value {
+    max-width: 300px;
+  }
+}
+
+/* 调整整体布局 */
+.my-page-root {
+  min-height: 100vh;
+  padding-top: 30px; /* 根据你的 header 高度调整 */
+  position: relative;
+}
+
+.my-page-content {
+  position: relative;
+  z-index: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* 调整粒子背景位置 */
+.particles-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+/* 确保用户资料卡片位置正确 */
+.mp-user-profile {
+  position: relative;
+  margin-top: 20px;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .my-page-root {
+    padding-top: 60px; /* 移动端可能 header 更小 */
+  }
+  
+  .my-page-content {
+    padding: 15px;
+  }
+}
+
+.mp-action-buttons {
+  display: flex;
+  gap: 10px;
+  margin-left: auto;
+}
+
+.mp-settings-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(97, 218, 251, 0.1);
+  border: 1px solid rgba(97, 218, 251, 0.2);
+  border-radius: 20px;
+  color: #61dafb;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.mp-settings-button:hover {
+  background: rgba(97, 218, 251, 0.2);
+  transform: translateY(-2px);
+}
+
+.mp-settings-modal {
+  position: fixed;
+  top: 10%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  width: 90%;
+  max-width: 500px;
+  background: transparent;
+}
+
+/* 调整Settings组件的最大高度 */
+.st-settings-container {
+  max-height: 50vh;
+  margin-top: 40px;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .mp-action-buttons {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .mp-settings-button,
+  .mp-logout-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .mp-settings-modal {
+    width: 95%;
+    top: 60%;
+  }
+  
+  .st-settings-container {
+    max-height: 75vh;
+    margin-top: 30px;
+  }
+}
+
+/* 只添加编辑相关的新样式 */
+.mp-edit-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.mp-edit-field input {
+  background: rgba(20, 20, 20, 0.8);
+  border: 1px solid rgba(97, 218, 251, 0.3);
+  border-radius: 4px;
+  color: #fff;
+  font-size: inherit;
+  padding: 4px 8px;
+  font-family: inherit;
+  min-width: 200px;
+  overflow-x: auto;
+  white-space: nowrap;
+  cursor: text;
+}
+
+.mp-edit-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mp-edit-actions svg {
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.mp-edit-actions svg:first-child {
+  color: #4CAF50;
+}
+
+.mp-edit-actions svg:last-child {
+  color: #f44336;
+}
+
+.mp-edit-actions svg:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* 保持原有的编辑按钮样式 */
+.mp-edit-button {
+  background: none;
+  border: none;
+  color: #61dafb;
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 5px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.mp-profile-name:hover .mp-edit-button,
+.mp-profile-title:hover .mp-edit-button {
+  opacity: 0.7;
+}
+
+.mp-edit-button:hover {
+  color: #fb61da;
+}
+
+/* 更新 URL 编辑样式 */
+.mp-profile-url .mp-edit-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.mp-profile-url .mp-edit-field input {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(97, 218, 251, 0.3);
+  border-radius: 4px;
+  color: inherit;
+  font-size: inherit;
+  padding: 4px 8px;
+  font-family: inherit;
+  min-width: 200px;
+}
+
+.mp-profile-url {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 15px;
+  color: #61dafb;
+}
+
+.mp-profile-url a {
+  color: inherit;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+}
+
+.mp-profile-url:hover .mp-edit-button {
+  opacity: 0.7;
+}
+
+.mp-profile-contact {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.mp-contact-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #ccc;
+}
+
+.mp-contact-item svg {
+  color: #61dafb;
+}
+
+/* 添加选中状态样式 */
+.mp-edit-field input:focus {
+  outline: none;
+  border-color: #61dafb;
+  box-shadow: 0 0 0 2px rgba(97, 218, 251, 0.2);
+}
+
+/* 自定义滚动条样式 */
+.mp-edit-field input::-webkit-scrollbar {
+  height: 4px;
+}
+
+.mp-edit-field input::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+}
+
+.mp-edit-field input::-webkit-scrollbar-thumb {
+  background: rgba(97, 218, 251, 0.3);
+  border-radius: 2px;
+}
+
+.mp-edit-field input::-webkit-scrollbar-thumb:hover {
+  background: rgba(97, 218, 251, 0.5);
+}
+
+/* 更新 name 编辑框样式 */
+.mp-profile-name .mp-edit-field input {
+  font-size: 2.5rem;
+  font-weight: 700;
+  width: auto;
+}
+
+/* 确保继承渐变文字颜色 */
+.mp-profile-name .mp-edit-field input {
+  background: rgba(20, 20, 20, 0.8);
+  font-size: 2.5rem;  /* 与非编辑状态保持一致 */
+  font-weight: 700;
+  width: auto;
 }

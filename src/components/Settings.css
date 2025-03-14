@@ -1,0 +1,231 @@
+.st-settings-container {
+  position: fixed;
+  background: rgba(17, 25, 40, 0.95);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  max-height: 60vh;
+  width: 90%;
+  max-width: 500px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  user-select: none;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  transition: box-shadow 0.3s ease;
+}
+
+.st-settings-container.dragging {
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.4);
+}
+
+.st-settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: grab;
+}
+
+.st-settings-header:active {
+  cursor: grabbing;
+}
+
+.st-settings-header h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+  color: #fff;
+}
+
+.st-close-button {
+  background: transparent;
+  border: none;
+  color: #a0aec0;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.st-close-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.st-settings-content {
+  padding: 20px 24px;
+  overflow-y: auto;
+  cursor: default;
+}
+
+.st-section {
+  margin-bottom: 24px;
+}
+
+.st-section h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #61dafb;
+}
+
+.st-section h3 svg {
+  font-size: 1.1rem;
+}
+
+.st-privacy-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.st-option {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.st-option:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* 开关按钮样式 */
+.st-switch {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 24px;
+}
+
+.st-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.st-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.2);
+  transition: .4s;
+  border-radius: 24px;
+}
+
+.st-slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+input:checked + .st-slider {
+  background-color: #61dafb;
+}
+
+input:checked + .st-slider:before {
+  transform: translateX(24px);
+}
+
+/* 联系信息样式 */
+.st-contact-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.st-info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.st-info-item label {
+  font-size: 0.9rem;
+  color: #a0aec0;
+}
+
+.st-info-item input {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: #fff;
+  font-size: 0.95rem;
+  width: 94%;
+}
+
+/* 自定义滚动条 */
+.st-settings-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.st-settings-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.st-settings-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+
+.st-settings-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* 添加动画效果 */
+.st-settings-container {
+  transition: transform 0.05s ease-out, box-shadow 0.3s ease;
+}
+
+.st-settings-container.dragging {
+  transition: none; /* 拖动时禁用过渡效果以获得更好的响应 */
+}
+
+/* 确保内容区域不会被拖动 */
+.st-settings-content {
+  cursor: default;
+}
+
+.st-info-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.st-edit-btn {
+  background: transparent;
+  border: none;
+  color: #61dafb;
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.st-edit-btn:hover {
+  background: rgba(97, 218, 251, 0.1);
+}

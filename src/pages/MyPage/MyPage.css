@@ -1159,17 +1159,3 @@
   background: rgba(97, 218, 251, 0.5);
 }
 
-/* 更新 name 编辑框样式 */
-.mp-profile-name .mp-edit-field input {
-  font-size: 2.5rem;
-  font-weight: 700;
-  width: auto;
-}
-
-/* 确保继承渐变文字颜色 */
-.mp-profile-name .mp-edit-field input {
-  background: rgba(20, 20, 20, 0.8);
-  font-size: 2.5rem;  /* 与非编辑状态保持一致 */
-  font-weight: 700;
-  width: auto;
-}

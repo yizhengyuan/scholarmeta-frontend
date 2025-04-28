@@ -115,16 +115,33 @@ function LoginPage({ onLoginSuccess, onClose }) {
     setLoginError('');
 
     try {
+      // 注释掉真实的登录逻辑
+      /*
       // 登录
       const response = await authAPI.login(username, password);
       localStorage.setItem('access_token', response.access_token);
       
       // 获取用户数据
       const userData = await authAPI.getMe();
+      */
       
-      // 传递用户数据给父组件
+      // 临时模拟登录成功
+      localStorage.setItem('access_token', 'mock_token_for_demo');
+      
+      // 模拟用户数据
+      const mockUserData = {
+        id: 1,
+        name: "演示用户",
+        avatar: "https://randomuser.me/api/portraits/men/32.jpg",
+        title: "化学实验室研究员",
+        url: "https://example.com/profile",
+        bio: "这是一个演示用户的个人简介。热爱科学研究，专注于化学实验和数据分析。\n\n在这里可以分享我的研究成果和实验心得。",
+        created_at: "2023-01-15T08:30:00Z"
+      };
+      
+      // 传递模拟用户数据给父组件
       if (onLoginSuccess) {
-        onLoginSuccess(userData);
+        onLoginSuccess(mockUserData);
       }
       
       // 关闭登录页面

@@ -53,16 +53,35 @@ function MyPage() {
     }
 
     try {
+      // 注释掉真实的数据获取
+      /*
       const userData = await authAPI.getMe();
+      */
+      
+      // 使用模拟数据
+      const mockUserData = {
+        id: 1,
+        name: "演示用户",
+        avatar: "https://randomuser.me/api/portraits/men/32.jpg",
+        title: "化学实验室研究员",
+        url: "https://example.com/profile",
+        bio: "这是一个演示用户的个人简介。热爱科学研究，专注于化学实验和数据分析。\n\n在这里可以分享我的研究成果和实验心得。",
+        created_at: "2023-01-15T08:30:00Z",
+        email: contactInfo.email,
+        phone: contactInfo.phone
+      };
+      
       setUserData({
-        // 真实数据
-        id: userData.id,
-        name: userData.name,
-        avatar: userData.avatar,
-        title: userData.title,
-        url: userData.url,
-        bio: userData.bio,
-        created_at: userData.created_at,
+        // 真实数据 (现在是模拟的)
+        id: mockUserData.id,
+        name: mockUserData.name,
+        avatar: mockUserData.avatar,
+        title: mockUserData.title,
+        url: mockUserData.url,
+        bio: mockUserData.bio,
+        created_at: mockUserData.created_at,
+        email: mockUserData.email,
+        phone: mockUserData.phone,
         
         // 模拟数据
         stats: {
@@ -258,10 +277,17 @@ function MyPage() {
   
   const handleLogout = async () => {
     try {
+      // 注释掉真实的登出逻辑
+      /*
       await authAPI.logout();
+      */
+      
+      // 直接处理本地状态
+      console.log('User logged out');
     } catch (error) {
       console.error('Logout failed:', error);
     } finally {
+      // 无论如何都删除本地存储的 token
       localStorage.removeItem('access_token');
       setIsAuthenticated(false);
       setShowLogin(true);

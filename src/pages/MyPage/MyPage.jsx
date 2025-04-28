@@ -8,149 +8,155 @@ import 'aos/dist/aos.css';
 import './MyPage.css';
 import LoginPage from '../../components/LoginPage';
 import Settings from '../../components/Settings';
+import Loading from '../../components/loading';
 import { authAPI } from '../../router';
 import ForumGrid from '../../components/ForumGrid';
-
-// 在组件顶部添加硬编码的联系信息
-const contactInfo = {
-  email: "example@web3.com",
-  phone: "+1 (888) 888-8888"
-};
 
 function MyPage() {
   const particlesRef = useRef(null);
   const animationFrameRef = useRef(null);
   const navigate = useNavigate();
+  const { isConnected, address, disconnect } = useContext(Web3Context);
   const [activeTab, setActiveTab] = useState('profile');
   const [showLogin, setShowLogin] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userData, setUserData] = useState(null);
+  const [userData, setUserData] = useState({
+    username: 'Guest User',
+    nickname: 'Guest',
+    avatar: 'https://i.pravatar.cc/300?img=68',
+    title: 'New Member',
+    bio: 'Welcome to my profile page. I haven\'t added a bio yet.',
+    email: 'user@example.com',
+    phone: '+1 (555) 123-4567',
+    url: 'https://example.com',
+    tags: ['new', 'member'],
+    self_page: 'my-page',
+    settings: {
+      public_posts: false,
+      public_activities: false,
+      public_profile: true,
+      public_statistics: false,
+      public_contact: false
+    },
+    stats: {
+      posts: 0,
+      comments: 0,
+      likes: 0,
+      activity_level: 'Beginner'
+    },
+    posts: [],
+    comments: [],
+    likes: [],
+    created_at: new Date().toISOString()
+  });
   const [loading, setLoading] = useState(true);
-  const { web3State } = useContext(Web3Context);
+  const [loadingStartTime, setLoadingStartTime] = useState(0);
+  const [error, setError] = useState(null);
   const [showSettings, setShowSettings] = useState(false);
   const [isEditing, setIsEditing] = useState({
-    name: false,
+    username: false,
     title: false,
-    url: false,
-    bio: false
+    url: false
   });
   const [editValues, setEditValues] = useState({
-    name: '',
+    username: '',
     title: '',
-    url: '',
-    bio: ''
+    url: ''
   });
   const fileInputRef = useRef(null);
   
+  // 处理头像加载失败 - 使用更可靠的备用图片资源
+  const handleAvatarError = (e) => {
+    e.target.onerror = null; // 防止无限循环
+    e.target.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(userData.username || 'User'); // 使用基于用户名生成的头像
+  };
+  
   // 检查认证状态和获取用户数据
   const checkAuthAndFetchData = async () => {
+    setLoadingStartTime(Date.now()); // 记录加载开始时间
+    setLoading(true); // 确保加载状态为 true
+    
     const token = localStorage.getItem('access_token');
     if (!token) {
       setShowLogin(true);
       setIsAuthenticated(false);
+      
+      // 确保加载动画至少显示1秒
+      const elapsedTime = Date.now() - loadingStartTime;
+      const minDuration = 1000; // 最小显示时间（1秒）
+      
+      if (elapsedTime < minDuration) {
+        await new Promise(resolve => setTimeout(resolve, minDuration - elapsedTime));
+      }
+      
       setLoading(false);
       return;
     }
 
     try {
-      const userData = await authAPI.getMe();
+      // 添加延时来模拟网络延迟
+      console.log("开始模拟网络延迟...");
+      await new Promise(resolve => setTimeout(resolve, 3500)); // 添加3.5秒的延时
+      console.log("网络延迟模拟结束，开始获取数据...");
+      
+      const data = await authAPI.getMe();
+      console.log("数据获取成功:", data);
+      
+      // 确保所有必要字段都有值，使用默认值填充缺失字段
       setUserData({
-        // 真实数据
-        id: userData.id,
-        name: userData.name,
-        avatar: userData.avatar,
-        title: userData.title,
-        url: userData.url,
-        bio: userData.bio,
-        created_at: userData.created_at,
-        
-        // 模拟数据
-        stats: {
-          posts: 12,
-          comments: 48,
-          likes: 156
+        ...userData, // 使用默认值作为基础
+        ...data,     // 覆盖后端返回的数据
+        // 确保嵌套对象也有默认值
+        settings: {
+          ...userData.settings,
+          ...(data.settings || {})
         },
-        posts: [
-          {
-            id: 1,
-            title: "氯化钠溶液配制实验",
-            preview: "本实验主要介绍如何正确配制氯化钠溶液...",
-            likes: 42,
-            comments: 15,
-            date: "2024-03-20"
-          },
-          {
-            id: 2,
-            title: "酸碱滴定实验指南",
-            preview: "详细讲解酸碱滴定的步骤和注意事项...",
-            likes: 38,
-            comments: 23,
-            date: "2024-03-19"
-          }
-        ],
-        comments: [
-          {
-            id: 1,
-            postTitle: "实验室安全守则",
-            content: "安全护目镜的使用非常重要，建议补充更多细节",
-            date: "2024-03-18"
-          },
-          {
-            id: 2,
-            postTitle: "pH值测定方法",
-            content: "这个方法很实用，我在实验中获益良多",
-            date: "2024-03-17"
-          }
-        ],
-        likes: [
-          {
-            id: 1,
-            postTitle: "化学实验基础知识",
-            author: "ChemTeacher",
-            date: "2024-03-16"
-          },
-          {
-            id: 2,
-            postTitle: "实验器材使用指南",
-            author: "LabExpert",
-            date: "2024-03-15"
-          }
-        ],
-        activities: [
-          {
-            id: 1,
-            type: 'post',
-            title: '氯化钠溶液配制实验',
-            date: '2024-03-20'
-          },
-          {
-            id: 2,
-            type: 'comment',
-            title: '酸碱滴定实验指南',
-            date: '2024-03-19'
-          },
-          {
-            id: 3,
-            type: 'like',
-            title: '实验室安全守则',
-            date: '2024-03-18'
-          }
-        ],
-        skills: [
-          { name: '实验操作', level: 90 },
-          { name: '数据分析', level: 85 },
-          { name: '安全管理', level: 95 },
-          { name: '实验设计', level: 80 }
-        ]
+        stats: {
+          ...userData.stats,
+          ...(data.stats || {})
+        },
+        // 使用后端返回的真实数据，而不是模拟数据
+        posts: data.posts || [],
+        comments: data.comments || [],
+        likes: data.likes || []
       });
+      
+      // 更新编辑值
+      setEditValues({
+        username: data.username || userData.username,
+        title: data.title || userData.title,
+        url: data.url || userData.url
+      });
+      
       setIsAuthenticated(true);
       setShowLogin(false);
+      
+      // 确保加载动画至少显示1秒
+      const elapsedTime = Date.now() - loadingStartTime;
+      const minDuration = 1000; // 最小显示时间（1秒）
+      
+      if (elapsedTime < minDuration) {
+        await new Promise(resolve => setTimeout(resolve, minDuration - elapsedTime));
+      }
+      
+      console.log("数据处理完成，结束加载状态");
+      setLoading(false);
+      
     } catch (error) {
       console.error('Failed to fetch user data:', error);
       localStorage.removeItem('access_token');
       setShowLogin(true);
       setIsAuthenticated(false);
-    } finally {
+      setError('Failed to load user data. Please try again later.');
+      
+      // 确保加载动画至少显示1秒
+      const elapsedTime = Date.now() - loadingStartTime;
+      const minDuration = 1000; // 最小显示时间（1秒）
+      
+      if (elapsedTime < minDuration) {
+        await new Promise(resolve => setTimeout(resolve, minDuration - elapsedTime));
+      }
+      
       setLoading(false);
     }
   };
@@ -163,97 +169,13 @@ function MyPage() {
   // 处理登录成功
   const handleLoginSuccess = async (initialUserData) => {
     setIsAuthenticated(true);
-    setUserData({
-      // 真实数据
-      id: initialUserData.id,
-      name: initialUserData.name,
-      avatar: initialUserData.avatar,
-      title: initialUserData.title,
-      url: initialUserData.url,
-      bio: initialUserData.bio,
-      created_at: initialUserData.created_at,
-      
-      // 模拟数据
-      stats: {
-        posts: 12,
-        comments: 48,
-        likes: 156
-      },
-      posts: [
-        {
-          id: 1,
-          title: "氯化钠溶液配制实验",
-          preview: "本实验主要介绍如何正确配制氯化钠溶液...",
-          likes: 42,
-          comments: 15,
-          date: "2024-03-20"
-        },
-        {
-          id: 2,
-          title: "酸碱滴定实验指南",
-          preview: "详细讲解酸碱滴定的步骤和注意事项...",
-          likes: 38,
-          comments: 23,
-          date: "2024-03-19"
-        }
-      ],
-      comments: [
-        {
-          id: 1,
-          postTitle: "实验室安全守则",
-          content: "安全护目镜的使用非常重要，建议补充更多细节",
-          date: "2024-03-18"
-        },
-        {
-          id: 2,
-          postTitle: "pH值测定方法",
-          content: "这个方法很实用，我在实验中获益良多",
-          date: "2024-03-17"
-        }
-      ],
-      likes: [
-        {
-          id: 1,
-          postTitle: "化学实验基础知识",
-          author: "ChemTeacher",
-          date: "2024-03-16"
-        },
-        {
-          id: 2,
-          postTitle: "实验器材使用指南",
-          author: "LabExpert",
-          date: "2024-03-15"
-        }
-      ],
-      activities: [
-        {
-          id: 1,
-          type: 'post',
-          title: '氯化钠溶液配制实验',
-          date: '2024-03-20'
-        },
-        {
-          id: 2,
-          type: 'comment',
-          title: '酸碱滴定实验指南',
-          date: '2024-03-19'
-        },
-        {
-          id: 3,
-          type: 'like',
-          title: '实验室安全守则',
-          date: '2024-03-18'
-        }
-      ],
-      skills: [
-        { name: '实验操作', level: 90 },
-        { name: '数据分析', level: 85 },
-        { name: '安全管理', level: 95 },
-        { name: '实验设计', level: 80 }
-      ]
-    });
+    setUserData(initialUserData);
     setShowLogin(false);
-    setLoading(false);
+    
+    // 确保加载动画至少显示1秒
+    setTimeout(() => {
+      setLoading(false);
+    }, 1000);
   };
   
   const handleLogout = async () => {
@@ -265,7 +187,35 @@ function MyPage() {
       localStorage.removeItem('access_token');
       setIsAuthenticated(false);
       setShowLogin(true);
-      setUserData(null);
+      setUserData({
+        username: 'Guest User',
+        nickname: 'Guest',
+        avatar: 'https://i.pravatar.cc/300?img=68',
+        title: 'New Member',
+        bio: 'Welcome to my profile page. I haven\'t added a bio yet.',
+        email: 'user@example.com',
+        phone: '+1 (555) 123-4567',
+        url: 'https://example.com',
+        tags: ['new', 'member'],
+        self_page: 'my-page',
+        settings: {
+          public_posts: false,
+          public_activities: false,
+          public_profile: true,
+          public_statistics: false,
+          public_contact: false
+        },
+        stats: {
+          posts: 0,
+          comments: 0,
+          likes: 0,
+          activity_level: 'Beginner'
+        },
+        posts: [],
+        comments: [],
+        likes: [],
+        created_at: new Date().toISOString()
+      });
     }
   };
   
@@ -377,105 +327,6 @@ function MyPage() {
     };
   }, [showLogin]);
   
-  // 模拟用户的帖子数据，格式与 forumdata.json 一致
-  const mockUserPosts = [
-    {
-      id: 1,
-      detailId: 101,
-      title: "Web3 开发最佳实践",
-      author: "Alex Z",
-      content: "详细内容...",
-      timestamp: "2024-03-21T10:00:00Z",
-      likes: 42,
-      comments: 15,
-      tags: ["Web3", "开发", "教程"],
-      preview: "分享一些 Web3 开发中积累的经验和最佳实践...",
-      media: "/images/photo1.png",
-      mediaType: "image"
-    },
-    {
-      id: 2,
-      detailId: 102,
-      title: "智能合约安全指南",
-      author: "Sharpen Jane",
-      content: "详细内容...",
-      timestamp: "2024-03-20T15:30:00Z",
-      likes: 38,
-      comments: 21,
-      tags: ["安全", "智能合约", "DeFi"],
-      preview: "如何编写更安全的智能合约，避免常见的漏洞...",
-      media: "/videos/video1.mp4",
-      mediaType: "video",
-      thumbnail: "/images/photo1.png"
-    }
-  ];
-
-  // 模拟评论数据
-  const mockUserComments = [
-    {
-      id: 1,
-      detailId: 201,
-      title: "关于智能合约的见解",
-      author: "我",
-      content: "这个观点非常好...",
-      timestamp: "2024-03-22T10:00:00Z",
-      likes: 15,
-      comments: 5,
-      tags: ["评论", "智能合约", "讨论"],
-      preview: "我觉得这个智能合约的设计模式很有创新性...",
-      media: "/images/photo1.png",
-      mediaType: "image"
-    },
-    {
-      id: 2,
-      detailId: 202,
-      title: "DeFi 项目分析",
-      author: "我",
-      content: "对于这个项目...",
-      timestamp: "2024-03-21T15:30:00Z",
-      likes: 12,
-      comments: 8,
-      tags: ["DeFi", "分析", "评论"],
-      preview: "这个 DeFi 项目的创新点在于...",
-      media: "/videos/video1.mp4",
-      mediaType: "video",
-      thumbnail: "/images/photo1.png"
-    }
-  ];
-
-  // 模拟点赞数据
-  const mockUserLikes = [
-    {
-      id: 1,
-      detailId: 301,
-      title: "Web3 生态系统概述",
-      author: "BlockMaster",
-      content: "详细内容...",
-      timestamp: "2024-03-23T09:00:00Z",
-      likes: 56,
-      comments: 23,
-      tags: ["Web3", "生态", "概述"],
-      preview: "一篇关于 Web3 生态系统的深度分析...",
-      media: "/images/photo1.png",
-      mediaType: "image"
-    },
-    {
-      id: 2,
-      detailId: 302,
-      title: "去中心化存储方案",
-      author: "DataPro",
-      content: "详细内容...",
-      timestamp: "2024-03-22T14:20:00Z",
-      likes: 45,
-      comments: 18,
-      tags: ["存储", "IPFS", "技术"],
-      preview: "探讨各种去中心化存储方案的优劣...",
-      media: "/videos/video1.mp4",
-      mediaType: "video",
-      thumbnail: "/images/photo1.png"
-    }
-  ];
-
   const handleNewPost = () => {
     navigate('/upload');  // 跳转到上传页面
   };
@@ -484,63 +335,106 @@ function MyPage() {
     fileInputRef.current.click();
   };
 
-  const handleAvatarChange = (event) => {
+  const handleAvatarChange = async (event) => {
     const file = event.target.files[0];
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => {
+      reader.onloadend = async () => {
+        // 立即更新前端显示
         setUserData(prev => ({
           ...prev,
           avatar: reader.result
         }));
+        
+        // 模拟向后端发送请求
+        console.log('Sending avatar update to backend');
+        
+        // 实际的后端请求 - 当后端准备好时可以取消注释
+        try {
+          // 这里可能需要将 base64 转换为文件或使用适当的 API
+          // await authAPI.updateAvatar(file);
+          console.log('Successfully updated avatar on backend');
+        } catch (error) {
+          console.error('Failed to update avatar on backend:', error);
+          // 可以选择是否显示错误提示
+        }
       };
       reader.readAsDataURL(file);
     }
   };
 
   const handleEdit = (field) => {
-    setEditValues(prev => ({
-      ...prev,
-      [field]: userData[field]
-    }));
-    setIsEditing(prev => ({
-      ...prev,
-      [field]: true
-    }));
+    setIsEditing({ ...isEditing, [field]: true });
+    setEditValues({ ...editValues, [field]: userData[field] });
   };
 
   const handleInputChange = (field, value) => {
-    setEditValues(prev => ({
-      ...prev,
-      [field]: value
-    }));
+    setEditValues({ ...editValues, [field]: value });
   };
 
-  const handleSave = (field) => {
-    if (field === 'name' && editValues.name.length > 20) {
-      return;
+  const handleSave = async (field) => {
+    try {
+      // 立即更新前端显示，提升用户体验
+      setUserData({ ...userData, [field]: editValues[field] });
+      setIsEditing({ ...isEditing, [field]: false });
+      
+      // 模拟向后端发送请求
+      console.log(`Sending update to backend for field: ${field}, value: ${editValues[field]}`);
+      
+      // 实际的后端请求 - 当后端准备好时可以取消注释
+      try {
+        await authAPI.updateUserProfile({ [field]: editValues[field] });
+        console.log(`Successfully updated ${field} on backend`);
+      } catch (error) {
+        console.error(`Failed to update ${field} on backend:`, error);
+        // 可以选择是否在这里回滚UI状态
+        // 如果后端请求失败，可以显示一个小提示而不是回滚整个UI
+        // 这样用户体验会更好
+      }
+    } catch (error) {
+      console.error(`Error in handleSave for ${field}:`, error);
+      // 如果发生严重错误，可以回滚到原始状态
+      setEditValues({ ...editValues, [field]: userData[field] });
     }
-    if (field === 'title' && editValues.title.length > 40) {
-      return;
-    }
-    if (field === 'url' && editValues.url.length > 100) {
-      return;
-    }
-    setUserData(prev => ({
-      ...prev,
-      [field]: editValues[field]
-    }));
-    setIsEditing(prev => ({
-      ...prev,
-      [field]: false
-    }));
   };
 
   const handleCancel = (field) => {
-    setIsEditing(prev => ({
-      ...prev,
-      [field]: false
-    }));
+    setIsEditing({ ...isEditing, [field]: false });
+    setEditValues({ ...editValues, [field]: userData[field] });
+  };
+
+  // 处理设置更新
+  const handleSettingsUpdate = async (updatedSettings) => {
+    // 立即更新前端显示
+    setUserData(prevData => {
+      // 如果更新包含设置
+      if (updatedSettings.settings) {
+        return {
+          ...prevData,
+          settings: {
+            ...prevData.settings,
+            ...updatedSettings.settings
+          }
+        };
+      }
+      // 如果更新包含其他字段（如联系信息）
+      return {
+        ...prevData,
+        ...updatedSettings
+      };
+    });
+    
+    // 模拟向后端发送请求
+    console.log('Sending settings update to backend:', updatedSettings);
+    
+    // 实际的后端请求 - 当后端准备好时可以取消注释
+    try {
+      // await authAPI.updateUserSettings(updatedSettings);
+      console.log('Successfully updated settings on backend');
+    } catch (error) {
+      console.error('Failed to update settings on backend:', error);
+      // 可以选择是否显示错误提示
+    }
   };
 
   const renderContent = () => {
@@ -551,19 +445,34 @@ function MyPage() {
             <div className="mp-section-header">
               <div className="mp-section-title">
                 <h2>Posts</h2>
-                <span className="mp-post-count">({mockUserPosts.length} posts)</span>
+                <span className="mp-post-count">({userData.posts.length} posts)</span>
               </div>
-              <button className="mp-new-button" onClick={handleNewPost}>
-                <FaPlus /> New Post
+              <button className="mp-new-post-btn" onClick={handleNewPost}>
+                <FaPlus />
+                <span>New Post</span>
               </button>
             </div>
-            <ForumGrid 
-              posts={mockUserPosts}
-              loading={false}
-              error={null}
-              searchTerm=""
-              sortBy={null}
-            />
+            
+            {userData.posts && userData.posts.length > 0 ? (
+              <ForumGrid 
+                posts={userData.posts}
+                loading={false}
+                error={null}
+                searchTerm=""
+                sortBy={null}
+              />
+            ) : (
+              <div className="mp-empty-state">
+                <div className="mp-empty-icon">
+                  <FaFileAlt />
+                </div>
+                <h3>No Posts Yet</h3>
+                <p>You haven't created any posts yet. Share your thoughts with the community!</p>
+                <button className="mp-create-first-btn" onClick={handleNewPost}>
+                  Create Your First Post
+                </button>
+              </div>
+            )}
           </div>
         );
 
@@ -634,16 +543,30 @@ function MyPage() {
             <div className="mp-section-header">
               <div className="mp-section-title">
                 <h2>Comments</h2>
-                <span className="mp-post-count">({mockUserComments.length} comments)</span>
+                <span className="mp-post-count">({userData.comments.length} comments)</span>
               </div>
             </div>
-            <ForumGrid 
-              posts={mockUserComments}
-              loading={false}
-              error={null}
-              searchTerm=""
-              sortBy={null}
-            />
+            
+            {userData.comments && userData.comments.length > 0 ? (
+              <ForumGrid 
+                posts={userData.comments}
+                loading={false}
+                error={null}
+                searchTerm=""
+                sortBy={null}
+              />
+            ) : (
+              <div className="mp-empty-state">
+                <div className="mp-empty-icon">
+                  <FaComment />
+                </div>
+                <h3>No Comments Yet</h3>
+                <p>You haven't commented on any posts yet. Join the conversation!</p>
+                <button className="mp-browse-posts-btn" onClick={() => navigate('/forum')}>
+                  Browse Posts
+                </button>
+              </div>
+            )}
           </div>
         );
 
@@ -653,16 +576,30 @@ function MyPage() {
             <div className="mp-section-header">
               <div className="mp-section-title">
                 <h2>Likes</h2>
-                <span className="mp-post-count">({mockUserLikes.length} likes)</span>
+                <span className="mp-post-count">({userData.likes.length} likes)</span>
               </div>
             </div>
-            <ForumGrid 
-              posts={mockUserLikes}
-              loading={false}
-              error={null}
-              searchTerm=""
-              sortBy={null}
-            />
+            
+            {userData.likes && userData.likes.length > 0 ? (
+              <ForumGrid 
+                posts={userData.likes}
+                loading={false}
+                error={null}
+                searchTerm=""
+                sortBy={null}
+              />
+            ) : (
+              <div className="mp-empty-state">
+                <div className="mp-empty-icon">
+                  <FaHeart />
+                </div>
+                <h3>No Likes Yet</h3>
+                <p>You haven't liked any posts yet. Explore the forum to find content you enjoy!</p>
+                <button className="mp-browse-posts-btn" onClick={() => navigate('/forum')}>
+                  Discover Content
+                </button>
+              </div>
+            )}
           </div>
         );
 
@@ -732,7 +669,9 @@ function MyPage() {
     return (
       <div className="my-page-root">
         <canvas ref={particlesRef} className="particles-bg"></canvas>
-        <div className="mp-loading-spinner">Loading...</div>
+        <div className="mp-loading-container">
+          <Loading text="Loading user data" size="large" transparent={true} />
+        </div>
       </div>
     );
   }
@@ -741,11 +680,22 @@ function MyPage() {
     return <LoginPage onLoginSuccess={handleLoginSuccess} />;
   }
   
-  if (!userData || !userData.name) {
+  if (!userData || !userData.username) {
     return (
       <div className="my-page-root">
         <canvas ref={particlesRef} className="particles-bg"></canvas>
         <div className="mp-loading-spinner">Loading user data...</div>
+      </div>
+    );
+  }
+  
+  if (error) {
+    return (
+      <div className="mp-error">
+        <div className="mp-error-icon">⚠️</div>
+        <h2>Error</h2>
+        <p>{error}</p>
+        <button onClick={() => window.location.reload()}>Retry</button>
       </div>
     );
   }
@@ -759,7 +709,11 @@ function MyPage() {
           <div className="mp-profile-header">
             <div className="mp-profile-info">
               <div className="mp-profile-avatar" onClick={handleAvatarClick}>
-                <img src={userData.avatar} alt={userData.name} />
+                <img 
+                  src={userData.avatar} 
+                  alt={userData.username} 
+                  onError={handleAvatarError}
+                />
                 <input
                   type="file"
                   ref={fileInputRef}
@@ -770,28 +724,28 @@ function MyPage() {
               </div>
               <div className="mp-profile-details">
                 <div className="mp-profile-name">
-                  {isEditing.name ? (
+                  {isEditing.username ? (
                     <div className="mp-edit-field">
                       <input
                         type="text"
-                        value={editValues.name}
-                        onChange={(e) => handleInputChange('name', e.target.value)}
+                        value={editValues.username}
+                        onChange={(e) => handleInputChange('username', e.target.value)}
                         maxLength={20}
                         onKeyDown={(e) => {
-                          if (e.key === 'Enter') handleSave('name');
-                          if (e.key === 'Escape') handleCancel('name');
+                          if (e.key === 'Enter') handleSave('username');
+                          if (e.key === 'Escape') handleCancel('username');
                         }}
                         autoFocus
                       />
                       <div className="mp-edit-actions">
-                        <FaCheck onClick={() => handleSave('name')} />
-                        <FaTimes onClick={() => handleCancel('name')} />
+                        <FaCheck onClick={() => handleSave('username')} />
+                        <FaTimes onClick={() => handleCancel('username')} />
                       </div>
                     </div>
                   ) : (
                     <>
-                      {userData.name}
-                      <button className="mp-edit-button" onClick={() => handleEdit('name')} title="Edit Name">
+                      {userData.username}
+                      <button className="mp-edit-button" onClick={() => handleEdit('username')} title="Edit Username">
                         <FaEdit />
                       </button>
                     </>
@@ -864,11 +818,11 @@ function MyPage() {
                 <div className="mp-profile-contact">
                   <div className="mp-contact-item">
                     <FaEnvelope />
-                    <span>{contactInfo.email}</span>
+                    <span>{userData.email}</span>
                   </div>
                   <div className="mp-contact-item">
                     <FaPhone />
-                    <span>{contactInfo.phone}</span>
+                    <span>{userData.phone}</span>
                   </div>
                 </div>
               </div>
@@ -893,7 +847,7 @@ function MyPage() {
             </div>
           </div>
           
-          {web3State.connected && (
+          {isConnected && (
             <div className="mp-wallet-info" data-aos="fade-up">
               <div className="mp-info-card">
                 <div className="mp-card-header">
@@ -902,7 +856,7 @@ function MyPage() {
                     <h3>My Wallet</h3>
                   </div>
                   <div className="mp-network-badge">
-                    {web3State.networkName}
+                    {address}
                   </div>
                 </div>
                 <div className="mp-wallet-details">
@@ -912,12 +866,11 @@ function MyPage() {
                       Address
                     </div>
                     <div className="mp-address-container">
-                      <span className="mp-detail-value">{web3State.address}</span>
+                      <span className="mp-detail-value">{address}</span>
                       <button 
                         className="mp-copy-btn"
                         onClick={() => {
-                          navigator.clipboard.writeText(web3State.address);
-                          // 可以添加一个复制成功的提示
+                          navigator.clipboard.writeText(address);
                         }}
                       >
                         <FaFileAlt />
@@ -929,7 +882,7 @@ function MyPage() {
                       <span className="mp-label-icon">🌐</span>
                       Network
                     </div>
-                    <span className="mp-detail-value network">{web3State.networkName}</span>
+                    <span className="mp-detail-value network">{isConnected ? 'Connected' : 'Disconnected'}</span>
                   </div>
                 </div>
               </div>
@@ -992,7 +945,11 @@ function MyPage() {
 
         {showSettings && (
           <div className="mp-settings-modal">
-            <Settings onClose={() => setShowSettings(false)} />
+            <Settings 
+              onClose={() => setShowSettings(false)} 
+              userData={userData} 
+              onSettingsUpdate={handleSettingsUpdate}
+            />
           </div>
         )}
       </div>

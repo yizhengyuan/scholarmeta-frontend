@@ -1159,3 +1159,98 @@
   background: rgba(97, 218, 251, 0.5);
 }
 
+/* 空状态样式 */
+.mp-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  background: rgba(30, 30, 30, 0.4);
+  border-radius: 12px;
+  margin: 20px 0;
+}
+
+.mp-empty-icon {
+  font-size: 3.5rem;
+  color: rgba(97, 218, 251, 0.3);
+  margin-bottom: 20px;
+}
+
+.mp-empty-state h3 {
+  font-size: 1.8rem;
+  margin: 0 0 15px;
+  color: #fff;
+  font-weight: 600;
+}
+
+.mp-empty-state p {
+  font-size: 1.1rem;
+  color: #aaa;
+  margin: 0 0 30px;
+  max-width: 500px;
+}
+
+.mp-create-first-btn,
+.mp-browse-posts-btn {
+  background: linear-gradient(45deg, #61dafb, #fb61da);
+  color: #fff;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 30px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 15px rgba(97, 218, 251, 0.3);
+}
+
+.mp-create-first-btn:hover,
+.mp-browse-posts-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(97, 218, 251, 0.4);
+}
+
+.mp-create-first-btn:active,
+.mp-browse-posts-btn:active {
+  transform: translateY(0);
+}
+
+/* 新建帖子按钮 */
+.mp-new-post-btn {
+  background: linear-gradient(45deg, #61dafb, #fb61da);
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 30px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 15px rgba(97, 218, 251, 0.3);
+}
+
+.mp-new-post-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(97, 218, 251, 0.4);
+}
+
+.mp-new-post-btn:active {
+  transform: translateY(0);
+}
+
+.mp-loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100%;
+}
+

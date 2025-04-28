@@ -229,3 +229,88 @@ input:checked + .st-slider:before {
 .st-edit-btn:hover {
   background: rgba(97, 218, 251, 0.1);
 }
+
+/* 编辑模式样式 */
+.st-info-item input.st-editing {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid #61dafb;
+  box-shadow: 0 0 0 2px rgba(97, 218, 251, 0.2);
+  outline: none;
+}
+
+.st-edit-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.st-action-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.st-save-btn {
+  color: #10b981;
+}
+
+.st-save-btn:hover {
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.st-cancel-btn {
+  color: #ef4444;
+}
+
+.st-cancel-btn:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+/* 输入框过渡效果 */
+.st-info-item input {
+  transition: all 0.3s ease;
+}
+
+/* 确保输入框在编辑模式下有更好的可见度 */
+.st-info-item input.st-editing::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* 编辑按钮样式调整 */
+.st-edit-btn {
+  background: transparent;
+  border: none;
+  color: #61dafb;
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.st-edit-btn:hover {
+  background: rgba(97, 218, 251, 0.1);
+}
+
+/* 确保输入框在编辑模式下有足够的空间 */
+.st-info-item {
+  position: relative;
+}
+
+/* 添加输入验证样式 */
+.st-info-item input.st-invalid {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+}
+
+/* 添加输入框聚焦效果 */
+.st-info-item input:focus {
+  outline: none;
+  border-color: #61dafb;
+  box-shadow: 0 0 0 2px rgba(97, 218, 251, 0.2);
+}

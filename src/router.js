@@ -5,7 +5,8 @@ const api = axios.create({
   baseURL: '/api/v1',  // 修改为相对路径，会被代理到 https://47.80.10.180/api/v1
   timeout: 30000,
   headers: {
-    'Content-Type': 'application/x-www-form-urlencoded'  // 修改为 form-urlencoded
+    'Content-Type': 'application/x-www-form-urlencoded',
+    'Accept': 'application/json'
   }
 });
 
@@ -32,18 +33,51 @@ api.interceptors.response.use(
 
 // 认证相关 API
 export const authAPI = {
-  // 用户注册
+    // 用户注册 - 更新注册接口，添加所有必要字段
   register: async (userData) => {
-    return api.post('/auth/register', userData);
+    const formData = new URLSearchParams();
+    
+    // 必填字段
+    formData.append('username', userData.name);  // 用户名
+    formData.append('password', userData.password);  // 密码
+    
+    // 可选字段
+    formData.append('email', userData.email || 'user@chemlab.edu');  // 邮箱
+    formData.append('phone', userData.phone || '+852 9876 5432');  // 香港手机号
+    
+    // 补充其他必要字段，使用合理的默认值
+    formData.append('self_page', 'my-chemistry-lab');
+    formData.append('bio', 'Chemistry enthusiast and lab researcher. Interested in experimental procedures and scientific discoveries.');
+    formData.append('nickname', userData.name);  // 使用用户名作为默认昵称
+    formData.append('url', 'https://chemlab.edu/researchers');
+    formData.append('title', 'Chemistry Lab Researcher');
+    formData.append('tags', 'chemistry,laboratory,research,science');
+    formData.append('avatar', 'https://i.pravatar.cc/300');  // 随机头像
+    
+    return api.post('/auth/register', formData, {
+      headers: {
+        'accept': 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
+    });
   },
 
-  // 用户登录 - 修改为使用 URLSearchParams
+  // 用户登录
   login: async (username, password) => {
     const formData = new URLSearchParams();
+    formData.append('grant_type', 'password');
     formData.append('username', username);
     formData.append('password', password);
+    formData.append('scope', '');
+    formData.append('client_id', 'string');
+    formData.append('client_secret', 'string');
     
-    return api.post('/auth/token', formData);
+    return api.post('/auth/token', formData, {
+      headers: {
+        'accept': 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
+    });
   },
 
   // 获取用户信息

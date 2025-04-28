@@ -110,10 +110,12 @@
 /* 表单样式 */
 .login-form {
   margin-bottom: 20px;
+  transition: all 0.3s ease;
 }
 
 .login-form-group {
   margin-bottom: 20px;
+  animation: fadeIn 0.3s ease-out;
 }
 
 .login-form-group label {
@@ -256,4 +258,32 @@
 @keyframes scaleIn {
   from { transform: scale(0); }
   to { transform: scale(1); }
+}
+
+/* 切换按钮样式 */
+.login-switch-mode {
+  background: none;
+  border: none;
+  color: #61dafb;
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 5px 10px;
+  transition: all 0.3s ease;
+  text-decoration: underline;
+}
+
+.login-switch-mode:hover {
+  color: #a8edea;
+}
+
+/* 注册表单额外字段样式 */
+.login-form-group + .login-form-group {
+  margin-top: 15px;
+}
+
+/* 可选字段标签样式 */
+.login-form-group label span {
+  color: #666;
+  font-size: 0.8rem;
+  margin-left: 5px;
 }

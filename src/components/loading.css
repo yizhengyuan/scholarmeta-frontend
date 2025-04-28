@@ -1,0 +1,202 @@
+/* 使用 ld3d 前缀防止命名冲突 */
+.ld3d-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 10;
+  background: transparent;
+  border-radius: 16px;
+  margin: 10px;
+  box-sizing: border-box;
+  box-shadow: none;
+  backdrop-filter: none;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+/* 透明背景选项 */
+.ld3d-container.ld3d-transparent {
+  background-color: transparent;
+  backdrop-filter: none;
+  box-shadow: none;
+  border: none;
+}
+
+/* 内联显示选项 */
+.ld3d-container.ld3d-inline {
+  display: inline-flex;
+  vertical-align: middle;
+  margin: 0 10px;
+  padding: 10px;
+}
+
+/* 尺寸变体 */
+.ld3d-small .ld3d-cube-wrapper {
+  width: 40px;
+  height: 40px;
+}
+
+.ld3d-small .ld3d-cube-face {
+  border-width: 1px;
+}
+
+.ld3d-small .ld3d-text {
+  font-size: 0.8rem;
+  margin-top: 10px;
+}
+
+.ld3d-medium .ld3d-cube-wrapper {
+  width: 60px;
+  height: 60px;
+}
+
+.ld3d-medium .ld3d-cube-face {
+  border-width: 1.5px;
+}
+
+.ld3d-medium .ld3d-text {
+  font-size: 1rem;
+  margin-top: 15px;
+}
+
+.ld3d-large .ld3d-cube-wrapper {
+  width: 80px;
+  height: 80px;
+}
+
+.ld3d-large .ld3d-cube-face {
+  border-width: 2px;
+}
+
+.ld3d-large .ld3d-text {
+  font-size: 1.2rem;
+  margin-top: 20px;
+}
+
+/* 3D立方体 */
+.ld3d-cube-wrapper {
+  perspective: 800px;
+  margin-bottom: 15px;
+}
+
+.ld3d-cube {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  animation: ld3d-rotate 6s infinite linear;
+}
+
+.ld3d-cube-face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: rgba(97, 218, 251, 0.1);
+  border: 1px solid rgba(97, 218, 251, 0.5);
+  box-shadow: 0 0 20px rgba(97, 218, 251, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: #61dafb;
+  backdrop-filter: blur(5px);
+}
+
+.ld3d-front {
+  transform: translateZ(calc(var(--cube-size, 30px)));
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><circle cx="50" cy="50" r="20" fill="none" stroke="rgba(97, 218, 251, 0.5)" stroke-width="2"/></svg>');
+  background-size: cover;
+}
+
+.ld3d-back {
+  transform: rotateY(180deg) translateZ(calc(var(--cube-size, 30px)));
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect x="30" y="30" width="40" height="40" fill="none" stroke="rgba(97, 218, 251, 0.5)" stroke-width="2"/></svg>');
+  background-size: cover;
+}
+
+.ld3d-right {
+  transform: rotateY(90deg) translateZ(calc(var(--cube-size, 30px)));
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><polygon points="50,30 70,70 30,70" fill="none" stroke="rgba(97, 218, 251, 0.5)" stroke-width="2"/></svg>');
+  background-size: cover;
+}
+
+.ld3d-left {
+  transform: rotateY(-90deg) translateZ(calc(var(--cube-size, 30px)));
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><line x1="30" y1="30" x2="70" y2="70" stroke="rgba(97, 218, 251, 0.5)" stroke-width="2"/><line x1="70" y1="30" x2="30" y2="70" stroke="rgba(97, 218, 251, 0.5)" stroke-width="2"/></svg>');
+  background-size: cover;
+}
+
+.ld3d-top {
+  transform: rotateX(90deg) translateZ(calc(var(--cube-size, 30px)));
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><circle cx="50" cy="50" r="15" fill="none" stroke="rgba(97, 218, 251, 0.5)" stroke-width="2"/><circle cx="50" cy="50" r="25" fill="none" stroke="rgba(97, 218, 251, 0.3)" stroke-width="1"/></svg>');
+  background-size: cover;
+}
+
+.ld3d-bottom {
+  transform: rotateX(-90deg) translateZ(calc(var(--cube-size, 30px)));
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><path d="M30,50 Q50,30 70,50 T90,50" fill="none" stroke="rgba(97, 218, 251, 0.5)" stroke-width="2"/></svg>');
+  background-size: cover;
+}
+
+/* 文本样式 */
+.ld3d-text {
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  text-shadow: 0 0 10px rgba(97, 218, 251, 0.5);
+  letter-spacing: 1px;
+  white-space: nowrap;
+  animation: ld3d-pulse 1.5s ease-in-out infinite;
+}
+
+.ld3d-dots {
+  display: inline-block;
+  min-width: 24px;
+  text-align: left;
+}
+
+/* 动画定义 */
+@keyframes ld3d-rotate {
+  0% {
+    transform: rotateX(0deg) rotateY(0deg);
+  }
+  100% {
+    transform: rotateX(360deg) rotateY(360deg);
+  }
+}
+
+@keyframes ld3d-pulse {
+  0%, 100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .ld3d-large .ld3d-cube-wrapper {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .ld3d-large .ld3d-text {
+    font-size: 1.1rem;
+  }
+}
+
+/* 设置立方体尺寸变量 */
+.ld3d-small {
+  --cube-size: 20px;
+}
+
+.ld3d-medium {
+  --cube-size: 30px;
+}
+
+.ld3d-large {
+  --cube-size: 40px;
+}

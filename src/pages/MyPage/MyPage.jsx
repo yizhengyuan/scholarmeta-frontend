@@ -131,10 +131,16 @@ function MyPage() {
           // 这里只需要验证一下数据是否有效，不需要再次设置状态
           console.log('缓存数据已在初始化时加载');
           
-          // 在后台静默更新数据
-          setTimeout(() => {
-            refreshUserData(false);
-          }, 1000);
+          // 可选：在后台静默更新数据
+          // 如果不需要后台更新，可以注释或删除以下代码
+          if (false) { // 将此处改为 false 以禁用后台更新
+            console.log('将在后台静默更新数据');
+            setTimeout(() => {
+              refreshUserData(false);
+            }, 1000);
+          } else {
+            console.log('使用缓存数据，不进行后台更新');
+          }
           
           return;
         } catch (error) {
@@ -144,6 +150,7 @@ function MyPage() {
       }
       
       // 如果没有缓存数据，则从后端获取
+      console.log('没有缓存数据，从后端获取');
       await refreshUserData(true);
     };
     

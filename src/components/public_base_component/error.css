@@ -1,0 +1,346 @@
+/* 使用 err 前缀防止命名冲突 */
+.err-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+  background: transparent;
+  border-radius: 16px;
+  box-shadow: none;
+  color: #fff;
+  text-align: center;
+  margin: 0 auto;
+  box-sizing: border-box;
+  transition: all 0.3s ease;
+  backdrop-filter: none;
+  border: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+}
+
+/* 透明背景选项 */
+.err-container.err-transparent {
+  background-color: transparent;
+  backdrop-filter: none;
+  box-shadow: none;
+  border: none;
+}
+
+/* 内联显示选项 */
+.err-container.err-inline {
+  display: inline-flex;
+  vertical-align: middle;
+  margin: 0 10px;
+  padding: 15px;
+  position: relative;
+  top: auto;
+  left: auto;
+  transform: none;
+}
+
+/* 全页面显示 */
+.err-container.err-full-page {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0;
+  border-radius: 0;
+  z-index: 9999;
+  transform: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 尺寸变体 */
+.err-small .err-cube-wrapper {
+  width: 40px;
+  height: 40px;
+  margin-bottom: 25px;
+  margin-top: -15px;
+}
+
+.err-small .err-cube-face {
+  border-width: 1px;
+}
+
+.err-small .err-title {
+  font-size: 1.2rem;
+  margin: 5px 0;
+}
+
+.err-small .err-message {
+  font-size: 0.9rem;
+}
+
+.err-small .err-button {
+  padding: 6px 12px;
+  font-size: 0.8rem;
+}
+
+.err-medium .err-cube-wrapper {
+  width: 60px;
+  height: 60px;
+  margin-bottom: 25px;
+  margin-top: -20px;
+}
+
+.err-medium .err-cube-face {
+  border-width: 1.5px;
+}
+
+.err-medium .err-title {
+  font-size: 1.5rem;
+  margin: 8px 0;
+}
+
+.err-medium .err-message {
+  font-size: 1rem;
+}
+
+.err-medium .err-button {
+  padding: 8px 16px;
+  font-size: 0.9rem;
+}
+
+.err-large .err-cube-wrapper {
+  width: 80px;
+  height: 80px;
+  margin-bottom: 30px;
+  margin-top: -25px;
+}
+
+.err-large .err-cube-face {
+  border-width: 2px;
+}
+
+.err-large .err-title {
+  font-size: 2rem;
+  margin: 10px 0;
+}
+
+.err-large .err-message {
+  font-size: 1.2rem;
+}
+
+.err-large .err-button {
+  padding: 10px 20px;
+  font-size: 1rem;
+}
+
+/* 3D立方体 */
+.err-cube-wrapper {
+  perspective: 800px;
+  margin-bottom: 15px;
+}
+
+.err-cube {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  animation: err-rotate 6s infinite linear;
+}
+
+.err-cube-face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 82, 82, 0.1);
+  border: 1px solid rgba(255, 82, 82, 0.5);
+  box-shadow: 0 0 20px rgba(255, 82, 82, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: #ff5252;
+  backdrop-filter: blur(5px);
+}
+
+.err-cube-front {
+  transform: translateZ(calc(var(--cube-size, 30px)));
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><circle cx="50" cy="50" r="20" fill="none" stroke="rgba(255, 82, 82, 0.5)" stroke-width="2"/></svg>');
+  background-size: cover;
+}
+
+.err-cube-back {
+  transform: rotateY(180deg) translateZ(calc(var(--cube-size, 30px)));
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect x="30" y="30" width="40" height="40" fill="none" stroke="rgba(255, 82, 82, 0.5)" stroke-width="2"/></svg>');
+  background-size: cover;
+}
+
+.err-cube-right {
+  transform: rotateY(90deg) translateZ(calc(var(--cube-size, 30px)));
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><polygon points="50,30 70,70 30,70" fill="none" stroke="rgba(255, 82, 82, 0.5)" stroke-width="2"/></svg>');
+  background-size: cover;
+}
+
+.err-cube-left {
+  transform: rotateY(-90deg) translateZ(calc(var(--cube-size, 30px)));
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><line x1="30" y1="30" x2="70" y2="70" stroke="rgba(255, 82, 82, 0.5)" stroke-width="2"/><line x1="70" y1="30" x2="30" y2="70" stroke="rgba(255, 82, 82, 0.5)" stroke-width="2"/></svg>');
+  background-size: cover;
+}
+
+.err-cube-top {
+  transform: rotateX(90deg) translateZ(calc(var(--cube-size, 30px)));
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><circle cx="50" cy="50" r="15" fill="none" stroke="rgba(255, 82, 82, 0.5)" stroke-width="2"/><circle cx="50" cy="50" r="25" fill="none" stroke="rgba(255, 82, 82, 0.3)" stroke-width="1"/></svg>');
+  background-size: cover;
+}
+
+.err-cube-bottom {
+  transform: rotateX(-90deg) translateZ(calc(var(--cube-size, 30px)));
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><path d="M30,50 Q50,30 70,50 T90,50" fill="none" stroke="rgba(255, 82, 82, 0.5)" stroke-width="2"/></svg>');
+  background-size: cover;
+}
+
+/* 内容样式 */
+.err-content {
+  margin-bottom: 25px;
+  max-width: 100%;
+}
+
+.err-title {
+  color: #ff5252;
+  margin: 0 0 15px 0;
+  font-weight: 600;
+  text-shadow: 0 0 10px rgba(255, 82, 82, 0.5);
+  letter-spacing: 1px;
+}
+
+.err-message {
+  margin: 0 0 15px 0;
+  line-height: 1.6;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
+}
+
+.err-details {
+  font-size: 0.9em;
+  color: #ddd;
+  margin: 10px 0 0 0;
+  max-width: 100%;
+  overflow-wrap: break-word;
+  word-break: break-all;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+/* 按钮样式 */
+.err-actions {
+  display: flex;
+  gap: 15px;
+  margin-top: 10px;
+}
+
+.err-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.2);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  position: relative;
+  overflow: hidden;
+}
+
+.err-button:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  transition: 0.5s;
+}
+
+.err-button:hover:before {
+  left: 100%;
+}
+
+.err-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.err-retry, .err-back-btn {
+  background: rgba(255, 82, 82, 0.2);
+  border-color: rgba(255, 82, 82, 0.5);
+  box-shadow: 0 0 10px rgba(255, 82, 82, 0.2);
+}
+
+.err-retry:hover, .err-back-btn:hover {
+  background: rgba(255, 82, 82, 0.3);
+  border-color: rgba(255, 82, 82, 0.7);
+  box-shadow: 0 0 15px rgba(255, 82, 82, 0.3);
+}
+
+/* 动画定义 */
+@keyframes err-rotate {
+  0% {
+    transform: rotateX(0deg) rotateY(0deg);
+  }
+  100% {
+    transform: rotateX(360deg) rotateY(360deg);
+  }
+}
+
+@keyframes err-pulse {
+  0%, 100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .err-large .err-cube-wrapper {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .err-large .err-title {
+    font-size: 1.5rem;
+  }
+  
+  .err-large .err-message {
+    font-size: 1rem;
+  }
+  
+  .err-actions {
+    flex-direction: column;
+  }
+}
+
+/* 设置立方体尺寸变量 */
+.err-small {
+  --cube-size: 20px;
+}
+
+.err-medium {
+  --cube-size: 30px;
+}
+
+.err-large {
+  --cube-size: 40px;
+}

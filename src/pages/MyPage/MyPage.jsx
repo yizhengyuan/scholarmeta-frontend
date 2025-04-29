@@ -8,29 +8,40 @@ import 'aos/dist/aos.css';
 import './MyPage.css';
 import LoginPage from '../../components/LoginPage';
 import Settings from '../../components/Settings';
-import Loading from '../../components/loading';
+import Loading from '../../components/public_base_component/loading';
 import { authAPI } from '../../router';
 import ForumGrid from '../../components/ForumGrid';
+import ErrorUI from '../../components/public_base_component/error';
 
-function MyPage() {
-  const particlesRef = useRef(null);
-  const animationFrameRef = useRef(null);
-  const navigate = useNavigate();
-  const { isConnected, address, disconnect } = useContext(Web3Context);
-  const [activeTab, setActiveTab] = useState('profile');
-  const [showLogin, setShowLogin] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userData, setUserData] = useState({
-    username: 'Guest User',
-    nickname: 'Guest',
-    avatar: 'https://i.pravatar.cc/300?img=68',
-    title: 'New Member',
-    bio: 'Welcome to my profile page. I haven\'t added a bio yet.',
-    email: 'user@example.com',
-    phone: '+1 (555) 123-4567',
-    url: 'https://example.com',
-    tags: ['new', 'member'],
-    self_page: 'my-page',
+// 在组件顶部添加缓存相关的常量
+const USER_DATA_CACHE_KEY = 'mypage_user_data_cache';
+
+// 预加载缓存数据的函数
+const getInitialUserData = () => {
+  try {
+    const cachedData = localStorage.getItem(USER_DATA_CACHE_KEY);
+    const token = localStorage.getItem('access_token');
+    
+    // 如果有缓存数据且有token，使用缓存数据
+    if (cachedData && token) {
+      return JSON.parse(cachedData);
+    }
+  } catch (e) {
+    console.error('解析缓存数据失败:', e);
+  }
+  
+  // 默认返回空对象
+  return {
+    username: '',
+    nickname: '',
+    avatar: '',
+    title: '',
+    bio: '',
+    email: '',
+    phone: '',
+    url: '',
+    tags: [],
+    self_page: '',
     settings: {
       public_posts: false,
       public_activities: false,
@@ -42,14 +53,42 @@ function MyPage() {
       posts: 0,
       comments: 0,
       likes: 0,
-      activity_level: 'Beginner'
+      activity_level: ''
     },
     posts: [],
     comments: [],
     likes: [],
     created_at: new Date().toISOString()
-  });
-  const [loading, setLoading] = useState(true);
+  };
+};
+
+// 预加载编辑值
+const getInitialEditValues = (userData) => {
+  return {
+    username: userData.username || '',
+    title: userData.title || '',
+    bio: userData.bio || '',
+    url: userData.url || ''
+  };
+};
+
+// 检查是否需要显示登录页面
+const shouldShowLogin = () => {
+  return !localStorage.getItem('access_token');
+};
+
+function MyPage() {
+  const particlesRef = useRef(null);
+  const animationFrameRef = useRef(null);
+  const navigate = useNavigate();
+  const { isConnected, address, disconnect } = useContext(Web3Context);
+  const [activeTab, setActiveTab] = useState('profile');
+  
+  // 使用预加载的数据初始化状态
+  const [showLogin, setShowLogin] = useState(shouldShowLogin());
+  const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('access_token'));
+  const [userData, setUserData] = useState(getInitialUserData);
+  const [loading, setLoading] = useState(false);
   const [loadingStartTime, setLoadingStartTime] = useState(0);
   const [error, setError] = useState(null);
   const [showSettings, setShowSettings] = useState(false);
@@ -58,11 +97,7 @@ function MyPage() {
     title: false,
     url: false
   });
-  const [editValues, setEditValues] = useState({
-    username: '',
-    title: '',
-    url: ''
-  });
+  const [editValues, setEditValues] = useState(() => getInitialEditValues(getInitialUserData()));
   const fileInputRef = useRef(null);
   
   // 处理头像加载失败 - 使用更可靠的备用图片资源
@@ -71,120 +106,173 @@ function MyPage() {
     e.target.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(userData.username || 'User'); // 使用基于用户名生成的头像
   };
   
-  // 检查认证状态和获取用户数据
-  const checkAuthAndFetchData = async () => {
-    setLoadingStartTime(Date.now()); // 记录加载开始时间
-    setLoading(true); // 确保加载状态为 true
-    
-    const token = localStorage.getItem('access_token');
-    if (!token) {
-      setShowLogin(true);
-      setIsAuthenticated(false);
-      
-      // 确保加载动画至少显示1秒
-      const elapsedTime = Date.now() - loadingStartTime;
-      const minDuration = 1000; // 最小显示时间（1秒）
-      
-      if (elapsedTime < minDuration) {
-        await new Promise(resolve => setTimeout(resolve, minDuration - elapsedTime));
-      }
-      
-      setLoading(false);
-      return;
-    }
-
-    try {
-      // 添加延时来模拟网络延迟
-      console.log("开始模拟网络延迟...");
-      await new Promise(resolve => setTimeout(resolve, 3500)); // 添加3.5秒的延时
-      console.log("网络延迟模拟结束，开始获取数据...");
-      
-      const data = await authAPI.getMe();
-      console.log("数据获取成功:", data);
-      
-      // 确保所有必要字段都有值，使用默认值填充缺失字段
-      setUserData({
-        ...userData, // 使用默认值作为基础
-        ...data,     // 覆盖后端返回的数据
-        // 确保嵌套对象也有默认值
-        settings: {
-          ...userData.settings,
-          ...(data.settings || {})
-        },
-        stats: {
-          ...userData.stats,
-          ...(data.stats || {})
-        },
-        // 使用后端返回的真实数据，而不是模拟数据
-        posts: data.posts || [],
-        comments: data.comments || [],
-        likes: data.likes || []
-      });
-      
-      // 更新编辑值
-      setEditValues({
-        username: data.username || userData.username,
-        title: data.title || userData.title,
-        url: data.url || userData.url
-      });
-      
-      setIsAuthenticated(true);
-      setShowLogin(false);
-      
-      // 确保加载动画至少显示1秒
-      const elapsedTime = Date.now() - loadingStartTime;
-      const minDuration = 1000; // 最小显示时间（1秒）
-      
-      if (elapsedTime < minDuration) {
-        await new Promise(resolve => setTimeout(resolve, minDuration - elapsedTime));
-      }
-      
-      console.log("数据处理完成，结束加载状态");
-      setLoading(false);
-      
-    } catch (error) {
-      console.error('Failed to fetch user data:', error);
-      localStorage.removeItem('access_token');
-      setShowLogin(true);
-      setIsAuthenticated(false);
-      setError('Failed to load user data. Please try again later.');
-      
-      // 确保加载动画至少显示1秒
-      const elapsedTime = Date.now() - loadingStartTime;
-      const minDuration = 1000; // 最小显示时间（1秒）
-      
-      if (elapsedTime < minDuration) {
-        await new Promise(resolve => setTimeout(resolve, minDuration - elapsedTime));
-      }
-      
-      setLoading(false);
-    }
-  };
-  
-  // 初始化检查
+  // 在 useEffect 中修改初始化逻辑
   useEffect(() => {
-    checkAuthAndFetchData();
+    const initPage = async () => {
+      console.log('MyPage 初始化开始');
+      
+      // 检查是否有 token
+      const token = localStorage.getItem('access_token');
+      console.log('Token 存在:', !!token);
+      
+      if (!token) {
+        console.log('无 token，显示登录页面');
+        setShowLogin(true);
+        return;
+      }
+      
+      // 检查缓存中是否有用户数据
+      const cachedUserData = localStorage.getItem(USER_DATA_CACHE_KEY);
+      console.log('缓存数据存在:', !!cachedUserData);
+      
+      if (cachedUserData) {
+        try {
+          // 如果有缓存数据，我们已经在初始状态中使用了它
+          // 这里只需要验证一下数据是否有效，不需要再次设置状态
+          console.log('缓存数据已在初始化时加载');
+          
+          // 在后台静默更新数据
+          setTimeout(() => {
+            refreshUserData(false);
+          }, 1000);
+          
+          return;
+        } catch (error) {
+          console.error('缓存数据解析失败:', error);
+          // 如果解析缓存数据出错，继续获取新数据
+        }
+      }
+      
+      // 如果没有缓存数据，则从后端获取
+      await refreshUserData(true);
+    };
+    
+    // 从后端刷新用户数据的函数
+    const refreshUserData = async (showLoading) => {
+      console.log('从后端获取数据, 显示加载状态:', showLoading);
+      
+      if (showLoading) {
+        setLoadingStartTime(Date.now());
+        setLoading(true);
+      }
+      
+      try {
+        const data = await authAPI.getMe();
+        console.log('后端数据获取成功');
+        
+        setUserData(data);
+        setEditValues({
+          username: data.username || '',
+          title: data.title || '',
+          bio: data.bio || '',
+          url: data.url || ''
+        });
+        setIsAuthenticated(true);
+        
+        // 将获取的数据存入缓存
+        localStorage.setItem(USER_DATA_CACHE_KEY, JSON.stringify(data));
+        console.log('数据已缓存');
+        
+        // 如果显示加载状态，确保加载动画至少显示1秒
+        if (showLoading) {
+          const elapsedTime = Date.now() - loadingStartTime;
+          const minDuration = 1000;
+          if (elapsedTime < minDuration) {
+            await new Promise(resolve => setTimeout(resolve, minDuration - elapsedTime));
+          }
+        }
+      } catch (error) {
+        console.error('获取用户数据失败:', error);
+        if (showLoading) {
+          setError('Failed to load user data. Please try again.');
+        }
+      } finally {
+        if (showLoading) {
+          setLoading(false);
+        }
+        console.log('MyPage 初始化完成');
+      }
+    };
+    
+    initPage();
   }, []);
   
-  // 处理登录成功
+  // 修改 handleLoginSuccess 函数，简化调试日志
   const handleLoginSuccess = async (initialUserData) => {
+    console.log('登录成功，开始处理');
+    
     setIsAuthenticated(true);
     setUserData(initialUserData);
     setShowLogin(false);
     
-    // 确保加载动画至少显示1秒
-    setTimeout(() => {
+    // 开始加载状态
+    setLoadingStartTime(Date.now());
+    setLoading(true);
+    
+    try {
+      // 获取完整的用户数据
+      console.log('获取完整用户数据');
+      const data = await authAPI.getMe();
+      
+      // 更新用户数据
+      const updatedUserData = {
+        ...initialUserData,
+        ...data,
+        settings: {
+          ...initialUserData.settings,
+          ...(data.settings || {})
+        },
+        stats: {
+          ...initialUserData.stats,
+          ...(data.stats || {})
+        },
+        posts: data.posts || [],
+        comments: data.comments || [],
+        likes: data.likes || []
+      };
+      
+      // 设置状态
+      setUserData(updatedUserData);
+      
+      // 更新编辑值
+      setEditValues({
+        username: data.username || initialUserData.username,
+        title: data.title || initialUserData.title,
+        bio: data.bio || '',
+        url: data.url || initialUserData.url
+      });
+      
+      // 将完整数据存入缓存
+      localStorage.setItem(USER_DATA_CACHE_KEY, JSON.stringify(updatedUserData));
+      console.log('完整数据已缓存');
+      
+      // 确保加载动画至少显示1秒
+      const elapsedTime = Date.now() - loadingStartTime;
+      const minDuration = 1000;
+      if (elapsedTime < minDuration) {
+        await new Promise(resolve => setTimeout(resolve, minDuration - elapsedTime));
+      }
+    } catch (error) {
+      console.error('获取完整用户数据失败:', error);
+    } finally {
       setLoading(false);
-    }, 1000);
+      console.log('登录处理完成');
+    }
   };
   
+  // 修改 handleLogout 函数，添加清除缓存
   const handleLogout = async () => {
+    console.log('开始注销');
     try {
       await authAPI.logout();
     } catch (error) {
-      console.error('Logout failed:', error);
+      console.error('注销失败:', error);
     } finally {
+      // 清除 token 和缓存数据
       localStorage.removeItem('access_token');
+      localStorage.removeItem(USER_DATA_CACHE_KEY); // 清除缓存的用户数据
+      console.log('已清除 token 和缓存');
+      
       setIsAuthenticated(false);
       setShowLogin(true);
       setUserData({
@@ -354,6 +442,18 @@ function MyPage() {
           // 这里可能需要将 base64 转换为文件或使用适当的 API
           // await authAPI.updateAvatar(file);
           console.log('Successfully updated avatar on backend');
+          
+          // 头像更新成功后，更新缓存
+          const cachedUserData = localStorage.getItem(USER_DATA_CACHE_KEY);
+          if (cachedUserData) {
+            try {
+              const parsedData = JSON.parse(cachedUserData);
+              parsedData.avatar = reader.result || parsedData.avatar;
+              localStorage.setItem(USER_DATA_CACHE_KEY, JSON.stringify(parsedData));
+            } catch (error) {
+              console.error('Failed to update cached avatar data:', error);
+            }
+          }
         } catch (error) {
           console.error('Failed to update avatar on backend:', error);
           // 可以选择是否显示错误提示
@@ -385,6 +485,18 @@ function MyPage() {
       try {
         await authAPI.updateUserProfile({ [field]: editValues[field] });
         console.log(`Successfully updated ${field} on backend`);
+        
+        // 更新成功后，更新缓存
+        const cachedUserData = localStorage.getItem(USER_DATA_CACHE_KEY);
+        if (cachedUserData) {
+          try {
+            const parsedData = JSON.parse(cachedUserData);
+            parsedData[field] = editValues[field];
+            localStorage.setItem(USER_DATA_CACHE_KEY, JSON.stringify(parsedData));
+          } catch (error) {
+            console.error('Failed to update cached user data:', error);
+          }
+        }
       } catch (error) {
         console.error(`Failed to update ${field} on backend:`, error);
         // 可以选择是否在这里回滚UI状态
@@ -435,6 +547,20 @@ function MyPage() {
       console.error('Failed to update settings on backend:', error);
       // 可以选择是否显示错误提示
     }
+  };
+
+  // 处理重试
+  const handleRetry = () => {
+    setError(null);
+    checkAuthAndFetchData();
+  };
+
+  // 处理错误页面的返回按钮 - 清除 token 并跳转到登录页面
+  const handleErrorBack = () => {
+    localStorage.removeItem('access_token');
+    setIsAuthenticated(false);
+    setShowLogin(true);
+    setError(null);
   };
 
   const renderContent = () => {
@@ -676,6 +802,24 @@ function MyPage() {
     );
   }
   
+  if (error) {
+    return (
+      <div className="my-page-root">
+        <canvas ref={particlesRef} className="particles-bg"></canvas>
+        <div className="mp-error-container">
+          <ErrorUI 
+            message={error}
+            size="large"
+            transparent={true}
+            onRetry={handleRetry}
+            showBack={true}
+            onBack={handleErrorBack}
+          />
+        </div>
+      </div>
+    );
+  }
+  
   if (showLogin) {
     return <LoginPage onLoginSuccess={handleLoginSuccess} />;
   }
@@ -685,17 +829,6 @@ function MyPage() {
       <div className="my-page-root">
         <canvas ref={particlesRef} className="particles-bg"></canvas>
         <div className="mp-loading-spinner">Loading user data...</div>
-      </div>
-    );
-  }
-  
-  if (error) {
-    return (
-      <div className="mp-error">
-        <div className="mp-error-icon">⚠️</div>
-        <h2>Error</h2>
-        <p>{error}</p>
-        <button onClick={() => window.location.reload()}>Retry</button>
       </div>
     );
   }

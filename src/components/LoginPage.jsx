@@ -1,13 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { FaUser, FaLock, FaSignInAlt } from 'react-icons/fa';
+import { FaUser, FaLock, FaSignInAlt, FaEnvelope, FaPhone, FaUserPlus } from 'react-icons/fa';
 import { authAPI } from '../router';  // 导入 authAPI
 import './LoginPage.css';
 
 function LoginPage({ onLoginSuccess, onClose }) {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [loginError, setLoginError] = useState('');
+  const [isRegistering, setIsRegistering] = useState(false);
+  const [formData, setFormData] = useState({
+    username: '',
+    password: '',
+    email: '',
+    phone: ''
+  });
+  const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const particlesRef = useRef(null);
   const animationFrameRef = useRef(null);
@@ -109,48 +114,58 @@ function LoginPage({ onLoginSuccess, onClose }) {
     };
   }, []);
   
-  const handleLogin = async (e) => {
+  const handleInputChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    setLoginError('');
+    setError('');
 
     try {
-      // 注释掉真实的登录逻辑
-      /*
-      // 登录
-      const response = await authAPI.login(username, password);
-      localStorage.setItem('access_token', response.access_token);
-      
-      // 获取用户数据
-      const userData = await authAPI.getMe();
-      */
-      
-      // 临时模拟登录成功
-      localStorage.setItem('access_token', 'mock_token_for_demo');
-      
-      // 模拟用户数据
-      const mockUserData = {
-        id: 1,
-        name: "演示用户",
-        avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-        title: "化学实验室研究员",
-        url: "https://example.com/profile",
-        bio: "这是一个演示用户的个人简介。热爱科学研究，专注于化学实验和数据分析。\n\n在这里可以分享我的研究成果和实验心得。",
-        created_at: "2023-01-15T08:30:00Z"
-      };
-      
-      // 传递模拟用户数据给父组件
-      if (onLoginSuccess) {
-        onLoginSuccess(mockUserData);
-      }
-      
-      // 关闭登录页面
-      if (onClose) {
-        onClose();
+      if (isRegistering) {
+        // Registration logic
+        const registerData = {
+          name: formData.username,
+          password: formData.password,
+          email: formData.email || undefined,
+          phone: formData.phone || undefined
+        };
+
+        const response = await authAPI.register(registerData);
+        // Auto login after successful registration
+        const loginResponse = await authAPI.login(formData.username, formData.password);
+        localStorage.setItem('access_token', loginResponse.access_token);
+        
+        if (onLoginSuccess) {
+          const userData = await authAPI.getMe();
+          onLoginSuccess(userData);
+        }
+        
+        if (onClose) {
+          onClose();
+        }
+      } else {
+        // Login logic
+        const response = await authAPI.login(formData.username, formData.password);
+        localStorage.setItem('access_token', response.access_token);
+        
+        if (onLoginSuccess) {
+          const userData = await authAPI.getMe();
+          onLoginSuccess(userData);
+        }
+        
+        if (onClose) {
+          onClose();
+        }
       }
     } catch (error) {
-      console.error('Login failed:', error);
-      setLoginError('Invalid username or password. Please try again.');
+      console.error(isRegistering ? 'Registration failed:' : 'Login failed:', error);
+      setError(isRegistering ? 'Registration failed, please try again' : 'Invalid username or password');
     } finally {
       setIsLoading(false);
     }
@@ -169,19 +184,19 @@ function LoginPage({ onLoginSuccess, onClose }) {
         >
           <div className="login-header">
             <div className="login-logo">
-              <FaUser />
+              {isRegistering ? <FaUserPlus /> : <FaUser />}
             </div>
-            <h2>Welcome Back</h2>
-            <p>Sign in to access your personal dashboard</p>
+            <h2>{isRegistering ? 'Create Account' : 'Welcome Back'}</h2>
+            <p>{isRegistering ? 'Fill in your information to register' : 'Sign in to access your dashboard'}</p>
           </div>
           
-          {loginError && (
+          {error && (
             <div className="login-error">
-              {loginError}
+              {error}
             </div>
           )}
           
-          <form className="login-form" onSubmit={handleLogin}>
+          <form className="login-form" onSubmit={handleSubmit}>
             <div className="login-form-group">
               <label htmlFor="username">Username</label>
               <div className="login-input-wrapper">
@@ -189,9 +204,10 @@ function LoginPage({ onLoginSuccess, onClose }) {
                 <input 
                   type="text" 
                   id="username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="Enter your username"
+                  name="username"
+                  value={formData.username}
+                  onChange={handleInputChange}
+                  placeholder="Enter username"
                   disabled={isLoading}
                   required
                 />
@@ -205,14 +221,51 @@ function LoginPage({ onLoginSuccess, onClose }) {
                 <input 
                   type="password" 
                   id="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  placeholder="Enter password"
                   disabled={isLoading}
                   required
                 />
               </div>
             </div>
+
+            {isRegistering && (
+              <>
+                <div className="login-form-group">
+                  <label htmlFor="email">Email (Optional)</label>
+                  <div className="login-input-wrapper">
+                    <FaEnvelope className="login-input-icon" />
+                    <input 
+                      type="email" 
+                      id="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      placeholder="Enter email"
+                      disabled={isLoading}
+                    />
+                  </div>
+                </div>
+
+                <div className="login-form-group">
+                  <label htmlFor="phone">Phone (Optional)</label>
+                  <div className="login-input-wrapper">
+                    <FaPhone className="login-input-icon" />
+                    <input 
+                      type="tel" 
+                      id="phone"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleInputChange}
+                      placeholder="Enter phone number"
+                      disabled={isLoading}
+                    />
+                  </div>
+                </div>
+              </>
+            )}
             
             <motion.button 
               type="submit"
@@ -225,15 +278,29 @@ function LoginPage({ onLoginSuccess, onClose }) {
                 <div className="login-spinner"></div>
               ) : (
                 <>
-                  <FaSignInAlt />
-                  <span>Sign In</span>
+                  {isRegistering ? <FaUserPlus /> : <FaSignInAlt />}
+                  <span>{isRegistering ? 'Register' : 'Sign In'}</span>
                 </>
               )}
             </motion.button>
           </form>
           
           <div className="login-footer">
-            <p>Default login: admin / admin</p>
+            <button 
+              className="login-switch-mode"
+              onClick={() => {
+                setIsRegistering(!isRegistering);
+                setError('');
+                setFormData({
+                  username: '',
+                  password: '',
+                  email: '',
+                  phone: ''
+                });
+              }}
+            >
+              {isRegistering ? 'Already have an account? Sign In' : 'Need an account? Register'}
+            </button>
           </div>
         </motion.div>
       </div>

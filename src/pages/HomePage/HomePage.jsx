@@ -18,11 +18,6 @@ function HomePage() {
       offset: 100,
     });
 
-    // 制造一个运行时错误
-    setTimeout(() => {
-      throw new Error('这是一个测试错误');
-    }, 2000);
-
     // 粒子背景效果
     const canvas = particlesRef.current;
     const ctx = canvas.getContext('2d');

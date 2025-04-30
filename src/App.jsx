@@ -1,6 +1,9 @@
-import React from 'react'
+import React, { Suspense } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import './App.css'
+import ErrorBoundary from './components/public_base_component/ErrorBoundary'
+import ResponsiveWrapper from './components/public_base_component/ResponsiveWrapper'
+import Loading from './components/public_base_component/loading'
 
 // 导入页面
 import HomePage from './pages/HomePage/HomePage'
@@ -17,21 +20,29 @@ import Footer from './components/Footer'
 
 function App() {
   return (
-    <div className="app">
-      <Header />
-      <main className="main-content">
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/upload" element={<UploadPage />} />
-          <Route path="/token" element={<TokenPage />} />
-          <Route path="/forum" element={<ForumPage />} />
-          <Route path="/forum/detail/:id" element={<ForumDetailPage />} />
-          <Route path="/author/:id" element={<AuthorPage />} />
-          <Route path="/mypage" element={<MyPage />} />
-        </Routes>
-      </main>
-      <Footer />
-    </div>
+    <ErrorBoundary>
+      <ResponsiveWrapper>
+        <div className="app">
+          <Header />
+          <div className="page-container">
+            <main className="main-content">
+              <Suspense fallback={<Loading />}>
+                <Routes>
+                  <Route path="/" element={<HomePage />} />
+                  <Route path="/upload" element={<UploadPage />} />
+                  <Route path="/token" element={<TokenPage />} />
+                  <Route path="/forum" element={<ForumPage />} />
+                  <Route path="/forum/detail/:id" element={<ForumDetailPage />} />
+                  <Route path="/author/:id" element={<AuthorPage />} />
+                  <Route path="/mypage" element={<MyPage />} />
+                </Routes>
+              </Suspense>
+            </main>
+            <Footer />
+          </div>
+        </div>
+      </ResponsiveWrapper>
+    </ErrorBoundary>
   )
 }
 

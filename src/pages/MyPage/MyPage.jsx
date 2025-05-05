@@ -12,6 +12,7 @@ import Loading from '../../components/public_base_component/loading';
 import { authAPI } from '../../router';
 import ForumGrid from '../../components/ForumGrid';
 import ErrorUI from '../../components/public_base_component/error';
+import ErrorWindow from '../../components/public_base_component/ErrorWindow';
 
 // 在组件顶部添加缓存相关的常量
 const USER_DATA_CACHE_KEY = 'mypage_user_data_cache';
@@ -99,6 +100,7 @@ function MyPage() {
   });
   const [editValues, setEditValues] = useState(() => getInitialEditValues(getInitialUserData()));
   const fileInputRef = useRef(null);
+  const [errorWindow, setErrorWindow] = useState(null);
   
   // 处理头像加载失败 - 使用更可靠的备用图片资源
   const handleAvatarError = (e) => {
@@ -435,35 +437,38 @@ function MyPage() {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = async () => {
+        // 保存更新前的状态，以便在失败时回退
+        const previousState = { ...userData };
+        
         // 立即更新前端显示
         setUserData(prev => ({
           ...prev,
           avatar: reader.result
         }));
         
-        // 模拟向后端发送请求
-        console.log('Sending avatar update to backend');
-        
-        // 实际的后端请求 - 当后端准备好时可以取消注释
         try {
-          // 这里可能需要将 base64 转换为文件或使用适当的 API
-          // await authAPI.updateAvatar(file);
+          // 将图片数据发送到后端
+          const imageUrl = reader.result;
+          const userId = userData._id || ''; // 从当前组件状态获取用户ID
+          
+          await authAPI.updateAvatar(userId, imageUrl);
           console.log('Successfully updated avatar on backend');
           
           // 头像更新成功后，更新缓存
-          const cachedUserData = localStorage.getItem(USER_DATA_CACHE_KEY);
-          if (cachedUserData) {
-            try {
-              const parsedData = JSON.parse(cachedUserData);
-              parsedData.avatar = reader.result || parsedData.avatar;
-              localStorage.setItem(USER_DATA_CACHE_KEY, JSON.stringify(parsedData));
-            } catch (error) {
-              console.error('Failed to update cached avatar data:', error);
-            }
-          }
+          updateLocalCache('avatar', reader.result);
         } catch (error) {
           console.error('Failed to update avatar on backend:', error);
-          // 可以选择是否显示错误提示
+          
+          // 回退到之前的状态
+          setUserData(previousState);
+          
+          // 显示错误提示窗口
+          setErrorWindow({
+            message: 'failed to update avatar',
+            details: error.message || 'please try again later',
+            type: 'error',
+            duration: 5000
+          });
         }
       };
       reader.readAsDataURL(file);
@@ -481,39 +486,130 @@ function MyPage() {
 
   const handleSave = async (field) => {
     try {
+      // 保存更新前的状态，以便在失败时回退
+      const previousState = { ...userData };
+      
       // 立即更新前端显示，提升用户体验
       setUserData({ ...userData, [field]: editValues[field] });
       setIsEditing({ ...isEditing, [field]: false });
       
-      // 模拟向后端发送请求
-      console.log(`Sending update to backend for field: ${field}, value: ${editValues[field]}`);
+      // 获取用户ID
+      const userId = userData._id || '';
       
-      // 实际的后端请求 - 当后端准备好时可以取消注释
-      try {
-        await authAPI.updateUserProfile({ [field]: editValues[field] });
-        console.log(`Successfully updated ${field} on backend`);
-        
-        // 更新成功后，更新缓存
-        const cachedUserData = localStorage.getItem(USER_DATA_CACHE_KEY);
-        if (cachedUserData) {
-          try {
-            const parsedData = JSON.parse(cachedUserData);
-            parsedData[field] = editValues[field];
-            localStorage.setItem(USER_DATA_CACHE_KEY, JSON.stringify(parsedData));
-          } catch (error) {
-            console.error('Failed to update cached user data:', error);
-          }
+      // 根据字段类型选择不同的API调用
+      if (field === 'title') {
+        try {
+          await authAPI.updateTitle(userId, editValues[field]);
+          console.log(`Successfully updated ${field} on backend`);
+          
+          // 更新成功后，更新缓存
+          updateLocalCache(field, editValues[field]);
+        } catch (error) {
+          console.error(`Failed to update ${field} on backend:`, error);
+          
+          // 回退到之前的状态
+          setUserData(previousState);
+          
+          // 显示错误提示窗口
+          setErrorWindow({
+            message: 'failed to update title',
+            details: error.message || 'please try again later',
+            type: 'error',
+            duration: 5000
+          });
         }
-      } catch (error) {
-        console.error(`Failed to update ${field} on backend:`, error);
-        // 可以选择是否在这里回滚UI状态
-        // 如果后端请求失败，可以显示一个小提示而不是回滚整个UI
-        // 这样用户体验会更好
+      } else if (field === 'bio') {
+        try {
+          await authAPI.updateBio(userId, editValues[field]);
+          console.log(`Successfully updated ${field} on backend`);
+          
+          // 更新成功后，更新缓存
+          updateLocalCache(field, editValues[field]);
+        } catch (error) {
+          console.error(`Failed to update ${field} on backend:`, error);
+          
+          // 回退到之前的状态
+          setUserData(previousState);
+          
+          // 显示错误提示窗口
+          setErrorWindow({
+            message: 'failed to update bio',
+            details: error.message || 'please try again later',
+            type: 'error',
+            duration: 5000
+          });
+        }
+      } else if (field === 'url') {
+        try {
+          await authAPI.updateUrl(userId, editValues[field]);
+          console.log(`Successfully updated ${field} on backend`);
+          
+          // 更新成功后，更新缓存
+          updateLocalCache(field, editValues[field]);
+        } catch (error) {
+          console.error(`Failed to update ${field} on backend:`, error);
+          
+          // 回退到之前的状态
+          setUserData(previousState);
+          
+          // 显示错误提示窗口
+          setErrorWindow({
+            message: 'failed to update url',
+            details: error.message || 'please try again later',
+            type: 'error',
+            duration: 5000
+          });
+        }
+      } else {
+        // 处理其他字段的更新
+        try {
+          await authAPI.updateUserProfile({ [field]: editValues[field] });
+          console.log(`Successfully updated ${field} on backend`);
+          
+          // 更新成功后，更新缓存
+          updateLocalCache(field, editValues[field]);
+        } catch (error) {
+          console.error(`Failed to update ${field} on backend:`, error);
+          
+          // 回退到之前的状态
+          setUserData(previousState);
+          
+          // 显示错误提示窗口
+          setErrorWindow({
+            message: `failed to update ${field}`,
+            details: error.message || 'please try again later',
+            type: 'error',
+            duration: 5000
+          });
+        }
       }
     } catch (error) {
       console.error(`Error in handleSave for ${field}:`, error);
+      
       // 如果发生严重错误，可以回滚到原始状态
       setEditValues({ ...editValues, [field]: userData[field] });
+      
+      // 显示错误提示窗口
+      setErrorWindow({
+        message: 'failed to update',
+        details: error.message || 'please try again later',
+        type: 'error',
+        duration: 5000
+      });
+    }
+  };
+
+  // 添加一个辅助函数来更新本地缓存
+  const updateLocalCache = (field, value) => {
+    const cachedUserData = localStorage.getItem(USER_DATA_CACHE_KEY);
+    if (cachedUserData) {
+      try {
+        const parsedData = JSON.parse(cachedUserData);
+        parsedData[field] = value;
+        localStorage.setItem(USER_DATA_CACHE_KEY, JSON.stringify(parsedData));
+      } catch (error) {
+        console.error('Failed to update cached user data:', error);
+      }
     }
   };
 
@@ -524,6 +620,12 @@ function MyPage() {
 
   // 处理设置更新
   const handleSettingsUpdate = async (updatedSettings) => {
+    // 获取用户ID
+    const userId = userData._id || '';
+    
+    // 保存更新前的状态，以便在失败时回退
+    const previousState = { ...userData };
+    
     // 立即更新前端显示
     setUserData(prevData => {
       // 如果更新包含设置
@@ -543,17 +645,92 @@ function MyPage() {
       };
     });
     
-    // 模拟向后端发送请求
-    console.log('Sending settings update to backend:', updatedSettings);
-    
-    // 实际的后端请求 - 当后端准备好时可以取消注释
-    try {
-      // await authAPI.updateUserSettings(updatedSettings);
-      console.log('Successfully updated settings on backend');
-    } catch (error) {
-      console.error('Failed to update settings on backend:', error);
-      // 可以选择是否显示错误提示
+    // 检查是否更新了邮箱
+    if (updatedSettings.email) {
+      try {
+        await authAPI.updateEmail(userId, updatedSettings.email);
+        console.log('Successfully updated email on backend');
+        
+        // 更新缓存中的邮箱
+        updateLocalCache('email', updatedSettings.email);
+      } catch (error) {
+        console.error('Failed to update email on backend:', error);
+        
+        // 回退到之前的状态
+        setUserData(previousState);
+        
+        // 显示错误提示窗口
+        setErrorWindow({
+          message: 'Failed to update email',
+          details: error.message || 'Please try again later',
+          type: 'error',
+          duration: 5000
+        });
+      }
     }
+    
+    // 检查是否更新了电话
+    if (updatedSettings.phone) {
+      try {
+        await authAPI.updatePhone(userId, updatedSettings.phone);
+        console.log('Successfully updated phone on backend');
+        
+        // 更新缓存中的电话
+        updateLocalCache('phone', updatedSettings.phone);
+      } catch (error) {
+        console.error('Failed to update phone on backend:', error);
+        
+        // 回退到之前的状态
+        setUserData(previousState);
+        
+        // 显示错误提示窗口
+        setErrorWindow({
+          message: 'Failed to update phone',
+          details: error.message || 'Please try again later',
+          type: 'error',
+          duration: 5000
+        });
+      }
+    }
+    
+    // 检查是否更新了设置
+    if (updatedSettings.settings) {
+      try {
+        // 调用更新设置的API
+        await authAPI.updateSettings(userId, updatedSettings.settings);
+        console.log('Successfully updated settings on backend');
+        
+        // 更新缓存中的设置
+        const cachedUserData = localStorage.getItem(USER_DATA_CACHE_KEY);
+        if (cachedUserData) {
+          try {
+            const parsedData = JSON.parse(cachedUserData);
+            parsedData.settings = {
+              ...parsedData.settings,
+              ...updatedSettings.settings
+            };
+            localStorage.setItem(USER_DATA_CACHE_KEY, JSON.stringify(parsedData));
+          } catch (error) {
+            console.error('Failed to update cached settings data:', error);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to update settings on backend:', error);
+        
+        // 回退到之前的状态
+        setUserData(previousState);
+        
+        // 显示错误提示窗口
+        setErrorWindow({
+          message: 'Failed to update settings',
+          details: error.message || 'Please try again later',
+          type: 'error',
+          duration: 5000
+        });
+      }
+    }
+    
+    console.log('Sending settings update to backend:', updatedSettings);
   };
 
   // 处理重试
@@ -815,7 +992,8 @@ function MyPage() {
         <canvas ref={particlesRef} className="particles-bg"></canvas>
         <div className="mp-error-container">
           <ErrorUI 
-            message={error}
+            message={error.message}
+            details={error.details}
             size="large"
             transparent={true}
             onRetry={handleRetry}
@@ -929,7 +1107,7 @@ function MyPage() {
                         type="text"
                         value={editValues.url}
                         onChange={(e) => handleInputChange('url', e.target.value)}
-                        maxLength={100}
+                        maxLength={60}
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') handleSave('url');
                           if (e.key === 'Escape') handleCancel('url');
@@ -1091,6 +1269,17 @@ function MyPage() {
               onSettingsUpdate={handleSettingsUpdate}
             />
           </div>
+        )}
+
+        {/* 错误窗口 */}
+        {errorWindow && (
+          <ErrorWindow 
+            message={errorWindow.message}
+            details={errorWindow.details}
+            type={errorWindow.type || 'error'}
+            duration={errorWindow.duration || 5000}
+            onClose={() => setErrorWindow(null)}
+          />
         )}
       </div>
     </div>

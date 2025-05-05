@@ -88,7 +88,138 @@ export const authAPI = {
   // 用户登出
   logout: async () => {
     return api.post('/auth/logout');
-  }
+  },
+
+  // 更新用户头像
+  updateAvatar: async (userId, newAvatarUrl) => {
+    const formData = new URLSearchParams();
+    formData.append('user_id', userId);
+    formData.append('new_avatar', newAvatarUrl);
+    
+    return api.post('/modify/modify_avatar', formData, {
+      headers: {
+        'accept': 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
+    });
+  },
+  
+  // 更新用户邮箱
+  updateEmail: async (userId, newEmail) => {
+    const formData = new URLSearchParams();
+    formData.append('user_id', userId);
+    formData.append('new_email', newEmail);
+    
+    return api.post('/modify/modify_email', formData, {
+      headers: {
+        'accept': 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
+    });
+  },
+  
+  // 更新用户资料
+  updateUserProfile: async (userData) => {
+    const formData = new URLSearchParams();
+    
+    // 遍历对象中的所有键值对并添加到表单数据中
+    Object.keys(userData).forEach(key => {
+      formData.append(key, userData[key]);
+    });
+    
+    return api.post('/modify/modify_profile', formData, {
+      headers: {
+        'accept': 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
+    });
+  },
+
+  // 更新用户头衔/职称
+  updateTitle: async (userId, newTitle) => {
+    const formData = new URLSearchParams();
+    formData.append('user_id', userId);
+    formData.append('new_title', newTitle);
+    
+    return api.post('/modify/modify_title', formData, {
+      headers: {
+        'accept': 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
+    });
+  },
+
+  // 更新用户简介
+  updateBio: async (userId, newBio) => {
+    const formData = new URLSearchParams();
+    formData.append('user_id', userId);
+    formData.append('new_bio', newBio);
+    
+    return api.post('/modify/modify_bio', formData, {
+      headers: {
+        'accept': 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
+    });
+  },
+
+  // 更新用户URL
+  updateUrl: async (userId, newUrl) => {
+    const formData = new URLSearchParams();
+    formData.append('user_id', userId);
+    formData.append('new_url', newUrl);
+    
+    return api.post('/modify/modify_url', formData, {
+      headers: {
+        'accept': 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
+    });
+  },
+
+  // 更新用户设置
+  updateSettings: async (userId, settings) => {
+    const formData = new URLSearchParams();
+    formData.append('user_id', userId);
+    
+    // 添加所有设置项
+    if (settings.public_posts !== undefined) {
+      formData.append('new_public_posts', settings.public_posts);
+    }
+    if (settings.public_activities !== undefined) {
+      formData.append('new_public_activities', settings.public_activities);
+    }
+    if (settings.public_profile !== undefined) {
+      formData.append('new_public_profile', settings.public_profile);
+    }
+    if (settings.public_statistics !== undefined) {
+      formData.append('new_public_statistics', settings.public_statistics);
+    }
+    if (settings.public_contact !== undefined) {
+      formData.append('new_public_contact', settings.public_contact);
+    }
+    
+    return api.post('/modify/modify_settings', formData, {
+      headers: {
+        'accept': 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
+    });
+  },
+
+  // 更新用户电话
+  updatePhone: async (userId, newPhone) => {
+    const formData = new URLSearchParams();
+    formData.append('user_id', userId);
+    formData.append('new_phone', newPhone);
+    
+    return api.post('/modify/modify_phone', formData, {
+      headers: {
+        'accept': 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
+    });
+  },
 };
 
 // 媒体服务相关 API

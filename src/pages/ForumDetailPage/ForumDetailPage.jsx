@@ -124,7 +124,8 @@ function ForumDetailPage() {
           comments: totalComments,
           tags: Array.isArray(postData.tags) ? postData.tags : [],
           mediaList: postData["media list"] || [], // 保存完整的媒体列表
-          mediaType: postData["media type"] || "image"
+          mediaType: postData["media type"] || "image",
+          ai_analysis: postData.ai_analysis || null // 添加 AI 分析字段
         };
         
         setPost(formattedPost);
@@ -607,22 +608,82 @@ function ForumDetailPage() {
             <h3>AI Content Analysis</h3>
           </div>
           <div className="ai-analysis-content">
-            <div className="ai-analysis-item">
-              <h4>Key Points:</h4>
-              <ul>
-                <li>Web3 技术与区块链的深度融合</li>
-                <li>去中心化存储的创新应用</li>
-                <li>智能合约在实际场景中的应用价值</li>
-              </ul>
-            </div>
-            <div className="ai-analysis-item">
-              <h4>Sentiment Analysis:</h4>
-              <div className="sentiment-tags">
-                <span className="sentiment-tag positive">Technical</span>
-                <span className="sentiment-tag positive">Innovative</span>
-                <span className="sentiment-tag neutral">Educational</span>
-              </div>
-            </div>
+            {post.ai_analysis ? (
+              <>
+                <div className="ai-analysis-item">
+                  <h4>Key Points:</h4>
+                  {(() => {
+                    const aiData = JSON.parse(post.ai_analysis);
+                    const summary = aiData.summary;
+                    
+                    // 先分割成段落
+                    const paragraphs = summary.split('\n\n');
+                    
+                    return paragraphs.map((paragraph, pIndex) => {
+                      // 检查是否包含列表项（包括 \n- 和 - 开头的情况）
+                      if (paragraph.includes('\n- ') || paragraph.startsWith('- ')) {
+                        // 处理段落中的列表
+                        let introText = '';
+                        let listItems = [];
+                        
+                        if (paragraph.startsWith('- ')) {
+                          // 如果段落直接以 - 开头
+                          listItems = paragraph.split('\n- ');
+                          // 第一项需要去掉开头的 -
+                          listItems[0] = listItems[0].substring(2);
+                        } else {
+                          // 如果段落中间包含 \n-
+                          const parts = paragraph.split('\n- ');
+                          introText = parts[0];
+                          listItems = parts.slice(1);
+                        }
+                        
+                        return (
+                          <div key={pIndex}>
+                            {introText && <p>{introText}</p>}
+                            <ul className="ai-analysis-list">
+                              {listItems.map((item, iIndex) => (
+                                <li key={iIndex}>{item}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        );
+                      } else {
+                        // 普通段落
+                        return <p key={pIndex}>{paragraph}</p>;
+                      }
+                    });
+                  })()}
+                </div>
+                <div className="ai-analysis-item">
+                  <h4>Tags Analysis:</h4>
+                  <div className="sentiment-tags">
+                    {JSON.parse(post.ai_analysis).tags.map((tag, index) => (
+                      <span key={index} className="sentiment-tag positive">{tag}</span>
+                    ))}
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="ai-analysis-item">
+                  <h4>Key Points:</h4>
+                  <ul>
+                    <li>Web3 技术与区块链的深度融合</li>
+                    <li>去中心化存储的创新应用</li>
+                    <li>智能合约在实际场景中的应用价值</li>
+                  </ul>
+                </div>
+                <div className="ai-analysis-item">
+                  <h4>Sentiment Analysis:</h4>
+                  <div className="sentiment-tags">
+                    <span className="sentiment-tag positive">Technical</span>
+                    <span className="sentiment-tag positive">Innovative</span>
+                    <span className="sentiment-tag neutral">Educational</span>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </div>
 

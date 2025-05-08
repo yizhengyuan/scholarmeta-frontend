@@ -86,6 +86,12 @@
   font-size: 0.95rem;
 }
 
+.web3-comments-reply-to {
+  color: #00c6fb;
+  font-weight: 500;
+  margin-right: 0.5rem;
+}
+
 .web3-comments-actions {
   display: flex;
   gap: 1rem;
@@ -125,6 +131,36 @@
   margin-bottom: 0.75rem;
   background: rgba(255, 255, 255, 0.03);
   border-radius: 12px;
+  animation: fadeIn 0.3s ease;
+}
+
+/* 新增：展开/折叠按钮样式 */
+.web3-comments-expand-btn {
+  background: none;
+  border: none;
+  color: #00c6fb;
+  font-size: 0.9rem;
+  padding: 0.5rem 1rem;
+  margin: 0.5rem 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  border-radius: 8px;
+  width: fit-content;
+}
+
+.web3-comments-expand-btn:hover {
+  background: rgba(0, 198, 251, 0.1);
+}
+
+.web3-comments-expand-btn svg {
+  font-size: 0.8rem;
+}
+
+.web3-comments-item {
+  margin-bottom: 2rem;
 }
 
 .web3-comments-loading {

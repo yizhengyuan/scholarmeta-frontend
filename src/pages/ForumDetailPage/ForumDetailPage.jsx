@@ -216,9 +216,15 @@ function ForumDetailPage() {
         // 获取所有评论，不仅仅是主评论
         setComments(commentsData);
         
-        // 计算主评论数量
-        const mainCommentsCount = commentsData.filter(comment => comment.level === 1).length;
-        setTotalComments(mainCommentsCount);
+        // 计算总评论数量：每个主评论(level=1)的replyCount + 1(主评论自身)
+        const totalCommentsCount = commentsData
+          .filter(comment => comment.level === 1)
+          .reduce((total, comment) => {
+            // 每个主评论算1，加上它的回复数
+            return total + 1 + (comment.replyCount || 0);
+          }, 0);
+        
+        setTotalComments(totalCommentsCount);
         
         setCommentsLoading(false);
       } catch (err) {
@@ -252,57 +258,18 @@ function ForumDetailPage() {
   };
 
   // 处理评论提交
-  const handleCommentSubmit = async (comment) => {
-    try {
-      // 发送评论到后端
-      const response = await mediaAPI.postComment(id, comment.content, comment.parentId, comment.rootId);
-      
-      // 如果成功，将新评论添加到评论列表
-      if (response) {
-        // 确定评论级别
-        let level = 1;
-        if (comment.parentId) {
-          // 如果有parentId，检查是否是回复level 1还是level 2
-          if (comment.rootId === comment.parentId) {
-            // 如果rootId等于parentId，说明是回复主评论，级别为2
-            level = 2;
-          } else {
-            // 如果rootId不等于parentId，说明是回复子评论，级别为3
-            level = 3;
-          }
-        }
-        
-        // 创建一个新的评论对象，模拟后端返回的格式
-        const newCommentObj = {
-          _id: response._id || `temp-${Date.now()}`, // 使用后端返回的ID或临时ID
-          postId: id,
-          userId: currentUser.id,
-          content: comment.content,
-          imageUrl: "",
-          parentId: comment.parentId || null,
-          rootId: comment.rootId || null,
-          level: level,
-          likes: 0,
-          replyCount: 0,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          isDeleted: false,
-          username: currentUser.name,
-          avatar: currentUser.avatar
-        };
-        
-        // 更新评论列表和计数
-        setNewComment(newCommentObj);
-        
-        // 只有主评论才增加总评论数
-        if (level === 1) {
-          setTotalComments(prev => prev + 1);
-        }
-      }
-    } catch (error) {
-      console.error('提交评论失败:', error);
-      // 可以在这里添加错误处理，比如显示错误消息
-    }
+  const handleCommentSubmit = (newComment) => {
+    console.log('New comment received in ForumDetailPage:', newComment);
+    
+    // 不需要重复调用 API，因为 CommentPage 已经调用过了
+    // 只需要更新本地状态
+    setNewComment(newComment);
+    
+    // 更新评论总数
+    setTotalComments(prev => prev + 1);
+    
+    // 关闭评论弹窗
+    setIsCommentModalOpen(false);
   };
 
   const handlePrevImage = () => {

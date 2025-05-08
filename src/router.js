@@ -343,7 +343,7 @@ export const mediaAPI = {
   },
 
   // 获取帖子评论
-  getPostComments: async (postId, skip = 0, limit = 20) => {
+  getPostComments: async (postId, skip = 0, limit = 2000) => {
     try {
       const response = await api.get(`/comments/post/${postId}?skip=${skip}&limit=${limit}`);
       return response;
@@ -353,20 +353,57 @@ export const mediaAPI = {
     }
   },
 
-  // 发表评论
-  postComment: async (postId, content) => {
-    const formData = new URLSearchParams();
-    formData.append('postId', postId);
-    formData.append('content', content);
-    
+  // 发表评论 - 更新为支持完整的评论结构
+  createComment: async (commentData) => {
     try {
-      const response = await api.post('/comments', formData);
+      // 使用 JSON 格式发送请求
+      const response = await api.post('/comments/create', commentData, {
+        headers: {
+          'Content-Type': 'application/json',
+          'accept': 'application/json'
+        }
+      });
       return response;
     } catch (error) {
       console.error('发表评论失败:', error);
       throw error;
     }
   },
+  
+  // 回复评论 (level 2 或 level 3)
+  replyToComment: async (postId, content, parentId, rootId) => {
+    try {
+      const commentData = {
+        postId,
+        content,
+        imageUrl: "", // 暂时不支持图片
+        parentId,
+        rootId
+      };
+      
+      const response = await api.post('/comments/create', commentData, {
+        headers: {
+          'Content-Type': 'application/json',
+          'accept': 'application/json'
+        }
+      });
+      return response;
+    } catch (error) {
+      console.error('回复评论失败:', error);
+      throw error;
+    }
+  },
+  
+  // 点赞评论
+  likeComment: async (commentId) => {
+    try {
+      const response = await api.post(`/comments/${commentId}/like`);
+      return response;
+    } catch (error) {
+      console.error('点赞评论失败:', error);
+      throw error;
+    }
+  }
 };
 
 export default api;

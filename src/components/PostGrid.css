@@ -17,8 +17,15 @@
   margin: 0.5rem 0;
   font-size: 0.9rem;
   line-height: 1.4;
-  max-height: 2.8em;
   overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  display: box;
+  -webkit-line-clamp: 2; /* 限制最多显示2行 */
+  line-clamp: 2; /* 标准属性 */
+  -webkit-box-orient: vertical;
+  box-orient: vertical;
+  max-height: 2.8em; /* 2行文本的大致高度 = 行高 * 行数 */
 }
 
 .forum-post-meta {
@@ -27,6 +34,26 @@
 
 .forum-post-footer {
   margin-top: 0.5rem;
+}
+
+/* 添加作者头像样式 - 只修改这部分，添加 forum-post 前缀 */
+.forum-post-author-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: rgba(97, 218, 251, 0.2);
+  margin-right: 8px;
+  overflow: hidden; /* 确保内容不会溢出圆形边界 */
+}
+
+.forum-post-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* 确保图片填充整个容器并保持比例 */
+  border-radius: 50%; /* 确保图片是圆形的 */
 }
 
 /* ... 其他所有与 post-card 相关的样式保持不变 ... */

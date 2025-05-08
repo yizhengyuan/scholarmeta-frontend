@@ -434,44 +434,50 @@ function MyPage() {
 
   const handleAvatarChange = async (event) => {
     const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = async () => {
-        // 保存更新前的状态，以便在失败时回退
-        const previousState = { ...userData };
-        
-        // 立即更新前端显示
-        setUserData(prev => ({
-          ...prev,
-          avatar: reader.result
-        }));
-        
-        try {
-          // 将图片数据发送到后端
-          const imageUrl = reader.result;
-          const userId = userData._id || ''; // 从当前组件状态获取用户ID
-          
-          await authAPI.updateAvatar(userId, imageUrl);
-          console.log('Successfully updated avatar on backend');
-          
-          // 头像更新成功后，更新缓存
-          updateLocalCache('avatar', reader.result);
-        } catch (error) {
-          console.error('Failed to update avatar on backend:', error);
-          
-          // 回退到之前的状态
-          setUserData(previousState);
-          
-          // 显示错误提示窗口
-          setErrorWindow({
-            message: 'failed to update avatar',
-            details: error.message || 'please try again later',
-            type: 'error',
-            duration: 5000
-          });
-        }
-      };
-      reader.readAsDataURL(file);
+    
+    // 检查文件类型是否为图片
+    if (!file.type.startsWith('image/')) {
+      setErrorWindow({
+        message: 'Invalid file type',
+        details: 'Please upload an image file (PNG, JPEG, etc.)',
+        type: 'error',
+        duration: 5000
+      });
+      return;
+    }
+
+    // 保存更新前的状态，以便在失败时回退
+    const previousState = { ...userData };
+    
+    try {
+      // 创建临时的本地预览URL
+      const previewUrl = URL.createObjectURL(file);
+      
+      // 立即更新前端显示
+      setUserData(prev => ({
+        ...prev,
+        avatar: previewUrl
+      }));
+      
+      // 将文件直接发送到后端
+      const userId = userData._id || '';
+      await authAPI.updateAvatar(userId, file);
+      console.log('Successfully updated avatar on backend');
+      
+      // 更新缓存
+      updateLocalCache('avatar', previewUrl);
+    } catch (error) {
+      console.error('Failed to update avatar on backend:', error);
+      
+      // 回退到之前的状态
+      setUserData(previousState);
+      
+      setErrorWindow({
+        message: 'failed to update avatar',
+        details: error.message || 'please try again later',
+        type: 'error',
+        duration: 5000
+      });
     }
   };
 

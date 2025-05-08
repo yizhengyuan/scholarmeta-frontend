@@ -218,30 +218,30 @@ function UploadPage() {
         setUploadedSize(progressEvent.loaded);
       };
 
-      // 上传所有文件
-      const results = await Promise.all(files.map(async (file) => {
-        const config = { onUploadProgress };
-        let result;
+      // 准备帖子数据
+      const postData = {
+        title: formData.title || '',
+        content: formData.content || '',
+        summary: '', // 可以添加摘要字段
+        tags: formData.tags || '',
+        ai_instruction: formData.aiPrompt || '',
+        visibility: formData.visibility || 'public'
+      };
 
-        if (file.type.startsWith('video/')) {
-          result = await mediaAPI.uploadVideo(file, file.name, formData.title, formData.content, config);
-        } else if (file.type.startsWith('audio/')) {
-          result = await mediaAPI.uploadAudio(file, file.name, formData.title, formData.content, config);
-        } else {
-          result = await mediaAPI.uploadToIPFS(file, config);
-        }
+      // 使用新的 API 上传文件并创建论坛帖子
+      const result = await mediaAPI.createForumPost(
+        files,
+        postData,
+        { onUploadProgress }
+      );
 
-        return {
-          fileName: file.name,
-          fileSize: file.size,
-          fileType: file.type,
-          ipfsHash: result.ipfsHash || result.hash,
-          ...formData,
-          timestamp: new Date().toISOString()
-        };
-      }));
-
-      setUploadResult(results);
+      // 处理成功响应
+      setUploadResult({
+        postId: result.post_id,
+        message: result.message,
+        status: result.status,
+        timestamp: new Date().toISOString()
+      });
       
       setTimeout(() => {
         setFiles([]);
@@ -482,18 +482,24 @@ function UploadPage() {
                   <h3>Upload Successful!</h3>
                 </div>
                 
-                {uploadResult.map((result, index) => (
-                  <div key={index} className="success-details">
-                    <div className="detail-row">
-                      <span className="detail-label">File Name</span>
-                      <span className="detail-value">{result.fileName}</span>
-                    </div>
-                    <div className="detail-row">
-                      <span className="detail-label">IPFS Hash</span>
-                      <span className="detail-value hash">{result.ipfsHash}</span>
-                    </div>
+                <div className="success-details">
+                  <div className="detail-row">
+                    <span className="detail-label">Post ID</span>
+                    <span className="detail-value">{uploadResult.postId}</span>
                   </div>
-                ))}
+                  <div className="detail-row">
+                    <span className="detail-label">Message</span>
+                    <span className="detail-value">{uploadResult.message}</span>
+                  </div>
+                  <div className="detail-row">
+                    <span className="detail-label">Status</span>
+                    <span className="detail-value">{uploadResult.status}</span>
+                  </div>
+                  <div className="detail-row">
+                    <span className="detail-label">Timestamp</span>
+                    <span className="detail-value">{uploadResult.timestamp}</span>
+                  </div>
+                </div>
               </div>
             )}
           </div>

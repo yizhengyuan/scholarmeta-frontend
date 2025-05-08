@@ -4,6 +4,7 @@ import ForumGrid from '../../components/ForumGrid';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import { FaSearch, FaFire, FaClock, FaSortAmountDown, FaSortAmountUp } from 'react-icons/fa';
+import { mediaAPI } from '../../router'; // 导入 mediaAPI
 
 function ForumPage() {
   const particlesRef = useRef(null);
@@ -125,40 +126,42 @@ function ForumPage() {
     };
   }, [isInitialLoad]);
 
-  // 修改数据获取逻辑
+  // 修改数据获取逻辑，使用后端 API
   useEffect(() => {
     const fetchPosts = async () => {
       setLoading(true);
       try {
-        const response = await fetch('/forumdata.json');
-        const data = await response.json();
-        let filteredPosts = [...data.posts];
-
-        // 搜索过滤
-        if (searchTerm) {
-          const searchLower = searchTerm.toLowerCase();
-          filteredPosts = filteredPosts.filter(post => 
-            post.title.toLowerCase().includes(searchLower) ||
-            post.author.toLowerCase().includes(searchLower) ||
-            post.tags.some(tag => tag.toLowerCase().includes(searchLower))
-          );
-        }
-
-        // 排序处理
+        // 准备API参数
+        const apiParams = {
+          skip: 0,
+          limit: 20
+        };
+        
+        // 根据排序设置参数
         if (sortBy) {
+          // 将前端排序格式转换为API格式
+          // 'hot-desc' -> 'likes_desc', 'recent-desc' -> 'time_desc'
           const [type, direction] = sortBy.split('-');
-          filteredPosts.sort((a, b) => {
-            let comparison = 0;
-            if (type === 'hot') {
-              comparison = b.likes - a.likes;
-            } else if (type === 'recent') {
-              comparison = new Date(b.timestamp) - new Date(a.timestamp);
-            }
-            return direction === 'asc' ? -comparison : comparison;
-          });
+          const sortType = type === 'hot' ? 'likes' : 'time';
+          apiParams.sort_by = `${sortType}_${direction}`;
         }
-
-        setPosts(filteredPosts);
+        
+        // 如果有搜索词，添加搜索参数
+        if (searchTerm) {
+          apiParams.search = searchTerm;
+        }
+        
+        // 调用API获取帖子
+        const data = await mediaAPI.getPosts(apiParams);
+        
+        // 处理返回的数据
+        if (Array.isArray(data)) {
+          setPosts(data);
+        } else {
+          console.error("Unexpected data format:", data);
+          setPosts([]);
+        }
+        
         setError(null);
       } catch (err) {
         console.error("Failed to load posts:", err);
@@ -176,7 +179,6 @@ function ForumPage() {
     setSearchTerm(e.target.value);
   };
 
-  // 修改搜索处理函数
   const handleSearchClick = () => {
     // 搜索时会触发 useEffect 重新获取数据
     setLoading(true);

@@ -122,7 +122,7 @@
   display: flex;
   gap: 1rem;
   padding: 0.75rem;
-  margin-top: 0.75rem;
+  margin-bottom: 0.75rem;
   background: rgba(255, 255, 255, 0.03);
   border-radius: 12px;
 }
@@ -130,31 +130,63 @@
 .web3-comments-loading {
   display: flex;
   justify-content: center;
-  padding: 2rem;
+  padding: 2rem 0;
 }
 
 .web3-comments-loader {
-  width: 32px;
-  height: 32px;
-  border: 3px solid rgba(0, 198, 251, 0.1);
-  border-top-color: #00c6fb;
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(255, 255, 255, 0.1);
   border-radius: 50%;
-  animation: web3-comments-spin 0.8s linear infinite;
+  border-top-color: #00c6fb;
+  animation: spin 1s ease-in-out infinite;
 }
 
 .web3-comments-error {
-  text-align: center;
-  color: #ff4757;
   padding: 1rem;
+  color: #ff4b4b;
+  text-align: center;
+  background: rgba(255, 75, 75, 0.1);
+  border-radius: 8px;
 }
 
-@keyframes web3-comments-spin {
-  to { transform: rotate(360deg); }
+.web3-comments-empty {
+  padding: 2rem;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 16px;
+}
+
+.web3-comments-load-replies {
+  background: none;
+  border: none;
+  color: #00c6fb;
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 0.5rem 0;
+  transition: opacity 0.2s ease;
+}
+
+.web3-comments-load-replies:hover {
+  opacity: 0.8;
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @media (max-width: 768px) {

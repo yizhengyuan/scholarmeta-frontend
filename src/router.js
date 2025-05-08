@@ -91,15 +91,20 @@ export const authAPI = {
   },
 
   // 更新用户头像
-  updateAvatar: async (userId, newAvatarUrl) => {
-    const formData = new URLSearchParams();
+  updateAvatar: async (userId, file) => {
+    // 验证文件类型
+    if (!file.type.startsWith('image/')) {
+      throw new Error('Invalid file type. Please upload an image file.');
+    }
+
+    const formData = new FormData();
     formData.append('user_id', userId);
-    formData.append('new_avatar', newAvatarUrl);
+    formData.append('new_avatar', file, file.name); // 添加文件名
     
     return api.post('/modify/modify_avatar', formData, {
       headers: {
         'accept': 'application/json',
-        'Content-Type': 'application/x-www-form-urlencoded'
+        'Content-Type': 'multipart/form-data'
       }
     });
   },
@@ -220,6 +225,15 @@ export const authAPI = {
       }
     });
   },
+
+  // 获取用户个人信息
+  getPersonInformation: async (userId) => {
+    return api.get(`/auth/person_information`, {
+      headers: {
+        'User_ID': userId
+      }
+    });
+  },
 };
 
 // 媒体服务相关 API
@@ -276,17 +290,84 @@ export const mediaAPI = {
     return api.get(`/media/${postId}`);
   },
 
-  // 获取帖子列表
+  // 获取帖子列表 - 更新为支持更多参数
   getPosts: async (params = {}) => {
     const defaultParams = {
       skip: 0,
-      limit: 20,
+      limit: 12,
+      sort_by: 'time_desc', // 默认按时间降序排序
       include_hidden: false
     };
+    
+    // 合并默认参数和用户提供的参数
+    const queryParams = { ...defaultParams, ...params };
+    
     return api.get('/media/list', { 
-      params: { ...defaultParams, ...params }
+      params: queryParams
     });
-  }
+  },
+
+  // 上传文件并创建论坛帖子
+  createForumPost: async (files, postData, config = {}) => {
+    const formData = new FormData();
+    
+    // 添加多个文件
+    if (Array.isArray(files)) {
+      files.forEach(file => {
+        formData.append('files', file);
+      });
+    } else if (files) {
+      // 单个文件的情况
+      formData.append('files', files);
+    }
+    
+    // 添加帖子数据
+    if (postData.title) formData.append('title', postData.title);
+    if (postData.summary !== undefined) formData.append('summary', postData.summary);
+    if (postData.content !== undefined) formData.append('content', postData.content);
+    if (postData.tags !== undefined) formData.append('tags', postData.tags);
+    if (postData.ai_instruction !== undefined) formData.append('ai_instruction', postData.ai_instruction);
+    if (postData.visibility !== undefined) formData.append('visibility', postData.visibility);
+    
+    return api.post('/media/upload', formData, {
+      ...config,
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+  },
+
+  // 点赞/取消点赞帖子
+  toggleLike: async (postId) => {
+    return api.post(`/media/${postId}/like`);
+  },
+
+  // 获取帖子评论
+  getPostComments: async (postId, skip = 0, limit = 20) => {
+    try {
+      const response = await api.get(`/comments/post/${postId}?skip=${skip}&limit=${limit}`);
+      return response;
+    } catch (error) {
+      console.error('获取评论失败:', error);
+      throw error;
+    }
+  },
+
+  // 发表评论
+  postComment: async (postId, content) => {
+    const formData = new URLSearchParams();
+    formData.append('postId', postId);
+    formData.append('content', content);
+    
+    try {
+      const response = await api.post('/comments', formData);
+      return response;
+    } catch (error) {
+      console.error('发表评论失败:', error);
+      throw error;
+    }
+  },
 };
 
 export default api;
+

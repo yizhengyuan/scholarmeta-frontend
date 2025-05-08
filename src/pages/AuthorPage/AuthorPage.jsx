@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { FaTwitter, FaGithub, FaLinkedin, FaHeart, FaComment, FaPen, FaArrowLeft, 
-         FaUser, FaFileAlt, FaChartLine, FaCode } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
+import { FaUser, FaFileAlt, FaChartLine, FaArrowLeft, FaPen, FaComment, FaHeart, FaTwitter, FaGithub, FaLinkedin, FaEnvelope, FaPhone, FaGlobe, FaLink, FaExternalLinkAlt } from 'react-icons/fa';
 import AOS from 'aos';
-import 'aos/dist/aos.css';
-import './AuthorPage.css';
+import "aos/dist/aos.css";
+import "./AuthorPage.css";
+import { authAPI } from "../../router";
 
 function AuthorPage() {
   const { id } = useParams();
@@ -147,48 +147,52 @@ function AuthorPage() {
   useEffect(() => {
     const fetchAuthorData = async () => {
       try {
-        // 这里可以添加获取作者数据的 API 调用
-        // const response = await authorAPI.getAuthorById(id);
-        // setAuthor(response.data);
+        setLoading(true);
+        // 使用真实 API 获取作者数据
+        const response = await authAPI.getPersonInformation(id);
         
-        // 暂时保持使用模拟数据
-        setTimeout(() => {
-          const authorData = {
-            id: id,
-            name: "Sarah Williams",
-            avatar: null, // 测试无头像情况
-            title: "Crypto Analyst",
-            bio: "Experienced crypto analyst with a focus on DeFi protocols and market trends. Contributing to various blockchain projects since 2017.",
-            badges: ["Market Analyst", "DeFi Specialist"],
-            stats: {
-              posts: 24,
-              comments: 87,
-              likes: 156
-            },
-            expertise: [
-              "Blockchain Analysis", "DeFi Protocols", "Market Trends", 
-              "Technical Analysis", "Tokenomics", "Smart Contracts"
-            ],
-            activities: [
-              { id: 1, type: "post", title: "Understanding Yield Farming Risks", date: "2023-06-15" },
-              { id: 2, type: "comment", title: "On: The Future of Layer 2 Solutions", date: "2023-06-10" },
-              { id: 3, type: "like", title: "Ethereum 2.0 Staking Guide", date: "2023-06-05" }
-            ],
-            social: {
-              twitter: "https://twitter.com/sarahwilliams",
-              github: "https://github.com/sarahwilliams",
-              linkedin: "https://linkedin.com/in/sarahwilliams"
-            },
-            forumPosts: [
-              { id: 1, title: "Understanding Yield Farming Risks", likes: 10, comments: 5, date: "2023-06-15" },
-              { id: 2, title: "On: The Future of Layer 2 Solutions", likes: 8, comments: 3, date: "2023-06-10" },
-              { id: 3, title: "Ethereum 2.0 Staking Guide", likes: 12, comments: 7, date: "2023-06-05" }
-            ]
-          };
-          setAuthor(authorData);
-          setLoading(false);
-        }, 1000);
+        // 将后端数据映射到组件所需的格式
+        const authorData = {
+          id: id,
+          name: response.nickname,
+          avatar: response.avatar,
+          title: response.title,
+          bio: response.biography,
+          badges: response.tags ? response.tags[0].split(',') : [],
+          stats: {
+            posts: response.posts_number,
+            comments: response.comments_post,
+            likes: response.like_received
+          },
+          expertise: response.tags ? response.tags[0].split(',') : [],
+          activities: response.activity || [],
+          social: {
+            // 如果后端没有提供社交链接，可以保留为空或使用默认值
+            twitter: "",
+            github: "",
+            linkedin: ""
+          },
+          forumPosts: response.posts || [],
+          // 添加额外的联系信息
+          contact: {
+            phone: response.phone,
+            email: response.email
+          },
+          // 隐私设置
+          privacy: {
+            showProfile: response.show_profile,
+            showPosts: response.show_posts,
+            showActivity: response.show_activity,
+            showStatistics: response.show_statistics,
+            showContact: response.show_contact
+          },
+          userUrl: response.userurl
+        };
+        
+        setAuthor(authorData);
+        setLoading(false);
       } catch (err) {
+        console.error('Failed to load author data:', err);
         setError('Failed to load author data');
         setLoading(false);
       }
@@ -199,7 +203,13 @@ function AuthorPage() {
 
   // 返回论坛
   const handleBackToForum = () => {
-    navigate('/forum');
+    // 检查是否有上一页，如果有则返回上一页（通常是论坛详情页）
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      // 如果没有上一页记录，则默认返回论坛首页
+      navigate('/forum');
+    }
   };
 
   if (loading) {
@@ -250,15 +260,43 @@ function AuthorPage() {
             <div className="author-profile-details">
               <h1 className="author-profile-name">{author.name}</h1>
               <div className="author-profile-title">{author.title}</div>
+              
+              {/* 显示联系信息，使用与 MyPage 类似的样式，但图标颜色更鲜明 */}
+              {(author.contact.email || author.contact.phone || author.userUrl) && (
+                <div className="author-profile-contact">
+                  {author.contact.email && (
+                    <div className="author-contact-item">
+                      <FaEnvelope className="author-contact-icon" />
+                      <span>{author.contact.email}</span>
+                    </div>
+                  )}
+                  {author.contact.phone && (
+                    <div className="author-contact-item">
+                      <FaPhone className="author-contact-icon" />
+                      <span>{author.contact.phone}</span>
+                    </div>
+                  )}
+                  {author.userUrl && (
+                    <div className="author-contact-item">
+                      <FaLink className="author-contact-icon" />
+                      <a href={author.userUrl} target="_blank" rel="noopener noreferrer">
+                        {author.userUrl.replace(/^https?:\/\/(www\.)?/, '')}
+                        <FaExternalLinkAlt style={{ fontSize: '0.8rem', marginLeft: '4px' }} />
+                      </a>
+                    </div>
+                  )}
+                </div>
+              )}
+              
               <div className="author-badges">
                 {author.badges.map((badge, index) => (
-                  <span key={index} className="author-badge">{badge}</span>
+                  <span key={index} className="author-badge">#{badge}</span>
                 ))}
               </div>
             </div>
             <button className="author-back-button" onClick={handleBackToForum}>
               <FaArrowLeft />
-              <span>Back to Forum</span>
+              <span>Back</span>
             </button>
           </div>
         </div>
@@ -307,54 +345,83 @@ function AuthorPage() {
               >
                 <div className="author-profile-section">
                   <h2>Profile</h2>
-                  <p className="author-bio">{author.bio}</p>
-                  
-                  <div className="author-stats-cards">
-                    <div className="author-stat-card" data-aos="fade-up">
-                      <div className="author-stat-icon">
-                        <FaPen />
+                  {author.privacy.showProfile ? (
+                    <>
+                      <p className="author-bio">{author.bio}</p>
+                      
+                      <div className="author-stats-cards">
+                        <div className="author-stat-card" data-aos="fade-up">
+                          <div className="author-stat-icon">
+                            <FaPen />
+                          </div>
+                          <div className="author-stat-value">{author.stats.posts}</div>
+                          <div className="author-stat-label">Posts</div>
+                        </div>
+                        
+                        <div className="author-stat-card" data-aos="fade-up" data-aos-delay="100">
+                          <div className="author-stat-icon">
+                            <FaComment />
+                          </div>
+                          <div className="author-stat-value">{author.stats.comments}</div>
+                          <div className="author-stat-label">Comments</div>
+                        </div>
+                        
+                        <div className="author-stat-card" data-aos="fade-up" data-aos-delay="200">
+                          <div className="author-stat-icon">
+                            <FaHeart />
+                          </div>
+                          <div className="author-stat-value">{author.stats.likes}</div>
+                          <div className="author-stat-label">Likes</div>
+                        </div>
                       </div>
-                      <div className="author-stat-value">{author.stats.posts}</div>
-                      <div className="author-stat-label">Posts</div>
-                    </div>
-                    
-                    <div className="author-stat-card" data-aos="fade-up" data-aos-delay="100">
-                      <div className="author-stat-icon">
-                        <FaComment />
+                      
+                      {author.privacy.showContact && (
+                        <div className="author-social-section">
+                          <h2>Connect</h2>
+                          <div className="author-social-links">
+                            {author.contact.email && (
+                              <a href={`mailto:${author.contact.email}`} className="author-social-link email">
+                                <FaEnvelope />
+                              </a>
+                            )}
+                            {author.contact.phone && (
+                              <a href={`tel:${author.contact.phone}`} className="author-social-link phone">
+                                <FaPhone />
+                              </a>
+                            )}
+                            {author.userUrl && (
+                              <a href={author.userUrl} target="_blank" rel="noopener noreferrer" className="author-social-link website">
+                                <FaLink />
+                              </a>
+                            )}
+                            {author.social.twitter && (
+                              <a href={author.social.twitter} target="_blank" rel="noopener noreferrer" className="author-social-link twitter">
+                                <FaTwitter />
+                              </a>
+                            )}
+                            {author.social.github && (
+                              <a href={author.social.github} target="_blank" rel="noopener noreferrer" className="author-social-link github">
+                                <FaGithub />
+                              </a>
+                            )}
+                            {author.social.linkedin && (
+                              <a href={author.social.linkedin} target="_blank" rel="noopener noreferrer" className="author-social-link linkedin">
+                                <FaLinkedin />
+                              </a>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div className="author-privacy-notice">
+                      <div className="author-privacy-icon">
+                        <FaUser />
                       </div>
-                      <div className="author-stat-value">{author.stats.comments}</div>
-                      <div className="author-stat-label">Comments</div>
+                      <h3>Profile Hidden</h3>
+                      <p>This user has chosen to keep their profile private.</p>
                     </div>
-                    
-                    <div className="author-stat-card" data-aos="fade-up" data-aos-delay="200">
-                      <div className="author-stat-icon">
-                        <FaHeart />
-                      </div>
-                      <div className="author-stat-value">{author.stats.likes}</div>
-                      <div className="author-stat-label">Likes</div>
-                    </div>
-                  </div>
-                  
-                  <div className="author-social-section">
-                    <h2>Connect</h2>
-                    <div className="author-social-links">
-                      {author.social.twitter && (
-                        <a href={author.social.twitter} target="_blank" rel="noopener noreferrer" className="author-social-link twitter">
-                          <FaTwitter />
-                        </a>
-                      )}
-                      {author.social.github && (
-                        <a href={author.social.github} target="_blank" rel="noopener noreferrer" className="author-social-link github">
-                          <FaGithub />
-                        </a>
-                      )}
-                      {author.social.linkedin && (
-                        <a href={author.social.linkedin} target="_blank" rel="noopener noreferrer" className="author-social-link linkedin">
-                          <FaLinkedin />
-                        </a>
-                      )}
-                    </div>
-                  </div>
+                  )}
                 </div>
               </motion.div>
             )}
@@ -370,33 +437,53 @@ function AuthorPage() {
               >
                 <div className="author-posts-section">
                   <h2>Posts</h2>
-                  <div className="author-posts-list">
-                    {author.forumPosts.map((post, index) => (
-                      <div 
-                        className="author-post-card" 
-                        key={post.id} 
-                        data-aos="fade-up" 
-                        data-aos-delay={index * 100}
-                      >
-                        <h3 className="author-post-title">{post.title}</h3>
-                        <div className="author-post-meta">
-                          <span className="author-post-date">{post.date}</span>
-                          <div className="author-post-stats">
-                            <span><FaHeart /> {post.likes}</span>
-                            <span><FaComment /> {post.comments}</span>
-                          </div>
-                        </div>
-                        <div className="author-post-actions">
-                          <button 
-                            className="author-post-action-btn"
-                            onClick={() => navigate(`/forum/detail/${post.id}`)}
+                  {author.privacy.showPosts ? (
+                    author.forumPosts && author.forumPosts.length > 0 ? (
+                      <div className="author-posts-list">
+                        {author.forumPosts.map((post, index) => (
+                          <div 
+                            className="author-post-card" 
+                            key={post.id} 
+                            data-aos="fade-up" 
+                            data-aos-delay={index * 100}
                           >
-                            View
-                          </button>
-                        </div>
+                            <h3 className="author-post-title">{post.title}</h3>
+                            <div className="author-post-meta">
+                              <span className="author-post-date">{post.date}</span>
+                              <div className="author-post-stats">
+                                <span><FaHeart /> {post.likes}</span>
+                                <span><FaComment /> {post.comments}</span>
+                              </div>
+                            </div>
+                            <div className="author-post-actions">
+                              <button 
+                                className="author-post-action-btn"
+                                onClick={() => navigate(`/forum/detail/${post.id}`)}
+                              >
+                                View
+                              </button>
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
+                    ) : (
+                      <div className="author-empty-state" data-aos="fade-up">
+                        <div className="author-empty-icon">
+                          <FaFileAlt />
+                        </div>
+                        <h3>No Posts Yet</h3>
+                        <p>This author hasn't published any posts yet.</p>
+                      </div>
+                    )
+                  ) : (
+                    <div className="author-privacy-notice">
+                      <div className="author-privacy-icon">
+                        <FaFileAlt />
+                      </div>
+                      <h3>Posts Hidden</h3>
+                      <p>This user has chosen to keep their posts private.</p>
+                    </div>
+                  )}
                 </div>
               </motion.div>
             )}
@@ -412,21 +499,41 @@ function AuthorPage() {
               >
                 <div className="author-activity-section">
                   <h2>Recent Activity</h2>
-                  <div className="author-activity-list">
-                    {author.activities.map((activity, index) => (
-                      <div className="author-activity-item" key={activity.id} data-aos="fade-up" data-aos-delay={index * 100}>
-                        <div className="author-activity-icon">
-                          {activity.type === 'post' && <FaPen />}
-                          {activity.type === 'comment' && <FaComment />}
-                          {activity.type === 'like' && <FaHeart />}
-                        </div>
-                        <div className="author-activity-content">
-                          <div className="author-activity-title">{activity.title}</div>
-                          <div className="author-activity-time">{activity.date}</div>
-                        </div>
+                  {author.privacy.showActivity ? (
+                    author.activities && author.activities.length > 0 ? (
+                      <div className="author-activity-list">
+                        {author.activities.map((activity, index) => (
+                          <div className="author-activity-item" key={activity.id} data-aos="fade-up" data-aos-delay={index * 100}>
+                            <div className="author-activity-icon">
+                              {activity.type === 'post' && <FaPen />}
+                              {activity.type === 'comment' && <FaComment />}
+                              {activity.type === 'like' && <FaHeart />}
+                            </div>
+                            <div className="author-activity-content">
+                              <div className="author-activity-title">{activity.title}</div>
+                              <div className="author-activity-time">{activity.date}</div>
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
+                    ) : (
+                      <div className="author-empty-state" data-aos="fade-up">
+                        <div className="author-empty-icon">
+                          <FaChartLine />
+                        </div>
+                        <h3>No Recent Activity</h3>
+                        <p>This author hasn't been active recently.</p>
+                      </div>
+                    )
+                  ) : (
+                    <div className="author-privacy-notice">
+                      <div className="author-privacy-icon">
+                        <FaChartLine />
+                      </div>
+                      <h3>Activity Hidden</h3>
+                      <p>This user has chosen to keep their activity private.</p>
+                    </div>
+                  )}
                 </div>
               </motion.div>
             )}
@@ -442,31 +549,41 @@ function AuthorPage() {
               >
                 <div className="author-stats-section">
                   <h2>Statistics</h2>
-                  <div className="author-stats-cards">
-                    <div className="author-stat-card" data-aos="fade-up">
-                      <div className="author-stat-icon">
-                        <FaPen />
+                  {author.privacy.showStatistics ? (
+                    <div className="author-stats-cards">
+                      <div className="author-stat-card" data-aos="fade-up">
+                        <div className="author-stat-icon">
+                          <FaPen />
+                        </div>
+                        <div className="author-stat-value">{author.stats.posts}</div>
+                        <div className="author-stat-label">Posts</div>
                       </div>
-                      <div className="author-stat-value">{author.stats.posts}</div>
-                      <div className="author-stat-label">Posts</div>
-                    </div>
-                    
-                    <div className="author-stat-card" data-aos="fade-up" data-aos-delay="100">
-                      <div className="author-stat-icon">
-                        <FaComment />
+                      
+                      <div className="author-stat-card" data-aos="fade-up" data-aos-delay="100">
+                        <div className="author-stat-icon">
+                          <FaComment />
+                        </div>
+                        <div className="author-stat-value">{author.stats.comments}</div>
+                        <div className="author-stat-label">Comments</div>
                       </div>
-                      <div className="author-stat-value">{author.stats.comments}</div>
-                      <div className="author-stat-label">Comments</div>
-                    </div>
-                    
-                    <div className="author-stat-card" data-aos="fade-up" data-aos-delay="200">
-                      <div className="author-stat-icon">
-                        <FaHeart />
+                      
+                      <div className="author-stat-card" data-aos="fade-up" data-aos-delay="200">
+                        <div className="author-stat-icon">
+                          <FaHeart />
+                        </div>
+                        <div className="author-stat-value">{author.stats.likes}</div>
+                        <div className="author-stat-label">Likes</div>
                       </div>
-                      <div className="author-stat-value">{author.stats.likes}</div>
-                      <div className="author-stat-label">Likes</div>
                     </div>
-                  </div>
+                  ) : (
+                    <div className="author-privacy-notice">
+                      <div className="author-privacy-icon">
+                        <FaChartLine />
+                      </div>
+                      <h3>Statistics Hidden</h3>
+                      <p>This user has chosen to keep their statistics private.</p>
+                    </div>
+                  )}
                 </div>
               </motion.div>
             )}

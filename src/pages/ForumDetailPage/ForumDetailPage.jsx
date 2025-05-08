@@ -320,6 +320,54 @@ function ForumDetailPage() {
     }
   };
 
+  // 修改媒体错误处理函数，确保备用图片能够正确加载
+  const handleMediaError = (e) => {
+    console.log("媒体加载失败，替换为备用 Web3 图片");
+    
+    // 使用多个备用图片源，如果一个失败可以尝试另一个
+    const fallbackImages = [
+      "https://images.unsplash.com/photo-1639762681057-408e52192e55?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2232&q=80",
+      "https://images.unsplash.com/photo-1642059889111-25b8f7975aec?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
+      // 添加本地备用图片作为最后的保障
+      "/assets/images/fallback-web3.jpg"
+    ];
+    
+    // 记录当前尝试的图片索引
+    if (!e.target.dataset.fallbackIndex) {
+      e.target.dataset.fallbackIndex = 0;
+    } else {
+      e.target.dataset.fallbackIndex = parseInt(e.target.dataset.fallbackIndex) + 1;
+    }
+    
+    const index = parseInt(e.target.dataset.fallbackIndex);
+    
+    // 如果还有备用图片可以尝试
+    if (index < fallbackImages.length) {
+      e.target.src = fallbackImages[index];
+    } else {
+      // 所有备用图片都失败，显示一个纯色背景和文字
+      const parent = e.target.parentNode;
+      const placeholder = document.createElement('div');
+      placeholder.className = 'media-fallback';
+      placeholder.innerHTML = 'Web3 Media Content';
+      
+      // 移除原始图片并添加占位符
+      if (parent) {
+        parent.replaceChild(placeholder, e.target);
+      }
+      
+      // 防止无限循环
+      e.target.onerror = null;
+    }
+  };
+
+  // 添加这个辅助函数来检测媒体是否为视频
+  const isMediaVideo = (url) => {
+    if (!url) return false;
+    const videoExtensions = ['.mp4', '.webm', '.ogg', '.mov', '.avi'];
+    return videoExtensions.some(ext => url.toLowerCase().endsWith(ext));
+  };
+
   if (loading) {
     return (
       <div className="forum-detail-page">
@@ -382,10 +430,7 @@ function ForumDetailPage() {
                     src={post.author.avatar} 
                     alt={`${post.author.name}'s avatar`} 
                     className="author-avatar-img"
-                    onError={(e) => {
-                      e.target.onerror = null; 
-                      e.target.src = "https://randomuser.me/api/portraits/lego/1.jpg";
-                    }}
+                    onError={handleMediaError}
                   />
                 </div>
                 <div className="author-details">
@@ -425,73 +470,120 @@ function ForumDetailPage() {
 
         {post.mediaList && post.mediaList.length > 0 && (
           <div className="forum-detail-media" data-aos="fade-up">
-            {post.mediaType === 'image' ? (
-              <div className="detail-image-carousel">
-                <div className="carousel-container">
-                  {post.mediaList.map((mediaUrl, index) => (
-                    <div 
-                      key={index} 
-                      className={`carousel-slide ${index === currentImageIndex ? 'active' : ''}`}
-                    >
-                      <div className="image-container">
+            <div className="detail-image-carousel">
+              <div className="carousel-container">
+                {post.mediaList.map((mediaUrl, index) => (
+                  <div 
+                    key={index} 
+                    className={`carousel-slide ${index === currentImageIndex ? 'active' : ''}`}
+                  >
+                    <div className="image-container">
+                      {isMediaVideo(mediaUrl) ? (
+                        <div className="detail-video-container">
+                          <video
+                            ref={el => el && (el.id = `detail-video-${index}`)}
+                            src={mediaUrl} 
+                            className="detail-video"
+                            poster={post.thumbnail}
+                            playsInline
+                            onError={(e) => {
+                              console.log("视频加载失败，显示备用图片");
+                              
+                              // 尝试多个备用图片
+                              const fallbackImages = [
+                                "https://images.unsplash.com/photo-1642059889111-25b8f7975aec?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
+                                "https://images.unsplash.com/photo-1639322537228-f710d846310a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1932&q=80",
+                                "/assets/images/fallback-web3.jpg"
+                              ];
+                              
+                              // 创建一个图片元素替换视频
+                              const imgElement = document.createElement('img');
+                              imgElement.src = fallbackImages[0];
+                              imgElement.className = "detail-video";
+                              imgElement.alt = "Web3 visualization";
+                              
+                              // 为新创建的图片添加错误处理
+                              imgElement.onerror = function(imgError) {
+                                if (!this.dataset.fallbackIndex) {
+                                  this.dataset.fallbackIndex = 1; // 从第二个备用图片开始尝试
+                                } else {
+                                  this.dataset.fallbackIndex = parseInt(this.dataset.fallbackIndex) + 1;
+                                }
+                                
+                                const index = parseInt(this.dataset.fallbackIndex);
+                                
+                                if (index < fallbackImages.length) {
+                                  this.src = fallbackImages[index];
+                                } else {
+                                  // 创建一个纯色背景和文字作为最终备用
+                                  const placeholder = document.createElement('div');
+                                  placeholder.className = 'media-fallback';
+                                  placeholder.innerHTML = 'Web3 Media Content';
+                                  this.parentNode.replaceChild(placeholder, this);
+                                }
+                              };
+                              
+                              // 替换视频元素
+                              e.target.parentNode.replaceChild(imgElement, e.target);
+                              
+                              // 隐藏播放按钮
+                              const playButton = document.querySelector(`.detail-video-play-${index}`);
+                              if (playButton) {
+                                playButton.style.display = 'none';
+                              }
+                            }}
+                          />
+                          <button
+                            className={`detail-video-play detail-video-play-${index}`}
+                            onClick={() => {
+                              const videoEl = document.getElementById(`detail-video-${index}`);
+                              if (videoEl) handleVideoPlay(videoEl);
+                            }}
+                          >
+                            {playingVideo ? <FaPause /> : <FaPlay />}
+                          </button>
+                        </div>
+                      ) : (
                         <img 
                           src={mediaUrl} 
                           alt={`${post.title} - image ${index + 1}`} 
-                          className="carousel-image" 
+                          className="carousel-image"
+                          onError={handleMediaError}
                         />
-                      </div>
+                      )}
                     </div>
-                  ))}
-                </div>
-                
-                {post.mediaList.length > 1 && (
-                  <>
-                    <button 
-                      className="carousel-control prev" 
-                      onClick={handlePrevImage}
-                      aria-label="Previous image"
-                    >
-                      <FaChevronLeft />
-                    </button>
-                    <button 
-                      className="carousel-control next" 
-                      onClick={handleNextImage}
-                      aria-label="Next image"
-                    >
-                      <FaChevronRight />
-                    </button>
-                    <div className="carousel-indicators">
-                      {post.mediaList.map((_, index) => (
-                        <span 
-                          key={index} 
-                          className={`indicator ${index === currentImageIndex ? 'active' : ''}`}
-                          onClick={() => setCurrentImageIndex(index)}
-                        />
-                      ))}
-                    </div>
-                  </>
-                )}
+                  </div>
+                ))}
               </div>
-            ) : (
-              <div className="detail-video-container">
-                <video
-                  ref={el => el && (el.id = 'detail-video')}
-                  src={post.mediaList[0]} // 使用第一个视频
-                  className="detail-video"
-                  poster={post.thumbnail}
-                  playsInline
-                />
-                <button
-                  className="detail-video-play"
-                  onClick={() => {
-                    const videoEl = document.getElementById('detail-video');
-                    if (videoEl) handleVideoPlay(videoEl);
-                  }}
-                >
-                  {playingVideo ? <FaPause /> : <FaPlay />}
-                </button>
-              </div>
-            )}
+              
+              {post.mediaList.length > 1 && (
+                <>
+                  <button 
+                    className="carousel-control prev" 
+                    onClick={handlePrevImage}
+                    aria-label="Previous image"
+                  >
+                    <FaChevronLeft />
+                  </button>
+                  <button 
+                    className="carousel-control next" 
+                    onClick={handleNextImage}
+                    aria-label="Next image"
+                  >
+                    <FaChevronRight />
+                  </button>
+                  <div className="carousel-indicators">
+                    {post.mediaList.map((_, index) => (
+                      <span 
+                        key={index} 
+                        className={`indicator ${index === currentImageIndex ? 'active' : ''}`}
+                        onClick={() => setCurrentImageIndex(index)}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         )}
 

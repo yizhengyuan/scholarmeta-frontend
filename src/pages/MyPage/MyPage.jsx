@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaUser, FaEdit, FaComment, FaHeart, FaLink, FaSignOutAlt, FaChartLine, FaFileAlt, FaUserEdit, FaExternalLinkAlt, FaWallet, FaCog, FaPlus, FaCheck, FaTimes, FaEnvelope, FaPhone } from 'react-icons/fa';
+import { FaUser, FaEdit, FaComment, FaHeart, FaLink, FaSignOutAlt, FaChartLine, FaFileAlt, FaUserEdit, FaExternalLinkAlt, FaWallet, FaCog, FaPlus, FaCheck, FaTimes, FaEnvelope, FaPhone, FaPlay } from 'react-icons/fa';
 import { Web3Context } from '../../context/Web3Context';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
@@ -76,6 +76,151 @@ const getInitialEditValues = (userData) => {
 // 检查是否需要显示登录页面
 const shouldShowLogin = () => {
   return !localStorage.getItem('access_token');
+};
+
+// 添加视频预览图生成函数
+const generateVideoThumbnail = (videoUrl, videoElement) => {
+  return new Promise((resolve, reject) => {
+    // 如果已经有视频元素，使用它
+    const video = videoElement || document.createElement('video');
+    
+    // 设置视频属性
+    video.autoplay = false;
+    video.muted = true;
+    video.src = videoUrl;
+    video.crossOrigin = "anonymous"; // 允许跨域视频处理
+    
+    // 监听元数据加载完成事件
+    video.onloadedmetadata = () => {
+      // 设置视频时间到第一帧
+      video.currentTime = 0.1; // 略微偏移以确保加载第一帧
+    };
+    
+    // 监听视频可以播放事件
+    video.oncanplay = () => {
+      // 创建一个 canvas 元素
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      
+      // 在 canvas 上绘制视频当前帧
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      
+      // 将 canvas 转换为图片 URL
+      try {
+        const thumbnailUrl = canvas.toDataURL('image/jpeg');
+        // 清理资源
+        if (!videoElement) {
+          video.pause();
+          video.src = '';
+          video.load();
+        }
+        resolve(thumbnailUrl);
+      } catch (e) {
+        console.error("无法生成视频缩略图:", e);
+        reject(e);
+      }
+    };
+    
+    // 错误处理
+    video.onerror = (e) => {
+      console.error("视频加载失败:", e);
+      reject(new Error("视频加载失败"));
+    };
+    
+    // 设置超时
+    const timeout = setTimeout(() => {
+      if (!videoElement) {
+        video.pause();
+        video.src = '';
+        video.load();
+      }
+      reject(new Error("视频缩略图生成超时"));
+    }, 5000);
+    
+    // 清除超时
+    video.oncanplay = function() {
+      clearTimeout(timeout);
+      // 在 canvas 上绘制视频当前帧
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      
+      // 将 canvas 转换为图片 URL
+      try {
+        const thumbnailUrl = canvas.toDataURL('image/jpeg');
+        // 清理资源
+        if (!videoElement) {
+          video.pause();
+          video.src = '';
+          video.load();
+        }
+        resolve(thumbnailUrl);
+      } catch (e) {
+        console.error("无法生成视频缩略图:", e);
+        reject(e);
+      }
+    };
+  });
+};
+
+// 在渲染视频的地方使用这个函数
+const renderVideoWithThumbnail = (videoUrl, videoId) => {
+  const videoRef = useRef(null);
+  const [thumbnail, setThumbnail] = useState(null);
+  const [isGeneratingThumbnail, setIsGeneratingThumbnail] = useState(true);
+  
+  useEffect(() => {
+    // 尝试生成缩略图
+    if (videoUrl && videoRef.current) {
+      setIsGeneratingThumbnail(true);
+      generateVideoThumbnail(videoUrl, videoRef.current)
+        .then(thumbnailUrl => {
+          setThumbnail(thumbnailUrl);
+          setIsGeneratingThumbnail(false);
+        })
+        .catch(err => {
+          console.error("生成缩略图失败:", err);
+          setIsGeneratingThumbnail(false);
+          // 使用默认的 Web3 图片作为备用
+          setThumbnail("https://images.unsplash.com/photo-1642059889111-25b8f7975aec?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80");
+        });
+    }
+  }, [videoUrl]);
+  
+  return (
+    <div className="video-container">
+      {isGeneratingThumbnail && (
+        <div className="thumbnail-loading">
+          <div className="loading-spinner"></div>
+        </div>
+      )}
+      <video 
+        ref={videoRef}
+        id={`video-${videoId}`}
+        src={videoUrl}
+        className="post-video"
+        poster={thumbnail || "https://images.unsplash.com/photo-1642059889111-25b8f7975aec?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80"}
+        controls={false}
+        playsInline
+        onError={(e) => {
+          console.log("视频加载失败，显示备用图片");
+          const imgElement = document.createElement('img');
+          imgElement.src = "https://images.unsplash.com/photo-1642059889111-25b8f7975aec?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80";
+          imgElement.className = "post-image";
+          imgElement.alt = "Web3 visualization";
+          e.target.parentNode.replaceChild(imgElement, e.target);
+        }}
+      />
+      <div className="video-play-button">
+        <FaPlay />
+      </div>
+    </div>
+  );
 };
 
 function MyPage() {

@@ -74,6 +74,16 @@ function PostGrid({ post, onPostClick, playingVideo, onVideoPlay }) {
     });
   };
 
+  // 获取文档类型的备用图片
+  const getDocumentFallbackImage = () => {
+    return "https://images.unsplash.com/photo-1639762681057-408e52192e55?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2232&q=80";
+  };
+
+  // 获取视频类型的备用图片 (使用不同的网图)
+  const getVideoFallbackImage = () => {
+    return "https://images.unsplash.com/photo-1611162616475-46b635cb6868?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2074&q=80";
+  };
+
   return (
     <div 
       className="forum-post-card" 
@@ -91,15 +101,14 @@ function PostGrid({ post, onPostClick, playingVideo, onVideoPlay }) {
               alt={post.title}
               className="forum-post-image"
             />
-          ) : getMediaType() === 'video' && (
+          ) : getMediaType() === 'video' ? (
             <div className="forum-post-video-container">
-              <video 
-                ref={el => el && (el.id = `video-${post.id}`)}
-                src={getMediaUrl()}
-                className="forum-post-video"
-                poster={getThumbnailUrl()}
-                playsInline
+              <img 
+                src={getVideoFallbackImage()}
+                alt={post.title}
+                className="forum-post-image"
               />
+              <div className="video-type-indicator">Video</div>
               <button 
                 className="forum-post-video-play"
                 onClick={handleVideoPlay}
@@ -107,7 +116,16 @@ function PostGrid({ post, onPostClick, playingVideo, onVideoPlay }) {
                 {playingVideo?.id === post.id ? <FaPause /> : <FaPlay />}
               </button>
             </div>
-          )}
+          ) : getMediaType() === 'document' ? (
+            <div className="forum-post-document">
+              <img 
+                src={getDocumentFallbackImage()} 
+                alt={post.title}
+                className="forum-post-image"
+              />
+              <div className="document-type-indicator">Document</div>
+            </div>
+          ) : null}
         </div>
       )}
 

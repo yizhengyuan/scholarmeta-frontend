@@ -56,4 +56,24 @@
   border-radius: 50%; /* 确保图片是圆形的 */
 }
 
+/* 添加文档类型指示器样式 */
+.forum-post-document {
+  position: relative;
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.document-type-indicator {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
 /* ... 其他所有与 post-card 相关的样式保持不变 ... */

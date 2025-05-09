@@ -3,12 +3,28 @@ import { FaPlay, FaPause } from 'react-icons/fa';
 import './PostGrid.css';
 
 function PostGrid({ post, onPostClick, playingVideo, onVideoPlay }) {
+  // 添加备用图片URL
+  const fallbackImageUrl = "https://images.unsplash.com/photo-1639762681057-408e52192e55?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2232&q=80";
+  const web3FallbackImage = "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2232&q=80";
+
   const handleVideoPlay = (event) => {
     event.stopPropagation();
     const videoEl = document.getElementById(`video-${post.id}`);
     if (videoEl) {
       onVideoPlay(post.id, videoEl);
     }
+  };
+
+  // 处理图片加载失败
+  const handleImageError = (e) => {
+    e.target.onerror = null; // 防止无限循环
+    e.target.src = web3FallbackImage; // 使用web3的网页图片作为备用
+  };
+
+  // 处理头像加载失败 - 模仿MyPage的方法
+  const handleAvatarError = (e) => {
+    e.target.onerror = null; // 防止无限循环
+    e.target.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(getAuthorName() || 'User'); // 使用基于用户名生成的头像
   };
 
   // 获取媒体URL (处理单个URL或URL数组)
@@ -100,6 +116,7 @@ function PostGrid({ post, onPostClick, playingVideo, onVideoPlay }) {
               src={getMediaUrl()} 
               alt={post.title}
               className="forum-post-image"
+              onError={handleImageError}
             />
           ) : getMediaType() === 'video' ? (
             <div className="forum-post-video-container">
@@ -107,6 +124,7 @@ function PostGrid({ post, onPostClick, playingVideo, onVideoPlay }) {
                 src={getVideoFallbackImage()}
                 alt={post.title}
                 className="forum-post-image"
+                onError={handleImageError}
               />
               <div className="video-type-indicator">Video</div>
               <button 
@@ -122,6 +140,7 @@ function PostGrid({ post, onPostClick, playingVideo, onVideoPlay }) {
                 src={getDocumentFallbackImage()} 
                 alt={post.title}
                 className="forum-post-image"
+                onError={handleImageError}
               />
               <div className="document-type-indicator">Document</div>
             </div>
@@ -135,7 +154,12 @@ function PostGrid({ post, onPostClick, playingVideo, onVideoPlay }) {
           <span className="forum-post-author">
             <span className="forum-post-author-avatar">
               {getAvatarUrl() ? (
-                <img src={getAvatarUrl()} alt={getAuthorName()} className="forum-post-avatar-img" />
+                <img 
+                  src={getAvatarUrl()} 
+                  alt={getAuthorName()} 
+                  className="forum-post-avatar-img" 
+                  onError={handleAvatarError}
+                />
               ) : (
                 getAuthorName().charAt(0)
               )}

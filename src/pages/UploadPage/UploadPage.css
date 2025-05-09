@@ -165,7 +165,7 @@
   background: linear-gradient(90deg, #61dafb, #4fa8d1);
   border-radius: 4px;
   position: relative;
-  transition: width 0.3s ease;
+  transition: width 1s ease;
 }
 
 .progress-glow {

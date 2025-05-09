@@ -4,6 +4,9 @@ import { FaUser, FaLock, FaSignInAlt, FaEnvelope, FaPhone, FaUserPlus } from 're
 import { authAPI } from '../router';  // 导入 authAPI
 import './LoginPage.css';
 
+// 在组件外部定义缓存键，与 MyPage 保持一致
+const USER_DATA_CACHE_KEY = 'mypage_user_data_cache';
+
 function LoginPage({ onLoginSuccess, onClose }) {
   const [isRegistering, setIsRegistering] = useState(false);
   const [formData, setFormData] = useState({
@@ -141,8 +144,19 @@ function LoginPage({ onLoginSuccess, onClose }) {
         const loginResponse = await authAPI.login(formData.username, formData.password);
         localStorage.setItem('access_token', loginResponse.access_token);
         
+        // 获取用户数据并缓存 - 从 MyPage 复制的逻辑
+        const userData = await authAPI.getMe();
+        
+        // 将完整数据存入缓存
+        localStorage.setItem(USER_DATA_CACHE_KEY, JSON.stringify(userData));
+        console.log('用户数据已缓存到本地存储');
+        
+        // 存储基本用户信息到 localStorage 以便其他组件使用
+        localStorage.setItem('userId', userData.id || userData._id);
+        localStorage.setItem('username', userData.username);
+        localStorage.setItem('userAvatar', userData.avatar);
+        
         if (onLoginSuccess) {
-          const userData = await authAPI.getMe();
           onLoginSuccess(userData);
         }
         
@@ -154,8 +168,19 @@ function LoginPage({ onLoginSuccess, onClose }) {
         const response = await authAPI.login(formData.username, formData.password);
         localStorage.setItem('access_token', response.access_token);
         
+        // 获取用户数据并缓存 - 从 MyPage 复制的逻辑
+        const userData = await authAPI.getMe();
+        
+        // 将完整数据存入缓存
+        localStorage.setItem(USER_DATA_CACHE_KEY, JSON.stringify(userData));
+        console.log('用户数据已缓存到本地存储');
+        
+        // 存储基本用户信息到 localStorage 以便其他组件使用
+        localStorage.setItem('userId', userData.id || userData._id);
+        localStorage.setItem('username', userData.username);
+        localStorage.setItem('userAvatar', userData.avatar);
+        
         if (onLoginSuccess) {
-          const userData = await authAPI.getMe();
           onLoginSuccess(userData);
         }
         

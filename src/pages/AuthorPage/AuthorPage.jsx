@@ -6,6 +6,8 @@ import AOS from 'aos';
 import "aos/dist/aos.css";
 import "./AuthorPage.css";
 import { authAPI } from "../../router";
+import LoginPage from '../../components/LoginPage';
+import { createPortal } from 'react-dom';
 
 function AuthorPage() {
   const { id } = useParams();
@@ -13,6 +15,7 @@ function AuthorPage() {
   const [author, setAuthor] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showLogin, setShowLogin] = useState(false);
   const particlesRef = useRef(null);
   const [activeTab, setActiveTab] = useState('profile');
   const containerRef = useRef(null);
@@ -135,13 +138,17 @@ function AuthorPage() {
     });
   }, []);
 
-  // 检查登录状态
-  useEffect(() => {
-    const token = localStorage.getItem('access_token');
-    if (!token) {
-      navigate('/login', { state: { from: `/author/${id}` } });
-    }
-  }, [navigate, id]);
+
+  // 处理登录成功
+  const handleLoginSuccess = (userData) => {
+    console.log('登录成功，用户数据:', userData);
+    // 关闭登录页面
+    setShowLogin(false);
+    // 清除错误信息
+    setError(null);
+    // 重新获取作者数据
+    fetchAuthorData();
+  };
 
   // 获取作者数据
   useEffect(() => {
@@ -193,7 +200,21 @@ function AuthorPage() {
         setLoading(false);
       } catch (err) {
         console.error('Failed to load author data:', err);
-        setError('Failed to load author data');
+        
+        // 检查是否是 401 Unauthorized 错误
+        if (
+          (err.response && err.response.status === 401) || 
+          (err.message && err.message.includes('401')) ||
+          (err.toString().includes('401')) ||
+          (err.toString().includes('Unauthorized'))
+        ) {
+          console.log('401 错误被检测到，显示登录页面');
+          // 显示登录页面
+          setShowLogin(true);
+          setError('Please login to view this author profile');
+        } else {
+          setError('Failed to load author data');
+        }
         setLoading(false);
       }
     };
@@ -212,6 +233,25 @@ function AuthorPage() {
     }
   };
 
+  // 将登录页面渲染到 document.body，确保它在最顶层
+  const loginPortal = showLogin ? createPortal(
+    <div id="login-portal-container" style={{ 
+      position: 'fixed', 
+      top: 0, 
+      left: 0, 
+      width: '100%', 
+      height: '100%', 
+      paddingLeft: '100px',
+      zIndex: 10000 
+    }}>
+      <LoginPage 
+        onLoginSuccess={handleLoginSuccess} 
+        onClose={() => setShowLogin(false)} 
+      />
+    </div>,
+    document.body
+  ) : null;
+
   if (loading) {
     return (
       <div className="author-page">
@@ -222,11 +262,12 @@ function AuthorPage() {
             <p>Loading author profile...</p>
           </div>
         </div>
+        {loginPortal}
       </div>
     );
   }
 
-  if (error) {
+  if (error && !showLogin) {
     return (
       <div className="author-page">
         <canvas ref={particlesRef} className="author-particles-bg"></canvas>
@@ -237,6 +278,7 @@ function AuthorPage() {
             <button onClick={handleBackToForum}>Back to Forum</button>
           </div>
         </div>
+        {loginPortal}
       </div>
     );
   }
@@ -590,6 +632,8 @@ function AuthorPage() {
           </AnimatePresence>
         </div>
       </div>
+      
+      {loginPortal}
     </div>
   );
 }

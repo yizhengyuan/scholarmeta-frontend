@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom'; // 导入 createPortal
 import { FaTimes, FaImage } from 'react-icons/fa';
 import { mediaAPI } from '../router'; // 导入 API
+import LoginPage from './LoginPage'; // 导入 LoginPage 组件
 import './CommentPage.css';
 
 function CommentPage({ isOpen, onClose, postId, onCommentSubmit, parentId = null, rootId = null }) {
   const [commentText, setCommentText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
+  const [showLogin, setShowLogin] = useState(false); // 添加登录页面状态
   const [authorInfo, setAuthorInfo] = useState({
     authorId: '',
     authorName: '',
@@ -43,7 +45,7 @@ function CommentPage({ isOpen, onClose, postId, onCommentSubmit, parentId = null
         authorAvatar: ''
       });
     }
-  }, []);
+  }, [showLogin]); // 添加 showLogin 作为依赖，以便在登录后重新获取用户信息
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -92,16 +94,50 @@ function CommentPage({ isOpen, onClose, postId, onCommentSubmit, parentId = null
       onClose();
     } catch (err) {
       console.error('Comment submission failed:', err);
-      setError('Failed to submit comment. Please try again later.');
+      
+      // 检查是否是 401 Unauthorized 错误 - 增强错误检测
+      if (
+        (err.response && err.response.status === 401) || 
+        (err.message && err.message.includes('401')) ||
+        (err.toString().includes('401')) ||
+        (err.toString().includes('Unauthorized'))
+      ) {
+        console.log('401 错误被检测到，显示登录页面');
+        // 显示登录页面
+        setShowLogin(true);
+        setError('Please login to submit your comment');
+      } else {
+        setError('Failed to submit comment. Please try again later.');
+      }
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  // 处理登录成功
+  const handleLoginSuccess = (userData) => {
+    console.log('登录成功，用户数据:', userData);
+    // 更新用户信息
+    setAuthorInfo({
+      authorId: localStorage.getItem('userId') || '',
+      authorName: localStorage.getItem('username') || 'Anonymous',
+      authorAvatar: localStorage.getItem('userAvatar') || ''
+    });
+    
+    // 关闭登录页面
+    setShowLogin(false);
+    
+    // 清除错误信息
+    setError(null);
+    
+    // 注意：这里不会自动重新提交评论，让用户重新决定是否要提交
+    setCommentText(commentText); // 保留用户之前输入的评论内容
+  };
+
   if (!isOpen) return null;
 
-  // Use Portal to render modal to body element
-  return createPortal(
+  // 渲染评论页面到 body 元素
+  const commentPortal = createPortal(
     <div className="web3comment-overlay" onClick={onClose}>
       <div className="web3comment-modal" onClick={e => e.stopPropagation()}>
         <div className="web3comment-header">
@@ -164,7 +200,36 @@ function CommentPage({ isOpen, onClose, postId, onCommentSubmit, parentId = null
         </div>
       </div>
     </div>,
-    document.body // 将弹窗渲染到 body 元素
+    document.body // 将评论弹窗渲染到 body 元素
+  );
+  
+  // 将登录页面渲染到 document.body，确保它在最顶层
+  const loginPortal = showLogin ? createPortal(
+    <div id="login-portal-container" style={{ 
+      position: 'fixed', 
+      top: 0, 
+      left: 0, 
+      width: '100%', 
+      height: '100%', 
+      paddingLeft: '100px',
+      zIndex: 10000 
+    }}>
+      <LoginPage 
+        onLoginSuccess={handleLoginSuccess} 
+        onClose={() => setShowLogin(false)} 
+      />
+    </div>,
+    document.body
+  ) : null;
+
+  // 调试输出
+  console.log('showLogin 状态:', showLogin);
+
+  return (
+    <>
+      {commentPortal}
+      {loginPortal}
+    </>
   );
 }
 

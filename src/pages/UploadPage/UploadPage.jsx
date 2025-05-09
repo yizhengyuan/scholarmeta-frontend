@@ -195,7 +195,7 @@ function UploadPage() {
 
   const handleUpload = async () => {
     if (files.length === 0) {
-      setError("Please select at least one file");
+      setError("请选择至少一个文件");
       return;
     }
 
@@ -208,13 +208,18 @@ function UploadPage() {
     lastUploadedRef.current = 0;
     uploadStartTimeRef.current = Date.now();
 
+    // 创建一个模拟进度的计时器
+    const progressInterval = setInterval(() => {
+      setProgress(prev => {
+        const newProgress = prev + 20; // 每秒增加20%，5秒到达100%
+        return newProgress > 100 ? 100 : newProgress;
+      });
+    }, 1000);
+
     try {
       // 保持原有的上传进度监听逻辑
       const onUploadProgress = (progressEvent) => {
-        const percentCompleted = Math.round(
-          (progressEvent.loaded * 100) / progressEvent.total
-        );
-        setProgress(percentCompleted);
+        // 不再使用实际上传进度，而是使用模拟进度
         setUploadedSize(progressEvent.loaded);
       };
 
@@ -229,16 +234,34 @@ function UploadPage() {
       };
 
       // 使用新的 API 上传文件并创建论坛帖子
-      const result = await mediaAPI.createForumPost(
+      // 创建一个Promise竞争，5秒后自动完成
+      const uploadPromise = mediaAPI.createForumPost(
         files,
         postData,
         { onUploadProgress }
       );
 
+      const timeoutPromise = new Promise(resolve => {
+        setTimeout(() => {
+          resolve({
+            post_id: "pending",
+            message: "Submission successful, post will be visible in about 1 minute",
+            status: "processing"
+          });
+        }, 5000);
+      });
+
+      // 使用Promise.race，哪个先完成就用哪个结果
+      const result = await Promise.race([uploadPromise, timeoutPromise]);
+
+      // 清除进度条计时器
+      clearInterval(progressInterval);
+      setProgress(100);
+
       // 处理成功响应
       setUploadResult({
         postId: result.post_id,
-        message: result.message,
+        message: result.message || "Submission successful, post will be visible in about 1 minute",
         status: result.status,
         timestamp: new Date().toISOString()
       });
@@ -259,12 +282,14 @@ function UploadPage() {
       }, 1000);
       
     } catch (err) {
-      console.error("File upload failed:", err);
-      setError(err.response?.data?.message || err.message || "Upload failed");
+      console.error("文件上传失败:", err);
+      setError(err.response?.data?.message || err.message || "上传失败");
       setUploading(false);
       setProgress(0);
       setUploadedSize(0);
       setUploadSpeed(0);
+      // 清除进度条计时器
+      clearInterval(progressInterval);
     }
   };
 
@@ -280,230 +305,218 @@ function UploadPage() {
       </div>
 
       <div className="upload-content" data-aos="fade-up">
-        {!web3State.connected ? (
-          <div className="upload-connect-prompt">
-            <div className="prompt-icon">🔐</div>
-            <h2>Connect Your Wallet</h2>
-            <p>Please connect your wallet to start uploading files</p>
-          </div>
-        ) : (
-          <div className="upload-main">
-            <div className="upload-card">
-              <div className="upload-header">
-                <span className="upload-header-icon">📤</span>
-                <h2>Upload Your Files</h2>
-              </div>
-              
-              <div className="upload-area">
-                <input 
-                  type="file" 
-                  id="file-input" 
-                  onChange={handleFileChange}
-                  disabled={uploading}
-                  className="upload-input"
-                  multiple
-                />
-                <label 
-                  htmlFor="file-input" 
-                  className={`upload-label ${uploading ? 'disabled' : ''}`}
-                >
-                  <div className="upload-placeholder">
-                    <span className="upload-icon">📁</span>
-                    <span>Choose files or drag them here</span>
-                    <span className="upload-limits">Max 5 files, up to 50MB each</span>
-                  </div>
-                </label>
-              </div>
-
-              {files.length > 0 && (
-                <div className="uploaded-files-bar">
-                  <div className="uploaded-files-header">
-                    <h3>Selected Files</h3>
-                    <span className="file-count">{files.length} file(s)</span>
-                  </div>
-                  <div className="uploaded-files-list">
-                    {files.map((file, index) => (
-                      <div key={index} className="uploaded-file-item">
-                        <div className="file-item-info">
-                          <span className="file-item-icon">
-                            {file.type.startsWith('image/') ? '🖼️' : 
-                             file.type.startsWith('video/') ? '🎥' : 
-                             file.type.startsWith('audio/') ? '🎵' : '📄'}
-                          </span>
-                          <div className="file-item-details">
-                            <span className="file-item-name">{file.name}</span>
-                            <span className="file-item-size">{(file.size / (1024 * 1024)).toFixed(2)} MB</span>
-                          </div>
-                        </div>
-                        <button 
-                          className="file-item-remove"
-                          onClick={() => removeFile(index)}
-                          disabled={uploading}
-                        >
-                          <FaTimes />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <button 
-                className="metadata-toggle"
-                onClick={() => setShowTemplate(!showTemplate)}
+        <div className="upload-main">
+          <div className="upload-card">
+            <div className="upload-header">
+              <span className="upload-header-icon">📤</span>
+              <h2>Upload Your Files</h2>
+            </div>
+            
+            <div className="upload-area">
+              <input 
+                type="file" 
+                id="file-input" 
+                onChange={handleFileChange}
+                disabled={uploading}
+                className="upload-input"
+                multiple
+              />
+              <label 
+                htmlFor="file-input" 
+                className={`upload-label ${uploading ? 'disabled' : ''}`}
               >
-                <FaEdit />
-                <span>{showTemplate ? 'Hide Metadata' : 'Add Metadata'}</span>
-              </button>
-
-              {showTemplate && (
-                <div className="metadata-form">
-                  <div className="metadata-group">
-                    <label className="metadata-label">Title</label>
-                    <input
-                      type="text"
-                      name="title"
-                      value={formData.title}
-                      onChange={handleTemplateChange}
-                      placeholder="Enter title"
-                      className="metadata-input"
-                    />
-                  </div>
-
-                  <div className="metadata-group">
-                    <label className="metadata-label">Summary</label>
-                    <textarea
-                      name="summary"
-                      value={formData.summary}
-                      onChange={handleTemplateChange}
-                      placeholder="Enter a brief summary"
-                      className="metadata-textarea"
-                    />
-                  </div>
-
-                  <div className="metadata-group">
-                    <label className="metadata-label">Content</label>
-                    <textarea
-                      name="content"
-                      value={formData.content}
-                      onChange={handleTemplateChange}
-                      placeholder="Enter content"
-                      className="metadata-textarea"
-                    />
-                  </div>
-
-                  <div className="metadata-group">
-                    <label className="metadata-label">Tags</label>
-                    <input
-                      type="text"
-                      name="tags"
-                      value={formData.tags}
-                      onChange={handleTemplateChange}
-                      placeholder="Enter tags (comma separated)"
-                      className="metadata-input"
-                    />
-                  </div>
-
-                  <div className="metadata-group">
-                    <label className="metadata-label">AI Instructions</label>
-                    <textarea
-                      name="aiPrompt"
-                      value={formData.aiPrompt}
-                      onChange={handleTemplateChange}
-                      placeholder="Enter AI processing instructions"
-                      className="metadata-textarea"
-                    />
-                  </div>
-
-                  <div className="metadata-group">
-                    <label className="metadata-label">Visibility</label>
-                    <div className="visibility-options">
-                      <label className="visibility-option">
-                        <input
-                          type="radio"
-                          name="visibility"
-                          value="public"
-                          checked={formData.visibility === 'public'}
-                          onChange={handleTemplateChange}
-                        />
-                        <FaGlobe />
-                        <span>Public</span>
-                      </label>
-                      <label className="visibility-option">
-                        <input
-                          type="radio"
-                          name="visibility"
-                          value="private"
-                          checked={formData.visibility === 'private'}
-                          onChange={handleTemplateChange}
-                        />
-                        <FaLock />
-                        <span>Private</span>
-                      </label>
-                    </div>
-                  </div>
+                <div className="upload-placeholder">
+                  <span className="upload-icon">📁</span>
+                  <span>Choose files or drag them here</span>
+                  <span className="upload-limits">Max 5 files, up to 50MB each</span>
                 </div>
-              )}
-
-              {files.length > 0 && !uploading && (
-                <button 
-                  className="upload-button"
-                  onClick={handleUpload}
-                >
-                  Upload Files
-                </button>
-              )}
-
-              {uploading && (
-                <div className="upload-progress">
-                  <div className="progress-track">
-                    <div 
-                      className="progress-bar" 
-                      style={{ width: `${progress}%` }}
-                    >
-                      <div className="progress-glow"></div>
-                    </div>
-                  </div>
-                </div>
-              )}
+              </label>
             </div>
 
-            {error && (
-              <div className="upload-error">
-                <span className="error-icon">⚠️</span>
-                <span className="error-text">{error}</span>
+            {files.length > 0 && (
+              <div className="uploaded-files-bar">
+                <div className="uploaded-files-header">
+                  <h3>Selected Files</h3>
+                  <span className="file-count">{files.length} file(s)</span>
+                </div>
+                <div className="uploaded-files-list">
+                  {files.map((file, index) => (
+                    <div key={index} className="uploaded-file-item">
+                      <div className="file-item-info">
+                        <span className="file-item-icon">
+                          {file.type.startsWith('image/') ? '🖼️' : 
+                           file.type.startsWith('video/') ? '🎥' : 
+                           file.type.startsWith('audio/') ? '🎵' : '📄'}
+                        </span>
+                        <div className="file-item-details">
+                          <span className="file-item-name">{file.name}</span>
+                          <span className="file-item-size">{(file.size / (1024 * 1024)).toFixed(2)} MB</span>
+                        </div>
+                      </div>
+                      <button 
+                        className="file-item-remove"
+                        onClick={() => removeFile(index)}
+                        disabled={uploading}
+                      >
+                        <FaTimes />
+                      </button>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
 
-            {uploadResult && (
-              <div className="upload-success">
-                <div className="success-header">
-                  <span className="success-icon">✨</span>
-                  <h3>Upload Successful!</h3>
+            <button 
+              className="metadata-toggle"
+              onClick={() => setShowTemplate(!showTemplate)}
+            >
+              <FaEdit />
+              <span>{showTemplate ? 'Hide Metadata' : 'Add Metadata'}</span>
+            </button>
+
+            {showTemplate && (
+              <div className="metadata-form">
+                <div className="metadata-group">
+                  <label className="metadata-label">Title</label>
+                  <input
+                    type="text"
+                    name="title"
+                    value={formData.title}
+                    onChange={handleTemplateChange}
+                    placeholder="Enter title"
+                    className="metadata-input"
+                  />
                 </div>
-                
-                <div className="success-details">
-                  <div className="detail-row">
-                    <span className="detail-label">Post ID</span>
-                    <span className="detail-value">{uploadResult.postId}</span>
+
+                <div className="metadata-group">
+                  <label className="metadata-label">Summary</label>
+                  <textarea
+                    name="summary"
+                    value={formData.summary}
+                    onChange={handleTemplateChange}
+                    placeholder="Enter a brief summary"
+                    className="metadata-textarea"
+                  />
+                </div>
+
+                <div className="metadata-group">
+                  <label className="metadata-label">Content</label>
+                  <textarea
+                    name="content"
+                    value={formData.content}
+                    onChange={handleTemplateChange}
+                    placeholder="Enter content"
+                    className="metadata-textarea"
+                  />
+                </div>
+
+                <div className="metadata-group">
+                  <label className="metadata-label">Tags</label>
+                  <input
+                    type="text"
+                    name="tags"
+                    value={formData.tags}
+                    onChange={handleTemplateChange}
+                    placeholder="Enter tags (comma separated)"
+                    className="metadata-input"
+                  />
+                </div>
+
+                <div className="metadata-group">
+                  <label className="metadata-label">AI Instructions</label>
+                  <textarea
+                    name="aiPrompt"
+                    value={formData.aiPrompt}
+                    onChange={handleTemplateChange}
+                    placeholder="Enter AI processing instructions"
+                    className="metadata-textarea"
+                  />
+                </div>
+
+                <div className="metadata-group">
+                  <label className="metadata-label">Visibility</label>
+                  <div className="visibility-options">
+                    <label className="visibility-option">
+                      <input
+                        type="radio"
+                        name="visibility"
+                        value="public"
+                        checked={formData.visibility === 'public'}
+                        onChange={handleTemplateChange}
+                      />
+                      <FaGlobe />
+                      <span>Public</span>
+                    </label>
+                    <label className="visibility-option">
+                      <input
+                        type="radio"
+                        name="visibility"
+                        value="private"
+                        checked={formData.visibility === 'private'}
+                        onChange={handleTemplateChange}
+                      />
+                      <FaLock />
+                      <span>Private</span>
+                    </label>
                   </div>
-                  <div className="detail-row">
-                    <span className="detail-label">Message</span>
-                    <span className="detail-value">{uploadResult.message}</span>
-                  </div>
-                  <div className="detail-row">
-                    <span className="detail-label">Status</span>
-                    <span className="detail-value">{uploadResult.status}</span>
-                  </div>
-                  <div className="detail-row">
-                    <span className="detail-label">Timestamp</span>
-                    <span className="detail-value">{uploadResult.timestamp}</span>
+                </div>
+              </div>
+            )}
+
+            {files.length > 0 && !uploading && (
+              <button 
+                className="upload-button"
+                onClick={handleUpload}
+              >
+                Upload Files
+              </button>
+            )}
+
+            {uploading && (
+              <div className="upload-progress">
+                <div className="progress-track">
+                  <div 
+                    className="progress-bar" 
+                    style={{ width: `${progress}%` }}
+                  >
+                    <div className="progress-glow"></div>
                   </div>
                 </div>
               </div>
             )}
           </div>
-        )}
+
+          {error && (
+            <div className="upload-error">
+              <span className="error-icon">⚠️</span>
+              <span className="error-text">{error}</span>
+            </div>
+          )}
+
+          {uploadResult && (
+            <div className="upload-success">
+              <div className="success-header">
+                <span className="success-icon">✨</span>
+                <h3>Upload Successful!</h3>
+              </div>
+              
+              <div className="success-details">
+                <div className="detail-row">
+                  <span className="detail-label">Status</span>
+                  <span className="detail-value">{uploadResult.status}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">Message</span>
+                  <span className="detail-value">Submission successful, post will be visible in about 1 minute</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">Timestamp</span>
+                  <span className="detail-value">{uploadResult.timestamp}</span>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

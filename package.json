@@ -4,6 +4,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "vite",
+    "start": "node server.js",
     "build": "vite build",
     "preview": "vite preview",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -20,6 +21,7 @@
     "bs58": "^6.0.0",
     "buffer": "^6.0.3",
     "ethers": "^5.8.0",
+    "express": "^5.1.0",
     "framer-motion": "^12.5.0",
     "ipfs-http-client": "^60.0.1",
     "react": "^19.0.0",

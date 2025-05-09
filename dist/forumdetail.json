@@ -1,0 +1,32 @@
+{
+  "details": [
+    {
+      "id": 1,
+      "title": "Welcome to Chemical World!",
+      "author": "Sarah Williams",
+      "authorId": 1,
+      "authorAvatar": "S",
+      "content": "Welcome to chemical world, here you can learn how to construct experiments! As a chemistry enthusiast, I'm excited to share various chemical experiments and safety guidelines with you.\n\nKey Points:\n- Laboratory Safety Guidelines\n- Basic Chemical Reactions\n- Equipment Usage Guide\n\nJust like how catalysts accelerate chemical reactions, proper knowledge and techniques will accelerate your learning journey. Let's explore the fascinating world of chemistry together!\n\nRemember: Safety First!\n- Always wear protective gear\n- Follow proper procedures\n- Handle chemicals with care",
+      "timestamp": "2024-03-20T08:00:00Z",
+      "likes": 42,
+      "tags": ["welcome", "chemistry", "experiments"],
+      "media": "/images/photo1.png",
+      "mediaType": "image",
+      "relatedPosts": [2, 3, 4]
+    },
+    {
+      "id": 2,
+      "title": "Chemical Experiments Guide",
+      "author": "IPFSExpert",
+      "authorId": 2,
+      "authorAvatar": "I",
+      "content": "Today we'll dive deep into basic chemical experiments that are perfect for beginners. Like how molecules interact in specific ways, each experiment has its own unique characteristics and requirements.\n\nExperiment Details:\n1. Solution Preparation\n2. Titration Basics\n3. pH Testing\n\nSafety Equipment Required:\n- Safety goggles\n- Lab coat\n- Chemical-resistant gloves\n- Fume hood\n\nStep-by-step procedures will be demonstrated in the video. Remember to always follow proper safety protocols!",
+      "timestamp": "2024-03-19T10:30:00Z",
+      "likes": 38,
+      "tags": ["chemistry", "experiments", "tutorial"],
+      "media": "/videos/video1.mp4",
+      "mediaType": "video",
+      "relatedPosts": [1, 3, 5]
+    }
+  ]
+}

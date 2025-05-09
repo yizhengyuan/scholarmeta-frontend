@@ -1,0 +1,33 @@
+{
+  "posts": [
+    {
+      "id": 1,
+      "detailId": 1,
+      "title": "Welcome to Chemical World!",
+      "author": "Sarah Williams",
+      "content": "This is our first post about Web3 development...",
+      "timestamp": "2024-03-20T08:00:00Z",
+      "likes": 42,
+      "comments": 15,
+      "tags": ["welcome", "web3", "blockchain"],
+      "preview": "Welcome to chemical world, here you can learn how to construct experiemts...",
+      "media": "/images/photo1.png",
+      "mediaType": "image"
+    },
+    {
+      "id": 2,
+      "detailId": 2,
+      "title": "Chemical Experiemts Guide",
+      "author": "IPFSExpert",
+      "content": "A comprehensive guide to using IPFS for decentralized storage...",
+      "timestamp": "2024-03-19T10:30:00Z",
+      "likes": 38,
+      "comments": 23,
+      "tags": ["ipfs", "storage", "tutorial"],
+      "preview": "Learn how to use make chemical experiemts...",
+      "media": "/videos/video1.mp4",
+      "mediaType": "video",
+      "thumbnail": "/images/photo1.png"
+    }
+  ]
+}

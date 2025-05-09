@@ -1,0 +1,88 @@
+{
+  "authors": [
+    {
+      "id": 1,
+      "name": "Alex Chen",
+      "avatar": "A",
+      "role": "Blockchain Developer",
+      "bio": "Passionate about Web3 and decentralized systems. Building the future of finance.",
+      "joinDate": "2022-03-15",
+      "stats": {
+        "posts": 156,
+        "comments": 892,
+        "likes": 2341
+      },
+      "badges": ["Top Contributor", "Web3 Expert", "Community Leader"],
+      "expertise": ["Blockchain", "Smart Contracts", "DeFi", "Web3"],
+      "socialLinks": {
+        "twitter": "https://twitter.com/alexchen",
+        "github": "https://github.com/alexchen",
+        "linkedin": "https://linkedin.com/in/alexchen"
+      },
+      "recentActivities": [
+        {
+          "type": "post",
+          "title": "Understanding Zero-Knowledge Proofs",
+          "timestamp": "2024-03-10T08:30:00Z"
+        },
+        {
+          "type": "comment",
+          "postTitle": "The Future of DeFi",
+          "timestamp": "2024-03-09T15:20:00Z"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Sarah Williams",
+      "avatar": "S",
+      "role": "Crypto Analyst",
+      "bio": "Research analyst focusing on crypto markets and DeFi protocols. Love sharing insights with the community.",
+      "joinDate": "2022-05-20",
+      "stats": {
+        "posts": 98,
+        "comments": 445,
+        "likes": 1876
+      },
+      "badges": ["Market Analyst", "DeFi Specialist"],
+      "expertise": ["Market Analysis", "DeFi", "Trading", "Tokenomics"],
+      "socialLinks": {
+        "twitter": "https://twitter.com/sarahw",
+        "linkedin": "https://linkedin.com/in/sarahw"
+      },
+      "recentActivities": [
+        {
+          "type": "post",
+          "title": "Q1 2024 DeFi Market Analysis",
+          "timestamp": "2024-03-08T10:15:00Z"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Michael Zhang",
+      "avatar": "M",
+      "role": "Smart Contract Developer",
+      "bio": "Solidity developer with a focus on security and optimization. Contributing to make Web3 safer.",
+      "joinDate": "2022-08-10",
+      "stats": {
+        "posts": 67,
+        "comments": 234,
+        "likes": 890
+      },
+      "badges": ["Security Expert", "Code Reviewer"],
+      "expertise": ["Solidity", "Smart Contracts", "Security Auditing"],
+      "socialLinks": {
+        "github": "https://github.com/mzhang",
+        "linkedin": "https://linkedin.com/in/mzhang"
+      },
+      "recentActivities": [
+        {
+          "type": "post",
+          "title": "Common Smart Contract Vulnerabilities",
+          "timestamp": "2024-03-07T14:45:00Z"
+        }
+      ]
+    }
+  ]
+}

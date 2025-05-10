@@ -1,24 +1,36 @@
-import React, { useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useRef, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { FaSearch, FaFileUpload, FaRobot, FaCoins, FaUsers, FaComments, FaGraduationCap } from 'react-icons/fa';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import './HomePage.css';
 
 function HomePage() {
   const particlesRef = useRef(null);
-  
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isFocused, setIsFocused] = useState(false);
+  const navigate = useNavigate();
+  const placeholderRef = useRef("Search academic topics, tags, or authors");
+
+  // Handle search submission
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    if (searchTerm.trim()) {
+      // Navigate to forum page with search parameter
+      navigate(`/forum?search=${encodeURIComponent(searchTerm.trim())}`);
+    }
+  };
+
   useEffect(() => {
-    // 添加这行来重置滚动位置
     window.scrollTo(0, 0);
     
-    // 初始化 AOS
     AOS.init({
       duration: 1000,
       once: true,
       offset: 100,
     });
 
-    // 粒子背景效果
+    // Particle animation effect
     const canvas = particlesRef.current;
     const ctx = canvas.getContext('2d');
     let particles = [];
@@ -59,14 +71,18 @@ function HomePage() {
       }
     }
     
-    const createParticles = () => {
+    const init = () => {
+      particles = [];
       const particleCount = Math.floor((canvas.width * canvas.height) / 15000);
       for (let i = 0; i < particleCount; i++) {
         particles.push(new Particle());
       }
     };
     
-    const connectParticles = () => {
+    const animate = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Add connection lines effect
       const maxDistance = 150;
       for (let i = 0; i < particles.length; i++) {
         for (let j = i; j < particles.length; j++) {
@@ -85,112 +101,157 @@ function HomePage() {
           }
         }
       }
-    };
-    
-    const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
       
-      for (let i = 0; i < particles.length; i++) {
-        particles[i].update();
-        particles[i].draw();
-      }
+      // Update and draw particles
+      particles.forEach(particle => {
+        particle.update();
+        particle.draw();
+      });
       
-      connectParticles();
       requestAnimationFrame(animate);
     };
     
-    createParticles();
+    init();
     animate();
-    
+
     return () => {
       window.removeEventListener('resize', resizeCanvas);
-      particles = [];
     };
   }, []);
 
   return (
-    <div className="home-page">
-      <canvas ref={particlesRef} className="particles-bg"></canvas>
-      <div className="home-content">
-        <div className="hero-section">
-          <div className="hero-content">
-            <h1 className="gradient-text">Web3 File Upload & Token Application</h1>
-            <p className="hero-description">Explore the infinite possibilities of blockchain, securely store files and manage your digital assets</p>
-            <div className="hero-buttons">
-              <Link to="/upload" className="primary-button">
-                <span className="button-icon">📤</span>
-                <span className="button-text">Upload Files</span>
-              </Link>
-              <Link to="/token" className="secondary-button">
-                <span className="button-icon">💰</span>
-                <span className="button-text">Get Tokens</span>
-              </Link>
+    <div className="sm-home-page">
+      <canvas ref={particlesRef} className="sm-particles-bg"></canvas>
+      
+      <section className="sm-hero-section">
+        <div className="sm-hero-content" data-aos="fade-up">
+          <h1 className="sm-main-title">ScholarMeta</h1>
+          <p className="sm-tagline">Connecting Academic Thoughts, Tokenizing Research Insights</p>
+          <div className="sm-slogan-container">
+            <div className="sm-slogan" data-aos="fade-up" data-aos-delay="100">
+              Science Without Boundaries, Value Unlocked
+            </div>
+            <div className="sm-slogan" data-aos="fade-up" data-aos-delay="200">
+              Share, Like, Earn, Repeat
             </div>
           </div>
           
-          <div className="hero-image">
-            <div className="cube-wrapper">
-              <div className="cube">
-                <div className="cube-face front"></div>
-                <div className="cube-face back"></div>
-                <div className="cube-face right"></div>
-                <div className="cube-face left"></div>
-                <div className="cube-face top"></div>
-                <div className="cube-face bottom"></div>
+          {/* Redesigned search box */}
+          <form className="sm-search-container" onSubmit={handleSearchSubmit} data-aos="fade-up" data-aos-delay="300">
+            <div className="sm-search-box">
+              <FaSearch className="sm-search-icon" />
+              <div className="sm-search-input-wrapper">
+                {!searchTerm && !isFocused && (
+                  <div className="sm-search-placeholder">
+                    <span>{placeholderRef.current}</span>
+                    <span className="sm-search-cursor"></span>
+                  </div>
+                )}
+                <input 
+                  type="text" 
+                  placeholder=""
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onFocus={() => setIsFocused(true)}
+                  onBlur={() => setIsFocused(false)}
+                  className="sm-search-input"
+                />
               </div>
+              <button type="submit" className="sm-search-btn">
+                Explore
+              </button>
             </div>
+          </form>
+          
+        </div>
+      </section>
+
+      <section className="sm-about-section">
+        <div className="sm-about-content" data-aos="fade-right">
+          <h2 className="sm-section-title">About ScholarMeta</h2>
+          <p className="sm-about-text">
+            ScholarMeta is a revolutionary academic exchange platform that combines traditional research with Web3 technology. We are committed to creating a decentralized scientific discovery ecosystem where researchers can safely share, discuss, and receive value rewards for their contributions.
+          </p>
+          <p className="sm-about-text">
+            At ScholarMeta, "Scholar" represents academic research, experiments, discoveries, and the global researcher community; "Meta" symbolizes the metadata layer that transcends tradition, connecting scientific knowledge with value networks.
+          </p>
+          <p className="sm-about-text">
+            Our platform provides:
+          </p>
+          <ul className="sm-about-list">
+            <li>Networked interaction, collaboration, and contribution space between researchers</li>
+            <li>Token-based reward ecosystem where valuable contributions (ideas, experiment videos, insights) are validated and incentivized</li>
+            <li>AI-driven content analysis to improve research efficiency and discovery capabilities</li>
+          </ul>
+        </div>
+        <div className="sm-about-image" data-aos="fade-left">
+          <div className="sm-image-placeholder">
+            <FaGraduationCap className="sm-placeholder-icon" />
           </div>
         </div>
-        
-        <div className="features-section">
-          <h2 className="section-title">Explore Features</h2>
-          <div className="features-grid">
-            <div className="feature-card" data-aos="fade-up">
-              <div className="feature-icon">🔐</div>
-              <h3>Decentralized Storage</h3>
-              <p>Store your files securely on the IPFS network, ensuring data permanence and censorship resistance.</p>
+      </section>
+
+      <section className="sm-features-section">
+        <h2 className="sm-section-title" data-aos="fade-up">Platform Features</h2>
+        <div className="sm-features-grid">
+          <div className="sm-feature-card" data-aos="fade-up" data-aos-delay="100">
+            <div className="sm-feature-icon">
+              <FaCoins />
             </div>
-            <div className="feature-card" data-aos="fade-up" data-aos-delay="100">
-              <div className="feature-icon">💎</div>
-              <h3>Token Management</h3>
-              <p>Easily manage your tokens, supporting multiple token types and cross-chain operations.</p>
+            <h3>Token Reward Mechanism</h3>
+            <p>Earn token rewards by uploading high-quality research materials, incentivizing knowledge sharing and innovation</p>
+          </div>
+          
+          <div className="sm-feature-card" data-aos="fade-up" data-aos-delay="200">
+            <div className="sm-feature-icon">
+              <FaRobot />
             </div>
-            <div className="feature-card" data-aos="fade-up" data-aos-delay="200">
-              <div className="feature-icon">🛡️</div>
-              <h3>Secure & Reliable</h3>
-              <p>Based on blockchain technology, ensuring the security of your data and assets.</p>
+            <h3>AI Content Generation</h3>
+            <p>Artificial intelligence automatically parses research files, generates discussion topics, and improves research efficiency</p>
+          </div>
+          
+          <div className="sm-feature-card" data-aos="fade-up" data-aos-delay="300">
+            <div className="sm-feature-icon">
+              <FaUsers />
             </div>
-            <div className="feature-card" data-aos="fade-up" data-aos-delay="300">
-              <div className="feature-icon">🚀</div>
-              <h3>User Friendly</h3>
-              <p>Clean and intuitive interface design makes blockchain technology simple to use.</p>
+            <h3>Academic Community</h3>
+            <p>Connect global researchers, promoting interdisciplinary exchange and collaboration</p>
+          </div>
+          
+          <div className="sm-feature-card" data-aos="fade-up" data-aos-delay="400">
+            <div className="sm-feature-icon">
+              <FaComments />
             </div>
+            <h3>Open Discussion</h3>
+            <p>Open and transparent research discussion environment, promoting peer review and knowledge validation</p>
           </div>
         </div>
-        
-        <div className="stats-section">
-          <div className="stat-item">
-            <div className="stat-number">25,431</div>
-            <div className="stat-label">Active Users</div>
-          </div>
-          <div className="stat-item">
-            <div className="stat-number">157,892</div>
-            <div className="stat-label">Stored Files</div>
-          </div>
-          <div className="stat-item">
-            <div className="stat-number">1,892,456</div>
-            <div className="stat-label">Total Transactions</div>
-          </div>
+      </section>
+
+      <section className="sm-stats-section" data-aos="fade-up">
+        <div className="sm-stat-item">
+          <span className="sm-stat-number">10K+</span>
+          <span className="sm-stat-label">Researchers</span>
         </div>
-        
-        <div className="cta-section">
-          <div className="cta-content">
-            <h2>Ready to Start Your Web3 Journey?</h2>
-            <p>Connect your wallet now and experience the magic of decentralized applications</p>
-            <Link to="/upload" className="cta-button">Get Started</Link>
-          </div>
+        <div className="sm-stat-item">
+          <span className="sm-stat-number">5K+</span>
+          <span className="sm-stat-label">Research Outputs</span>
         </div>
-      </div>
+        <div className="sm-stat-item">
+          <span className="sm-stat-number">25K+</span>
+          <span className="sm-stat-label">Discussions</span>
+        </div>
+        <div className="sm-stat-item">
+          <span className="sm-stat-number">100K+</span>
+          <span className="sm-stat-label">Tokens Distributed</span>
+        </div>
+      </section>
+
+      <section className="sm-cta-section" data-aos="zoom-in">
+        <h2 className="sm-cta-title">Join the Future of Academic Innovation</h2>
+        <p className="sm-cta-text">Upload your research, participate in discussions, earn token rewards</p>
+        <Link to="/register" className="sm-cta-button">Register Now</Link>
+      </section>
     </div>
   );
 }

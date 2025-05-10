@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import './ForumPage.css';
 import ForumGrid from '../../components/ForumGrid';
 import AOS from 'aos';
@@ -7,6 +8,7 @@ import { FaSearch, FaFire, FaClock, FaSortAmountDown, FaSortAmountUp } from 'rea
 import { mediaAPI } from '../../router'; // 导入 mediaAPI
 
 function ForumPage() {
+  const location = useLocation();
   const particlesRef = useRef(null);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -15,6 +17,15 @@ function ForumPage() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // 从 URL 参数中获取搜索词
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const searchParam = params.get('search');
+    if (searchParam) {
+      setSearchTerm(searchParam);
+    }
+  }, [location.search]);
 
   useEffect(() => {
     // 只在初始加载时重置滚动位置

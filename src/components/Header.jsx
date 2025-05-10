@@ -28,7 +28,7 @@ function Header() {
   return (
     <header className="header-nav">
       <div className="header-logo">
-        <Link to="/" className="header-logo-link">Web3 App</Link>
+        <Link to="/" className="header-logo-link">ScholarMeta</Link>
       </div>
       <nav className="header-menu">
         <ul>

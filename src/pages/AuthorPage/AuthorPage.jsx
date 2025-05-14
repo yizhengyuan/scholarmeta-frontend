@@ -155,8 +155,14 @@ function AuthorPage() {
     const fetchAuthorData = async () => {
       try {
         setLoading(true);
+        // 添加调试信息
+        console.log('正在获取作者信息，作者ID:', id);
+        console.log('请求头信息:', { 'User_ID': id });
+        
         // 使用真实 API 获取作者数据
         const response = await authAPI.getPersonInformation(id);
+        
+        console.log('获取到的作者数据:', response);
         
         // 将后端数据映射到组件所需的格式
         const authorData = {
@@ -200,6 +206,7 @@ function AuthorPage() {
         setLoading(false);
       } catch (err) {
         console.error('Failed to load author data:', err);
+        console.log('错误详情:', err.response ? err.response.data : err.message);
         
         // 检查是否是 401 Unauthorized 错误
         if (

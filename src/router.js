@@ -2,7 +2,9 @@ import axios from 'axios';
 
 // 使用相对路径，通过代理访问 API
 const api = axios.create({
-  baseURL: '/api/v1',  // 修改为相对路径，会被代理到 https://47.80.10.180/api/v1
+  baseURL: process.env.NODE_ENV === 'production' 
+    ? '/api/v1'  // 生产环境使用相对路径，由 Nginx 代理
+    : '/api/v1',  // 开发环境也使用相对路径，由 Vite 代理
   timeout: 30000,
   headers: {
     'Content-Type': 'application/x-www-form-urlencoded',
@@ -228,11 +230,7 @@ export const authAPI = {
 
   // 获取用户个人信息
   getPersonInformation: async (userId) => {
-    return api.get(`/auth/person_information`, {
-      headers: {
-        'User_ID': userId
-      }
-    });
+    return api.get(`/auth/person_information?user_id=${userId}`);
   },
 };
 

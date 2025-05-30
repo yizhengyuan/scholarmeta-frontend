@@ -7,6 +7,7 @@
   color: #ffffff;
   overflow: hidden;
   margin-top: 30px; /* 减少顶部边距 */
+  width: 100%;
 }
 
 .sm-particles-bg {
@@ -35,8 +36,9 @@
 
 .sm-hero-content {
   width: 100%;
-  max-width: 100%;
-  padding: 2rem 2rem; /* 减少内边距 */
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem; /* 减少内边距 */
 }
 
 .sm-main-title {
@@ -129,6 +131,7 @@
   position: relative;
   z-index: 1;
   padding: 3rem 2rem; /* 减少内边距 */
+  width: 100%;
 }
 
 .sm-section-title {
@@ -158,8 +161,9 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 1.5rem; /* 减少间距 */
-  max-width: 1400px;
+  max-width: 1600px;
   margin: 0 auto;
+  width: 100%;
 }
 
 .sm-feature-card {
@@ -206,8 +210,9 @@
   display: flex;
   flex-wrap: wrap;
   gap: 2rem;
-  max-width: 1400px;
+  max-width: 1600px;
   margin: 0 auto;
+  width: 100%;
 }
 
 .sm-about-content {
@@ -276,8 +281,9 @@
   justify-content: space-around;
   flex-wrap: wrap;
   gap: 2rem; /* 减少间距 */
-  max-width: 1400px;
+  max-width: 1600px;
   margin: 0 auto;
+  width: 100%;
 }
 
 .sm-stat-item {
@@ -307,6 +313,9 @@
   z-index: 1;
   padding: 3rem 2rem; /* 减少内边距 */
   text-align: center;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
 }
 
 .sm-cta-title {
@@ -345,7 +354,7 @@
 /* 修改搜索框样式，添加焦点状态处理 */
 .sm-search-container {
   width: 100%;
-  max-width: 800px;
+  max-width: 1000px;
   margin: 0 auto 2rem auto;
 }
 

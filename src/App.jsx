@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, useLocation } from 'react-router-dom'
 import './App.css'
 import ErrorBoundary from './components/public_base_component/ErrorBoundary'
 import ResponsiveWrapper from './components/public_base_component/ResponsiveWrapper'
@@ -7,6 +7,7 @@ import Loading from './components/public_base_component/loading'
 
 // 导入页面
 import HomePage from './pages/HomePage/HomePage'
+import AcademicHomePage from './pages/AcademicHomePage/AcademicHomePage'
 import UploadPage from './pages/UploadPage/UploadPage'
 import TokenPage from './pages/TokenPage/TokenPage'
 import ForumPage from './pages/ForumPage/ForumPage'
@@ -19,6 +20,9 @@ import Header from './components/Header'
 import Footer from './components/Footer'
 
 function App() {
+  const location = useLocation()
+  const isAcademicPage = location.pathname === '/academic'
+
   return (
     <ErrorBoundary>
       <ResponsiveWrapper>
@@ -29,6 +33,7 @@ function App() {
               <Suspense fallback={<Loading />}>
                 <Routes>
                   <Route path="/" element={<HomePage />} />
+                  <Route path="/academic" element={<AcademicHomePage />} />
                   <Route path="/upload" element={<UploadPage />} />
                   <Route path="/token" element={<TokenPage />} />
                   <Route path="/forum" element={<ForumPage />} />
@@ -38,7 +43,7 @@ function App() {
                 </Routes>
               </Suspense>
             </main>
-            <Footer />
+            {!isAcademicPage && <Footer />}
           </div>
         </div>
       </ResponsiveWrapper>

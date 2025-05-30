@@ -16,7 +16,7 @@
   }
   
   .responsive-wrapper.mobile .main-content {
-    max-width: 100%;
+    width: 100%;
     padding: 40px 10px 0; /* 修改 padding，保持顶部间距 */
   }
   
@@ -34,7 +34,7 @@
   }
   
   .responsive-wrapper.tablet .main-content {
-    max-width: 100%;
+    width: 100%;
     padding: 40px 20px 0; /* 修改 padding，保持顶部间距 */
   }
   
@@ -44,8 +44,8 @@
   }
   
   .responsive-wrapper.desktop .main-content {
-    max-width: 1200px;
-    margin: 0 auto;
+    width: 100%;
+    margin: 0;
     padding: 40px 20px 0; /* 修改 padding，保持顶部间距 */
   }
   
